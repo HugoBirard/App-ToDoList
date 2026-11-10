@@ -23,6 +23,11 @@ import {
   clearCompleted 
 } from './components/tasks.js';
 import { 
+  initSyncUI, 
+  initAutoSyncWatcher, 
+  fetchStorageInfo 
+} from './components/sync.js';
+import { 
   openAddFolderModal, 
   closeFolderModal, 
   handleFolderSubmit, 
@@ -48,6 +53,8 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadData();
+  initSyncUI(loadData);
+  initAutoSyncWatcher(loadData);
   setupEventListeners();
 });
 

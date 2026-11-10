@@ -5,12 +5,14 @@ Gère les tables, clés étrangères et migrations de schéma automatiques.
 
 import os
 import sqlite3
-from .config import DATA_DIR, DB_PATH
+from .config import DATA_DIR, DB_PATH, get_current_db_path
 
 
-def get_connection(db_path=DB_PATH):
+def get_connection(db_path=None):
     """Retourne une connexion SQLite configurée avec accès par nom de colonne et mode WAL concurrent."""
-    conn = sqlite3.connect(db_path, timeout=30.0)
+    target_path = db_path or get_current_db_path()
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    conn = sqlite3.connect(target_path, timeout=30.0)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 30000")
@@ -18,10 +20,11 @@ def get_connection(db_path=DB_PATH):
     return conn
 
 
-def init_db(db_path=DB_PATH):
+def init_db(db_path=None):
     """Initialise le schéma de la base et applique les migrations si nécessaire."""
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = get_connection(db_path)
+    target_path = db_path or get_current_db_path()
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    conn = get_connection(target_path)
     cursor = conn.cursor()
 
     # Table des dossiers

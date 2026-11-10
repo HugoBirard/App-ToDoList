@@ -462,7 +462,21 @@
         </button>
       </div>
       
+      <!-- Navigation par Onglets -->
+      <div class="modal-tab-bar">
+        <button type="button" class="modal-tab active" id="modal-tab-btn-appearance">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          Apparence & Fond
+        </button>
+        <button type="button" class="modal-tab" id="modal-tab-btn-sync">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Liaison PC & Synchro
+        </button>
+      </div>
+      
       <div class="theme-modal-body">
+        <!-- ONGLET 1 : APPARENCE & FOND -->
+        <div id="tab-pane-appearance" class="tab-pane active">
         <!-- Thèmes Pro Prédéfinis -->
         <div class="form-group">
           <label>Styles professionnels recommandés</label>
@@ -574,6 +588,107 @@
 
           <div class="bg-preview-box" id="main-bg-preview" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%); margin-top: 12px;">
             Aperçu en direct
+          </div>
+        </div>
+        </div>
+
+        <!-- ONGLET 2 : LIAISON MULTI-PC & SYNCHRONISATION -->
+        <div id="tab-pane-sync" class="tab-pane hidden">
+          <div class="sync-intro-banner">
+            <span class="sync-intro-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
+            <div class="sync-intro-text">
+              <strong>Synchronisez vos listes entre plusieurs PC</strong> : Placez votre fichier de base de données dans un dossier partagé (ex : <em>Nextcloud</em>, <em>Dropbox</em>, <em>Syncthing</em>, <em>Google Drive</em> ou partage réseau <em>SMB/NFS</em>). Tous vos ordinateurs partageront automatiquement les mêmes tâches et dossiers en temps réel.
+            </div>
+          </div>
+
+          <!-- Carte d'état actuel du stockage -->
+          <div class="sync-card">
+            <div class="sync-card-header">
+              <span class="sync-card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Emplacement de stockage actif
+              </span>
+              <span id="sync-status-badge" class="sync-badge local">Local</span>
+            </div>
+
+            <div class="sync-path-display">
+              <span id="sync-current-path-text">Chargement...</span>
+              <button type="button" id="sync-copy-path-btn" class="sync-copy-btn" title="Copier le chemin">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+
+            <div class="sync-stats-row">
+              <span id="sync-stat-tasks">0 tâche(s)</span>
+              <span>•</span>
+              <span id="sync-stat-folders">0 dossier(s)</span>
+              <span>•</span>
+              <span id="sync-stat-size">0 Ko</span>
+              <span>•</span>
+              <span id="sync-stat-mtime">Modifié récemment</span>
+            </div>
+          </div>
+
+          <!-- Formulaire de changement d'emplacement partagé -->
+          <div class="form-group">
+            <label for="sync-path-input">Choisir ou connecter un dossier partagé / cloud</label>
+            <div class="sync-input-group">
+              <input 
+                type="text" 
+                id="sync-path-input" 
+                placeholder="Ex : ~/Nextcloud/ToDoList/todolist.db ou /mnt/partage/todolist.db" 
+                autocomplete="off"
+                spellcheck="false"
+              >
+              <button type="button" id="sync-browse-btn" class="btn btn-secondary" title="Parcourir vos dossiers...">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Parcourir...
+              </button>
+            </div>
+
+            <span class="sync-chips-label">Raccourcis rapides :</span>
+            <div class="sync-chips">
+              <button type="button" class="sync-chip" data-path="~/Nextcloud/ToDoList/todolist.db">Nextcloud</button>
+              <button type="button" class="sync-chip" data-path="~/Dropbox/ToDoList/todolist.db">Dropbox</button>
+              <button type="button" class="sync-chip" data-path="~/Syncthing/ToDoList/todolist.db">Syncthing</button>
+              <button type="button" class="sync-chip" data-path="~/Documents/ToDoList/todolist.db">Documents</button>
+            </div>
+
+            <div class="sync-actions-row">
+              <button type="button" id="sync-connect-btn" class="btn btn-primary" title="Utiliser un fichier existant déjà partagé">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Connecter cette base
+              </button>
+              <button type="button" id="sync-migrate-btn" class="btn btn-secondary" title="Copier vos listes actuelles vers ce nouvel emplacement">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>
+                Déplacer mes données ici
+              </button>
+              <button type="button" id="sync-reset-default-btn" class="btn btn-secondary" title="Revenir au stockage local par défaut">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Remettre à zéro
+              </button>
+            </div>
+          </div>
+
+          <hr class="separator" style="margin: 20px 0;">
+
+          <!-- Section Sauvegardes & Imports -->
+          <div class="form-group">
+            <label>Sauvegarde & Restauration manuelle</label>
+            <p class="subtitle" style="margin-top: 4px; font-size: 0.82rem;">Exportez vos listes sous forme de fichier JSON ou restaurez-les à tout moment.</p>
+            <div class="sync-backup-grid">
+              <button type="button" id="sync-export-json-btn" class="sync-backup-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger une sauvegarde (JSON)
+              </button>
+              <button type="button" id="sync-import-json-btn" class="sync-backup-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Importer / Restaurer un fichier
+              </button>
+              <input type="file" id="sync-file-picker" accept=".json" class="hidden">
+            </div>
           </div>
         </div>
       </div>

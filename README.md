@@ -75,6 +75,15 @@ L'application orchestre un lancement fenêtré avec un système de fallback à 4
 - Base relationnelle locale stockée dans `data/todolist.db`.
 - Activation explicite des clés étrangères (`PRAGMA foreign_keys = ON`) avec suppression en cascade.
 - **Système de migrations automatiques non destructives** au démarrage de l'application (ajout dynamique des colonnes manquantes sans risque de perte de données).
+- **Mode WAL (*Write-Ahead Logging*)** : Concurrence multi-processus fluide sans blocage de base.
+
+### 8. 🌐 Synchronisation Multi-PC & Partage Cloud
+- **Partagez facilement vos listes entre plusieurs PC** en sélectionnant un dossier synchronisé (Nextcloud, Dropbox, Syncthing, Google Drive ou partage réseau SMB/NFS).
+- Configuration simplifiée dans **Options & Paramètres > Liaison PC & Synchro** :
+  - **Connecter** une base partagée existante (pour le 2ème PC).
+  - **Déplacer** vos listes actuelles vers le dossier partagé (pour le 1er PC).
+  - **Surveillance automatique en direct** : Toute modification apportée sur un autre PC est détectée et rafraîchie à l'écran automatiquement.
+  - **Sauvegardes manuelles** : Export et Import / Restauration de fichiers de sauvegarde JSON.
 
 ---
 

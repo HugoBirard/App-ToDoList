@@ -144,6 +144,32 @@ class HandlersTestCase(unittest.TestCase):
         self.assertEqual(status, 201)
         self.assertEqual(task["title"], payload)
 
+    def test_storage_and_sync_endpoints(self):
+        # GET /api/sync/status
+        status, info = self._request("GET", "/api/sync/status")
+        self.assertEqual(status, 200)
+        self.assertIn("current_db_path", info)
+        self.assertTrue(info["file_exists"])
+
+        # GET /api/sync/check-updates
+        status, upd = self._request("GET", "/api/sync/check-updates")
+        self.assertEqual(status, 200)
+        self.assertIn("last_modified", upd)
+
+        # GET /api/storage/export
+        status, export = self._request("GET", "/api/storage/export")
+        self.assertEqual(status, 200)
+        self.assertEqual(export["app"], "ToDoList")
+        self.assertIn("data", export)
+
+        # POST /api/storage/import
+        status, imported = self._request("POST", "/api/storage/import", {
+            "mode": "merge",
+            "data": export["data"]
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(imported.get("success"))
+
 
 if __name__ == "__main__":
     unittest.main()

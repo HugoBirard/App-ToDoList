@@ -3,8 +3,11 @@ Service métier de gestion des dossiers, tâches et réglages.
 Contient toute la logique métier (réinitialisation hebdomadaire, calcul de complétion, etc.).
 """
 
+import os
+import shutil
 from datetime import datetime, timedelta
-from .database import get_connection
+from .config import DEFAULT_DB_PATH, get_current_db_path, load_local_config, save_local_config
+from .database import get_connection, init_db
 
 
 def _safe_int(val, default=0, min_val=None, max_val=None):
@@ -330,3 +333,202 @@ class TodoService:
         settings = {row["key"]: row["value"] for row in cursor.fetchall()}
         conn.close()
         return settings
+
+    # --- Synchronisation & Multi-PC ---
+
+    def get_active_db_path(self):
+        """Retourne le chemin absolu de la base de données active."""
+        return self.db_path or get_current_db_path()
+
+    def get_storage_info(self):
+        """Retourne les informations sur l'emplacement actuel de stockage."""
+        active_path = self.get_active_db_path()
+        file_exists = os.path.exists(active_path)
+        file_size = os.path.getsize(active_path) if file_exists else 0
+        last_modified = os.path.getmtime(active_path) if file_exists else 0
+
+        task_count = 0
+        folder_count = 0
+        try:
+            conn = self._conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM tasks")
+            task_count = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM folders")
+            folder_count = cursor.fetchone()[0]
+            conn.close()
+        except Exception:
+            pass
+
+        return {
+            "current_db_path": active_path,
+            "default_db_path": DEFAULT_DB_PATH,
+            "is_custom": os.path.abspath(active_path) != os.path.abspath(DEFAULT_DB_PATH),
+            "file_exists": file_exists,
+            "file_size": file_size,
+            "last_modified": last_modified,
+            "task_count": task_count,
+            "folder_count": folder_count
+        }
+
+    def change_storage_path(self, target_path, action="connect"):
+        """Change l'emplacement de stockage de la base SQLite pour synchronisation multi-PC."""
+        if action == "reset":
+            cfg = load_local_config()
+            cfg.pop("custom_db_path", None)
+            save_local_config(cfg)
+            self.db_path = None
+            init_db(DEFAULT_DB_PATH)
+            return {"success": True, "info": self.get_storage_info()}
+
+        if not target_path or not isinstance(target_path, str) or not target_path.strip():
+            raise ValueError("Le chemin cible est invalide ou vide.")
+
+        target_path = os.path.abspath(os.path.expanduser(target_path.strip()))
+        if os.path.isdir(target_path) or not target_path.endswith(".db"):
+            target_path = os.path.join(target_path, "todolist.db")
+
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        current_path = self.get_active_db_path()
+
+        if action == "migrate":
+            if os.path.exists(current_path) and os.path.abspath(current_path) != os.path.abspath(target_path):
+                # Checkpoint du WAL pour s'assurer que toutes les données sont bien dans le fichier principal
+                try:
+                    conn = self._conn()
+                    conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                    conn.close()
+                except Exception:
+                    pass
+                shutil.copy2(current_path, target_path)
+
+        # Initialiser ou valider le schéma sur le nouvel emplacement
+        init_db(target_path)
+
+        # Sauvegarder la nouvelle configuration sur cette machine
+        cfg = load_local_config()
+        cfg["custom_db_path"] = target_path
+        save_local_config(cfg)
+        self.db_path = target_path
+
+        return {"success": True, "info": self.get_storage_info()}
+
+    def check_updates(self):
+        """Vérifie rapidement si la base de données a été modifiée par un autre PC."""
+        active_path = self.get_active_db_path()
+        last_modified = os.path.getmtime(active_path) if os.path.exists(active_path) else 0
+        task_count = 0
+        folder_count = 0
+        try:
+            conn = self._conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM tasks")
+            task_count = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM folders")
+            folder_count = cursor.fetchone()[0]
+            conn.close()
+        except Exception:
+            pass
+
+        return {
+            "last_modified": last_modified,
+            "task_count": task_count,
+            "folder_count": folder_count
+        }
+
+    def export_backup(self):
+        """Exporte l'intégralité des données en dictionnaire JSON structuré."""
+        data = self.get_all_data()
+        return {
+            "app": "ToDoList",
+            "version": "1.0.0",
+            "exported_at": datetime.now().isoformat(),
+            "data": data
+        }
+
+    def import_backup(self, payload, mode="merge"):
+        """Importe des données depuis un JSON avec option de fusion ou remplacement."""
+        backup_data = payload.get("data", payload)
+        folders = backup_data.get("folders", [])
+        tasks = backup_data.get("tasks", [])
+        settings = backup_data.get("settings", {})
+
+        conn = self._conn()
+        cursor = conn.cursor()
+
+        if mode == "replace":
+            cursor.execute("DELETE FROM tasks")
+            cursor.execute("DELETE FROM folders")
+
+        # Map d'anciens folder_id vers nouveaux IDs si fusion
+        folder_id_map = {}
+        for f in folders:
+            name = (f.get("name") or "Dossier importé").strip()[:100]
+            icon = str(f.get("icon") or "folder")[:50]
+            color = str(f.get("color") or "#4f46e5")[:20]
+            auto_reset_weekly = 1 if f.get("auto_reset_weekly") else 0
+            bg_type = str(f.get("bg_type", "default"))[:30]
+            bg_color1 = str(f.get("bg_color1", ""))[:50]
+            bg_color2 = str(f.get("bg_color2", ""))[:50]
+            bg_angle = _safe_int(f.get("bg_angle", 135), default=135, min_val=0, max_val=360)
+
+            # En mode fusion, si un dossier de même nom existe, le réutiliser
+            existing_id = None
+            if mode == "merge":
+                cursor.execute("SELECT id FROM folders WHERE name = ?", (name,))
+                row = cursor.fetchone()
+                if row:
+                    existing_id = row["id"]
+
+            if existing_id is not None:
+                folder_id_map[f.get("id")] = existing_id
+            else:
+                cursor.execute(
+                    """INSERT INTO folders (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle)
+                )
+                new_fid = cursor.lastrowid
+                folder_id_map[f.get("id")] = new_fid
+
+        # Obtenir un premier dossier valide par défaut pour les tâches orphelines
+        cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+        first_row = cursor.fetchone()
+        default_folder_id = first_row["id"] if first_row else None
+
+        for t in tasks:
+            title = str(t.get("title") or "").strip()[:500]
+            if not title:
+                continue
+
+            old_fid = t.get("folder_id")
+            new_fid = folder_id_map.get(old_fid, default_folder_id)
+            completed = 1 if t.get("completed") else 0
+            has_progress = 1 if t.get("has_progress") else 0
+            progress = _safe_int(t.get("progress", 0), default=0, min_val=0, max_val=100)
+            priority = str(t.get("priority", "normal"))[:20]
+            due_date = str(t.get("due_date"))[:30] if t.get("due_date") else None
+
+            # Si merge, vérifier si tâche identique existe déjà
+            if mode == "merge":
+                cursor.execute(
+                    "SELECT id FROM tasks WHERE title = ? AND folder_id = ?",
+                    (title, new_fid)
+                )
+                if cursor.fetchone():
+                    continue
+
+            cursor.execute(
+                """INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority, due_date) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (new_fid, title, completed, has_progress, progress, priority, due_date)
+            )
+
+        # Réglages
+        if isinstance(settings, dict):
+            for k, v in settings.items():
+                cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (str(k), str(v)))
+
+        conn.commit()
+        conn.close()
+        return self.get_all_data()

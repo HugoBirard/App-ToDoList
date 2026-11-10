@@ -4,6 +4,8 @@ Lie les requêtes HTTP entrantes aux méthodes du TodoService de façon robuste 
 """
 
 import json
+import os
+import subprocess
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler
 from .config import STATIC_DIR
@@ -87,6 +89,21 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 self.send_json(data)
                 return
 
+            # GET /api/sync/status
+            if path == "/api/sync/status":
+                self.send_json(self.service.get_storage_info())
+                return
+
+            # GET /api/sync/check-updates
+            if path == "/api/sync/check-updates":
+                self.send_json(self.service.check_updates())
+                return
+
+            # GET /api/storage/export
+            if path == "/api/storage/export":
+                self.send_json(self.service.export_backup())
+                return
+
             super().do_GET()
         except Exception as e:
             self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
@@ -131,6 +148,48 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     folder_id = self.parse_id(folder_id)
                 self.service.clear_completed(folder_id)
                 self.send_json({"success": True})
+                return
+
+            # POST /api/storage/change-path
+            if path == "/api/storage/change-path":
+                target_path = payload.get("target_path")
+                action = payload.get("action", "connect")
+                res = self.service.change_storage_path(target_path, action=action)
+                self.send_json(res)
+                return
+
+            # POST /api/storage/browse
+            if path == "/api/storage/browse":
+                chosen = ""
+                try:
+                    proc = subprocess.run(
+                        [
+                            "zenity",
+                            "--file-selection",
+                            "--save",
+                            "--confirm-overwrite",
+                            "--filename=todolist.db",
+                            "--file-filter=Base de données SQLite (*.db)|*.db",
+                            "--file-filter=Tous les fichiers|*",
+                            "--title=Choisir l'emplacement partagé de la base ToDoList"
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=120
+                    )
+                    if proc.returncode == 0:
+                        chosen = proc.stdout.strip()
+                except Exception:
+                    chosen = ""
+                self.send_json({"path": chosen})
+                return
+
+            # POST /api/storage/import
+            if path == "/api/storage/import":
+                mode = payload.get("mode", "merge")
+                data = payload.get("data") or payload
+                res = self.service.import_backup(data, mode=mode)
+                self.send_json({"success": True, "data": res})
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)
