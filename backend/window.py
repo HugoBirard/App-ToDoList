@@ -8,7 +8,7 @@ import sys
 import time
 import shutil
 import subprocess
-from .config import BASE_DIR, DATA_DIR, ICON_PNG, APP_NAME
+from .config import BASE_DIR, DATA_DIR, STATIC_DIR, ICON_PNG, APP_NAME
 
 LOG_PATH = os.path.join(DATA_DIR, "app.log")
 
