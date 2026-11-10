@@ -10,6 +10,7 @@ import urllib.parse
 from http.server import SimpleHTTPRequestHandler
 from .config import STATIC_DIR
 from .services import TodoService
+from .discord import send_test_message
 
 
 class TodoRequestHandler(SimpleHTTPRequestHandler):
@@ -190,6 +191,14 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 data = payload.get("data") or payload
                 res = self.service.import_backup(data, mode=mode)
                 self.send_json({"success": True, "data": res})
+                return
+
+            # POST /api/discord/test
+            if path == "/api/discord/test":
+                webhook_url = (payload.get("webhook_url") or "").strip()
+                author_name = (payload.get("author_name") or "Utilisateur ToDoList").strip()
+                ok, msg = send_test_message(webhook_url, author_name=author_name)
+                self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)

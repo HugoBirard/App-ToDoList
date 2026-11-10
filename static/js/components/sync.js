@@ -56,29 +56,37 @@ export function updateStorageDisplay(info) {
 export function initSyncUI(loadDataCallback) {
   const tabAppearanceBtn = document.getElementById('modal-tab-btn-appearance');
   const tabSyncBtn = document.getElementById('modal-tab-btn-sync');
+  const tabDiscordBtn = document.getElementById('modal-tab-btn-discord');
+
   const paneAppearance = document.getElementById('tab-pane-appearance');
   const paneSync = document.getElementById('tab-pane-sync');
+  const paneDiscord = document.getElementById('tab-pane-discord');
   const themeActions = document.getElementById('theme-modal-actions');
 
   // Gestion des onglets
-  if (tabAppearanceBtn && tabSyncBtn) {
-    tabAppearanceBtn.onclick = () => {
-      tabAppearanceBtn.classList.add('active');
-      tabSyncBtn.classList.remove('active');
-      if (paneAppearance) paneAppearance.classList.remove('hidden');
-      if (paneSync) paneSync.classList.add('hidden');
-      if (themeActions) themeActions.style.display = 'flex';
-    };
+  const switchTab = (activeTab) => {
+    [tabAppearanceBtn, tabSyncBtn, tabDiscordBtn].forEach(b => b?.classList.remove('active'));
+    [paneAppearance, paneSync, paneDiscord].forEach(p => p?.classList.add('hidden'));
 
-    tabSyncBtn.onclick = async () => {
-      tabSyncBtn.classList.add('active');
-      tabAppearanceBtn.classList.remove('active');
-      if (paneSync) paneSync.classList.remove('hidden');
-      if (paneAppearance) paneAppearance.classList.add('hidden');
+    if (activeTab === 'appearance') {
+      tabAppearanceBtn?.classList.add('active');
+      paneAppearance?.classList.remove('hidden');
+      if (themeActions) themeActions.style.display = 'flex';
+    } else if (activeTab === 'sync') {
+      tabSyncBtn?.classList.add('active');
+      paneSync?.classList.remove('hidden');
       if (themeActions) themeActions.style.display = 'none';
-      await fetchStorageInfo();
-    };
-  }
+      fetchStorageInfo();
+    } else if (activeTab === 'discord') {
+      tabDiscordBtn?.classList.add('active');
+      paneDiscord?.classList.remove('hidden');
+      if (themeActions) themeActions.style.display = 'none';
+    }
+  };
+
+  if (tabAppearanceBtn) tabAppearanceBtn.onclick = () => switchTab('appearance');
+  if (tabSyncBtn) tabSyncBtn.onclick = () => switchTab('sync');
+  if (tabDiscordBtn) tabDiscordBtn.onclick = () => switchTab('discord');
 
   // Copier le chemin actif
   const copyBtn = document.getElementById('sync-copy-path-btn');

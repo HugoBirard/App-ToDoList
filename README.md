@@ -363,7 +363,35 @@ L'application expose une API REST légère et prédictible servant du JSON en UT
 | `PUT` | `/api/tasks/<id>` | Met à jour une tâche (cochage, modification de progression, renommage) |
 | `DELETE` | `/api/tasks/<id>` | Supprime définitivement une tâche |
 | `POST` | `/api/tasks/clear-completed` | Supprime toutes les tâches terminées (globalement ou pour un `folder_id` donné) |
-| `PUT` | `/api/settings` | Enregistre un paramètre global (ex: `main_background`) |
+| `PUT` | `/api/settings` | Enregistre un paramètre global (ex: `main_background`, réglages Discord) |
+| `POST` | `/api/discord/test` | Teste l'envoi d'un message sur un webhook Discord |
+
+---
+
+## 🎮 Intégration Discord & Travail en Équipe
+
+ToDoList intègre un support complet pour Discord, idéal pour les projets de groupe :
+
+### 1. Notifications par Webhook en direct
+Dans **Options (⚙️) > Discord & Équipe** :
+* Entrez l'URL de votre Webhook Discord (créée en 2 clics dans les paramètres de votre salon).
+* Personnalisez votre pseudo pour que vos camarades sachent qui fait quoi.
+* Activez les notifications pour la création, complétion ou suppression de tâches.
+* Cliquez sur **Envoyer un message test** pour vérifier immédiatement la liaison !
+
+### 2. Bot Discord Interactif (`discord_bot.py`)
+Un bot complet est inclus dans le projet pour permettre à votre équipe de piloter les tâches sans quitter Discord :
+* `!todo` ou `!todo list` : Liste les tâches ouvertes par dossier.
+* `!todo add <titre>` : Crée une nouvelle tâche dans l'application.
+* `!todo done <id>` : Marque une tâche comme terminée.
+* `!todo folders` : Affiche les dossiers du projet.
+
+**Pour lancer le bot :**
+```bash
+pip install discord.py
+export DISCORD_BOT_TOKEN="votre_token_de_bot"
+python3 discord_bot.py
+```
 
 ---
 

@@ -8,6 +8,7 @@ import shutil
 from datetime import datetime, timedelta
 from .config import DEFAULT_DB_PATH, get_current_db_path, load_local_config, save_local_config
 from .database import get_connection, init_db
+from .discord import notify_task_created, notify_task_status_changed, notify_task_deleted, notify_folder_created
 
 
 def _safe_int(val, default=0, min_val=None, max_val=None):
@@ -94,6 +95,35 @@ class TodoService:
         if own_conn:
             conn.close()
 
+    def _trigger_discord(self, action_type, **kwargs):
+        """Déclenche les notifications Discord de façon asynchrone si le service est activé."""
+        try:
+            conn = self._conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT key, value FROM settings WHERE key LIKE 'discord_%'")
+            settings = {row["key"]: row["value"] for row in cursor.fetchall()}
+            conn.close()
+
+            if str(settings.get("discord_enabled", "0")) != "1":
+                return
+
+            webhook_url = settings.get("discord_webhook_url", "").strip()
+            if not webhook_url:
+                return
+
+            author = kwargs.get("author") or settings.get("discord_author_name") or "Équipe"
+
+            if action_type == "task_created" and str(settings.get("discord_notify_created", "1")) == "1":
+                notify_task_created(webhook_url, kwargs.get("task", {}), kwargs.get("folder_name", "Général"), author=author)
+            elif action_type == "task_status" and str(settings.get("discord_notify_completed", "1")) == "1":
+                notify_task_status_changed(webhook_url, kwargs.get("task", {}), kwargs.get("folder_name", "Général"), author=author)
+            elif action_type == "task_deleted" and str(settings.get("discord_notify_deleted", "1")) == "1":
+                notify_task_deleted(webhook_url, kwargs.get("task_title", "Tâche"), kwargs.get("folder_name", "Général"), author=author)
+            elif action_type == "folder_created" and str(settings.get("discord_notify_folder", "1")) == "1":
+                notify_folder_created(webhook_url, kwargs.get("folder_name", "Dossier"), author=author)
+        except Exception:
+            pass
+
     # --- Dossiers ---
 
     def create_folder(self, data):
@@ -118,6 +148,7 @@ class TodoService:
         cursor.execute("SELECT * FROM folders WHERE id = ?", (new_id,))
         created = dict(cursor.fetchone())
         conn.close()
+        self._trigger_discord("folder_created", folder_name=created.get("name", "Nouveau dossier"), author=data.get("author"))
         return created
 
     def update_folder(self, folder_id, data):
@@ -226,7 +257,15 @@ class TodoService:
         new_id = cursor.lastrowid
         cursor.execute("SELECT * FROM tasks WHERE id = ?", (new_id,))
         created = dict(cursor.fetchone())
+        
+        folder_name = "Général"
+        if folder_id:
+            cursor.execute("SELECT name FROM folders WHERE id = ?", (folder_id,))
+            f_row = cursor.fetchone()
+            if f_row:
+                folder_name = f_row["name"]
         conn.close()
+        self._trigger_discord("task_created", task=created, folder_name=folder_name, author=data.get("author"))
         return created
 
     def update_task(self, task_id, data):
@@ -299,15 +338,46 @@ class TodoService:
 
         cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
         row = cursor.fetchone()
+        
+        status_changed = False
+        if row and existing and ("completed" in data or "progress" in data):
+            if existing["completed"] != row["completed"]:
+                status_changed = True
+
+        folder_name = "Général"
+        if row and row["folder_id"]:
+            cursor.execute("SELECT name FROM folders WHERE id = ?", (row["folder_id"],))
+            f_row = cursor.fetchone()
+            if f_row:
+                folder_name = f_row["name"]
+
         conn.close()
+
+        if status_changed and row:
+            self._trigger_discord("task_status", task=dict(row), folder_name=folder_name, author=data.get("author"))
+
         return dict(row) if row else None
 
-    def delete_task(self, task_id):
+    def delete_task(self, task_id, author=None):
         conn = self._conn()
         cursor = conn.cursor()
+        cursor.execute("SELECT title, folder_id FROM tasks WHERE id = ?", (task_id,))
+        existing = cursor.fetchone()
+        task_title = existing["title"] if existing else "Tâche"
+        folder_name = "Général"
+        if existing and existing["folder_id"]:
+            cursor.execute("SELECT name FROM folders WHERE id = ?", (existing["folder_id"],))
+            f_row = cursor.fetchone()
+            if f_row:
+                folder_name = f_row["name"]
+
         cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
         conn.commit()
         conn.close()
+
+        if existing:
+            self._trigger_discord("task_deleted", task_title=task_title, folder_name=folder_name, author=author)
+
         return True
 
     def clear_completed(self, folder_id=None):
