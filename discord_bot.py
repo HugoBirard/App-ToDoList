@@ -27,8 +27,41 @@ import urllib.request
 import urllib.error
 
 # URL de l'API locale ou distante de ToDoList
-TODOLIST_API = os.environ.get("TODOLIST_API", "http://127.0.0.1:4860").rstrip("/")
-BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN", "").strip()
+TODOLIST_API = os.environ.get("TODOLIST_API", "http://127.0.0.1:4848").rstrip("/")
+
+def resolve_bot_token():
+    """Récupère et nettoie le token Discord depuis les arguments CLI, l'environnement ou les fichiers."""
+    # 1. Argument en ligne de commande (--token <token> ou argument libre)
+    if "--token" in sys.argv:
+        try:
+            idx = sys.argv.index("--token")
+            return sys.argv[idx + 1].strip().strip("'\"")
+        except (IndexError, ValueError):
+            pass
+    for arg in sys.argv[1:]:
+        if not arg.startswith("-") and len(arg) > 20:
+            return arg.strip().strip("'\"")
+
+    # 2. Variable d'environnement
+    token = os.environ.get("DISCORD_BOT_TOKEN", "").strip().strip("'\"")
+    if token:
+        return token
+
+    # 3. Fichier de token local (.discord_token, token.txt)
+    for fname in (".discord_token", "token.txt", ".env"):
+        if os.path.exists(fname):
+            try:
+                with open(fname, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("DISCORD_BOT_TOKEN="):
+                            return line.split("=", 1)[1].strip().strip("'\"")
+                        elif len(line) > 30 and not line.startswith("#"):
+                            return line.strip().strip("'\"")
+            except Exception:
+                pass
+
+    return ""
 
 try:
     import discord
@@ -223,14 +256,60 @@ async def todo_help(ctx):
 
 
 if __name__ == "__main__":
-    if not BOT_TOKEN:
+    token = resolve_bot_token()
+
+    # Détection des erreurs courantes de token
+    if token.startswith("http://") or token.startswith("https://"):
+        print("\n❌ ERREUR : L'URL que vous avez fournie est une URL de Webhook Discord, pas un Token de Bot !")
+        print("👉 Les Webhooks Discord s'utilisent directement dans l'application ToDoList (Options > Discord & Webhooks).")
+        print("👉 Pour ce Bot, vous devez créer un Bot sur https://discord.com/developers/applications > onglet 'Bot' > 'Reset Token'.\n")
+        sys.exit(1)
+
+    if token.isdigit():
+        print(f"\n❌ ERREUR : Le token '{token}' semble être un Client ID / Application ID (chiffres uniquement).")
+        print("👉 Le Token de Bot est une clé secrète longue (ex: MTA2ND... ou MTI0...).\n")
+        print("Obtenez-le sur : https://discord.com/developers/applications > Votre Application > 'Bot' > 'Reset Token'.\n")
+        sys.exit(1)
+
+    if not token:
         print("\n=======================================================")
         print("🔑 Token de Bot Discord requis")
         print("=======================================================")
         print("Pour lancer ce bot, obtenez un token sur https://discord.com/developers/applications")
         print("puis lancez :")
+        print("    python3 discord_bot.py --token \"votre_token_ici\"")
+        print("ou :")
         print("    export DISCORD_BOT_TOKEN=\"votre_token_ici\"")
         print("    python3 discord_bot.py\n")
-        sys.exit(1)
+        
+        # Invite interactive si le terminal est interactif
+        try:
+            val = input("Ou collez votre Token de Bot ici (laissez vide pour quitter) : ").strip().strip("'\"")
+            if val:
+                token = val
+            else:
+                sys.exit(1)
+        except (KeyboardInterrupt, EOFError):
+            sys.exit(1)
 
-    bot.run(BOT_TOKEN)
+    try:
+        bot.run(token)
+    except discord.errors.LoginFailure:
+        print("\n" + "=" * 65)
+        print("❌ ERREUR DISCORD : Token de Bot invalide ou refusé (401 Unauthorized)")
+        print("=" * 65)
+        print("Le token fourni n'a pas été reconnu par les serveurs de Discord.")
+        print("\n🔍 Comment obtenir le bon Token de Bot :")
+        print("  1. Rendez-vous sur : https://discord.com/developers/applications")
+        print("  2. Cliquez sur votre application")
+        print("  3. Dans le menu de gauche, cliquez sur l'onglet 'Bot' (PAS 'General Information')")
+        print("  4. Sous le nom du bot, cliquez sur 'Reset Token' puis 'Copy'")
+        print("  5. Important : Un peu plus bas dans la même page, activez :")
+        print("     [x] Message Content Intent (indispensable pour lire !todo)")
+        print("  6. Relancez ensuite :")
+        print("     python3 discord_bot.py --token \"LE_TOKEN_COPIÉ\"")
+        print("=" * 65 + "\n")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Erreur inattendue du bot Discord : {e}\n")
+        sys.exit(1)
