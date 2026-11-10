@@ -55,7 +55,8 @@ import {
   setFolderBgAngle,
   setMainBgColor1,
   setMainBgColor2,
-  setMainBgAngle
+  setMainBgAngle,
+  initTitlebarOptions
 } from './components/modals.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -65,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAutoSyncWatcher(loadData);
   initServerUI(loadData);
   initDiscordUI();
+  initTitlebarOptions();
   setupEventListeners();
 });
 

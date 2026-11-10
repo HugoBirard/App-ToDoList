@@ -109,19 +109,22 @@ Keywords=todo;todolist;taches;organisation;
                 log(f"Erreur installation bureau {folder}: {e}")
 
 
-def open_gtk4_window(url):
+def open_gtk4_window(url, extra_args=None):
     """
     PRIORITÉ 1 : Fenêtre native GTK4 + WebKit6 (isolée en sous-processus).
     Style Spotify / Electron : fenêtre autonome sans barre d'adresse ni onglets.
     """
     try:
         log("Tentative de lancement fenêtre native GTK4 + WebKit6...")
-        proc = subprocess.Popen([
+        cmd = [
             sys.executable,
             "-m",
             "backend.window_gtk4",
             url
-        ])
+        ]
+        if extra_args:
+            cmd.extend(extra_args)
+        proc = subprocess.Popen(cmd)
         time.sleep(0.6)
         if proc.poll() is not None and proc.returncode != 0:
             log(f"Échec GTK4 (code de sortie {proc.returncode})")
@@ -195,18 +198,21 @@ def open_chromium_app(url):
     return False
 
 
-def open_gtk3_window(url):
+def open_gtk3_window(url, extra_args=None):
     """
     PRIORITÉ 4 : Fenêtre native GTK3 + WebKit2 si GTK4 n'a pas pu être utilisé.
     """
     try:
         log("Tentative de lancement fenêtre native GTK3 + WebKit2...")
-        proc = subprocess.Popen([
+        cmd = [
             sys.executable,
             "-m",
             "backend.window_gtk3",
             url
-        ])
+        ]
+        if extra_args:
+            cmd.extend(extra_args)
+        proc = subprocess.Popen(cmd)
         time.sleep(0.6)
         if proc.poll() is not None and proc.returncode != 0:
             log(f"Échec GTK3 (code {proc.returncode})")
@@ -219,7 +225,7 @@ def open_gtk3_window(url):
         return False
 
 
-def launch_app_window(url):
+def launch_app_window(url, extra_args=None):
     """
     Orchestre l'ouverture stricte dans une VRAIE FENÊTRE D'APPLICATION DÉDIÉE (style Spotify/VS Code).
     Ne lance jamais un navigateur avec onglets ou barre d'adresse.
@@ -227,7 +233,7 @@ def launch_app_window(url):
     log(f"Démarrage de la fenêtre autonome dédiée pour l'URL : {url}")
 
     # 1. Fenêtre native GTK4 / WebKit6 (application de bureau pure)
-    if open_gtk4_window(url):
+    if open_gtk4_window(url, extra_args):
         return
 
     # 2. Fenêtre native GNOME Web en mode application (officiel GNOME, style Spotify)
@@ -239,7 +245,7 @@ def launch_app_window(url):
         return
 
     # 4. Fenêtre native GTK3 / WebKit2
-    if open_gtk3_window(url):
+    if open_gtk3_window(url, extra_args):
         return
 
     # Si aucun moteur d'application fenêtré n'est trouvé
