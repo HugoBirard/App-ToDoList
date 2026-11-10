@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo List</title>
+  <meta name="application-name" content="ToDo List">
+  <meta name="theme-color" content="#08090c">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Barre latérale / Dossiers -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="app-brand">
+          <span class="brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <h2>Mes Dossiers</h2>
+        </div>
+        <button id="toggle-sidebar-btn" class="icon-btn mobile-only" title="Fermer le menu">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="quick-views">
+        <button class="nav-item active" data-view="all">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <span class="nav-label">Toutes les tâches</span>
+          <span class="nav-count" id="count-all">0</span>
+        </button>
+        <button class="nav-item" data-view="pending">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="nav-label">À faire</span>
+          <span class="nav-count" id="count-pending">0</span>
+        </button>
+        <button class="nav-item" data-view="completed">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </span>
+          <span class="nav-label">Terminées</span>
+          <span class="nav-count" id="count-completed">0</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section-title">
+        <span>DOSSIERS</span>
+        <button id="add-folder-btn" class="icon-btn small-btn" title="Nouveau dossier">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+
+      <div class="folder-list" id="folder-list">
+        <!-- Rempli dynamiquement -->
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="sidebar-settings-btn" class="settings-btn" title="Options et personnalisation (Fond, Thème)">
+          <span class="settings-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+          <span class="settings-label">Options & Fond</span>
+        </button>
+        <div class="theme-toggle">
+          <button id="theme-btn" class="theme-btn" title="Basculer le mode sombre/clair">
+            <span id="theme-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            <span id="theme-label">Mode Sombre</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Zone principale -->
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-left">
+          <button id="mobile-menu-btn" class="icon-btn mobile-only" title="Ouvrir le menu">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div>
+            <div class="title-with-badge">
+              <h1 id="current-title">Toutes les tâches</h1>
+              <span id="folder-weekly-badge" class="badge-weekly hidden" title="Ce dossier se réinitialise automatiquement chaque semaine">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                Hebdo
+              </span>
+            </div>
+            <p id="current-subtitle" class="subtitle">Vue d'ensemble de vos activités</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Bouton Options & Paramètres (remplace le bouton Fond mal placé) -->
+          <button id="open-theme-modal-btn" class="icon-btn header-settings-btn" title="Options et personnalisation (Fond, Thème)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <!-- Action manuelle pour dossier hebdomadaire -->
+          <button id="folder-reset-btn" class="btn btn-secondary btn-sm hidden" title="Remettre immédiatement toutes les tâches de ce dossier à l'état initial">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Réinitialiser la semaine
+          </button>
+          <!-- Recherche rapide -->
+          <div class="search-box">
+            <span class="search-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="search-input" placeholder="Rechercher une tâche..." autocomplete="off">
+            <button id="clear-search-btn" class="clear-search hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Barre de progression -->
+      <div class="progress-container">
+        <div class="progress-info">
+          <span id="progress-text">Progression : 0%</span>
+          <span id="progress-details">0 sur 0 faites</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Formulaire d'ajout rapide -->
+      <section class="add-task-card">
+        <form id="add-task-form">
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="new-task-input" 
+              placeholder="Ajouter une tâche... (Appuyez sur Entrée)" 
+              autocomplete="off" 
+              required
+            >
+          </div>
+          <div class="add-task-options">
+            <!-- Choix du dossier : Custom Dropdown (100% lisible, zéro texte blanc sur blanc) -->
+            <div class="custom-dropdown" id="task-folder-dropdown">
+              <button type="button" class="dropdown-trigger" title="Choisir un dossier">
+                <span class="dropdown-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span class="dropdown-label">Général</span>
+                <span class="dropdown-arrow">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="dropdown-menu">
+                <!-- Rempli dynamiquement -->
+              </div>
+              <input type="hidden" id="task-folder-select" value="1">
+            </div>
+
+            <!-- Type de suivi : Case classique ou Barre de progression -->
+            <div class="custom-dropdown" id="task-type-dropdown">
+              <button type="button" class="dropdown-trigger" title="Type de suivi">
+                <span class="dropdown-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </span>
+                <span class="dropdown-label">Case à cocher</span>
+                <span class="dropdown-arrow">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-option selected" data-value="checkbox">
+                  <span class="opt-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+                  <span class="opt-text">Case à cocher</span>
+                  <span class="opt-check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="dropdown-option" data-value="progress">
+                  <span class="opt-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+                  <span class="opt-text">Barre de progression (0-100%)</span>
+                  <span class="opt-check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+              <input type="hidden" id="task-type-select" value="checkbox">
+            </div>
+
+            <!-- Priorité : Custom Dropdown -->
+            <div class="custom-dropdown" id="task-priority-dropdown">
+              <button type="button" class="dropdown-trigger" title="Priorité">
+                <span class="dropdown-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </span>
+                <span class="dropdown-label">Normale</span>
+                <span class="dropdown-arrow">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-option" data-value="low">
+                  <span class="opt-text">Basse</span>
+                  <span class="opt-check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="dropdown-option selected" data-value="normal">
+                  <span class="opt-text">Normale</span>
+                  <span class="opt-check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+                <div class="dropdown-option" data-value="high">
+                  <span class="opt-text">Haute (Urgente)</span>
+                  <span class="opt-check"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </div>
+              </div>
+              <input type="hidden" id="task-priority-select" value="normal">
+            </div>
+
+            <!-- Date d'échéance optionnelle -->
+            <div class="option-item date-option-item">
+              <span class="option-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </span>
+              <input type="date" id="task-due-date" title="Date d'échéance">
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="add-task-submit">
+              Ajouter
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Filtres et actions rapides de liste -->
+      <div class="filter-actions-bar">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">Toutes (<span id="tab-count-all">0</span>)</button>
+          <button class="filter-tab" data-filter="pending">À faire (<span id="tab-count-pending">0</span>)</button>
+          <button class="filter-tab" data-filter="completed">Terminées (<span id="tab-count-completed">0</span>)</button>
+        </div>
+
+        <div class="list-actions">
+          <button id="clear-completed-btn" class="btn-text" title="Supprimer définitivement les tâches terminées">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Nettoyer les terminées
+          </button>
+        </div>
+      </div>
+
+      <!-- Liste des tâches -->
+      <div class="task-list-wrapper">
+        <ul id="task-list" class="task-list">
+          <!-- Tâches injectées ici en JS -->
+        </ul>
+        <div id="empty-state" class="empty-state hidden">
+          <span class="empty-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          </span>
+          <h3 id="empty-title">Aucune tâche trouvée</h3>
+          <p id="empty-desc">Profitez de votre journée ou ajoutez une nouvelle tâche ci-dessus.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Nouveau / Édition Dossier -->
+  <div class="modal-backdrop hidden" id="folder-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="folder-modal-title">Nouveau dossier</h3>
+        <button class="icon-btn close-modal-btn" title="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="folder-form">
+        <input type="hidden" id="folder-id">
+        <div class="form-group">
+          <label for="folder-name-input">Nom du dossier</label>
+          <input type="text" id="folder-name-input" placeholder="ex: Projets, Courses, Maison..." required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label>Icône</label>
+          <div class="icon-picker" id="icon-picker">
+            <button type="button" class="icon-opt active" data-icon="folder" title="Dossier">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="clipboard" title="Presse-papier">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="briefcase" title="Travail">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="home" title="Maison">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="shopping-cart" title="Courses">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="rocket" title="Projets">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="graduation-cap" title="Études">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="target" title="Objectifs">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="lightbulb" title="Idées">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="star" title="Favoris">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="heart" title="Personnel">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="leaf" title="Habitudes">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M11 20A7 7 0 0 1 4 13a7 7 0 0 1 7-7c4 0 9 2 9 9 0 4-2 9-9 9z"/><path d="M4 21c7-2 10-6 11-14"/></svg>
+            </button>
+          </div>
+          <input type="hidden" id="folder-icon-input" value="folder">
+        </div>
+
+        <div class="form-group">
+          <label>Couleur</label>
+          <div class="color-picker" id="color-picker">
+            <button type="button" class="color-opt active" data-color="#4f46e5" style="background: #4f46e5;"></button>
+            <button type="button" class="color-opt" data-color="#2563eb" style="background: #2563eb;"></button>
+            <button type="button" class="color-opt" data-color="#0284c7" style="background: #0284c7;"></button>
+            <button type="button" class="color-opt" data-color="#059669" style="background: #059669;"></button>
+            <button type="button" class="color-opt" data-color="#16a34a" style="background: #16a34a;"></button>
+            <button type="button" class="color-opt" data-color="#d97706" style="background: #d97706;"></button>
+            <button type="button" class="color-opt" data-color="#dc2626" style="background: #dc2626;"></button>
+            <button type="button" class="color-opt" data-color="#9333ea" style="background: #9333ea;"></button>
+            <button type="button" class="color-opt" data-color="#db2777" style="background: #db2777;"></button>
+          </div>
+          <input type="hidden" id="folder-color-input" value="#4f46e5">
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="custom-check-label">
+            <input type="checkbox" id="folder-weekly-input">
+            <span class="custom-check-box"></span>
+            <div class="check-text">
+              <strong style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 16px; height: 16px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                Réinitialisation hebdomadaire
+              </strong>
+              <small>Remet automatiquement les tâches à l'état initial après une semaine (idéal pour les routines, courses, habitudes).</small>
+            </div>
+          </label>
+        </div>
+
+        <!-- Personnalisation du fond pour ce dossier -->
+        <div class="form-group folder-bg-section">
+          <label style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 16px; height: 16px;"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+            Fond personnalisé pour ce dossier
+          </label>
+          <div class="bg-type-selector">
+            <label class="radio-label">
+              <input type="radio" name="folder-bg-type" value="default" checked>
+              <span>Thème principal</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="folder-bg-type" value="solid">
+              <span>Couleur unie</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="folder-bg-type" value="gradient">
+              <span>Fondu / Dégradé</span>
+            </label>
+          </div>
+
+          <!-- Contrôles couleur dossier (masqués par défaut) -->
+          <div id="folder-bg-controls" class="bg-controls hidden">
+            <div class="color-inputs-row">
+              <div class="color-input-field">
+                <span id="folder-c1-label">Couleur 1</span>
+                <input type="color" id="folder-bg-color1" value="#161a24">
+              </div>
+              <div class="color-input-field" id="folder-c2-wrap">
+                <span>Couleur 2</span>
+                <input type="color" id="folder-bg-color2" value="#2d3345">
+              </div>
+              <div class="color-input-field" id="folder-angle-wrap">
+                <span>Angle</span>
+                <select id="folder-bg-angle">
+                  <option value="135" selected>Diagonale (135°)</option>
+                  <option value="180">Vertical (180°)</option>
+                  <option value="90">Horizontal (90°)</option>
+                </select>
+              </div>
+            </div>
+            <!-- Aperçu -->
+            <div class="bg-preview-box" id="folder-bg-preview" style="background: #161a24;">Aperçu du dossier</div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="folder-submit-btn">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Personnalisation du Fond Principal -->
+  <div class="modal-backdrop hidden" id="theme-modal">
+    <div class="modal theme-config-modal">
+      <div class="modal-header">
+        <h3 style="display: inline-flex; align-items: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Options & Paramètres
+        </h3>
+        <button class="icon-btn close-modal-btn" title="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      
+      <div class="theme-modal-body">
+        <!-- Thèmes Pro Prédéfinis -->
+        <div class="form-group">
+          <label>Styles professionnels recommandés</label>
+          <div class="preset-theme-grid">
+            <button type="button" class="preset-btn active" data-preset="pro-dark">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%);"></span>
+              <span class="preset-title">Noir & Gris Pro (Défaut)</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="carbon">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #050505 0%, #1c1c1c 100%);"></span>
+              <span class="preset-title">Carbone Pur</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="midnight">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #070c18 0%, #131c33 100%);"></span>
+              <span class="preset-title">Nébuleuse Nuit</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="slate">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);"></span>
+              <span class="preset-title">Ardoise Bleutée</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="emerald">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #05140e 0%, #102d21 100%);"></span>
+              <span class="preset-title">Émeraude Sombre</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="violet">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #11081c 0%, #221235 100%);"></span>
+              <span class="preset-title">Améthyste Sombre</span>
+            </button>
+          </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- Personnalisation libre -->
+        <div class="form-group">
+          <label>Ou créez vos couleurs sur mesure</label>
+          <div class="bg-type-selector">
+            <label class="radio-label">
+              <input type="radio" name="main-bg-type" value="gradient" checked>
+              <span>Fondu / Dégradé personnalisé</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="main-bg-type" value="solid">
+              <span>Couleur unie</span>
+            </label>
+          </div>
+
+          <div class="color-inputs-row" style="margin-top: 12px;">
+            <div class="color-input-field">
+              <span id="main-c1-label">Couleur 1</span>
+              <input type="color" id="main-bg-color1" value="#090a0d">
+            </div>
+            <div class="color-input-field" id="main-c2-wrap">
+              <span>Couleur 2</span>
+              <input type="color" id="main-bg-color2" value="#1a1d27">
+            </div>
+            <div class="color-input-field" id="main-angle-wrap">
+              <span>Angle</span>
+              <select id="main-bg-angle">
+                <option value="135" selected>Diagonale (135°)</option>
+                <option value="180">Vertical (180°)</option>
+                <option value="90">Horizontal (90°)</option>
+                <option value="45">Diagonale inversée (45°)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bg-preview-box" id="main-bg-preview" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%); margin-top: 12px;">
+            Aperçu en direct
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="reset-default-theme-btn">Réinitialiser (Noir & Gris Pro)</button>
+        <button type="button" class="btn btn-primary" id="save-main-theme-btn">Appliquer</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

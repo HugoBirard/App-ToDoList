@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ToDo List
+GenericName=Gestionnaire de tâches
+Comment=Gestionnaire de To-Do List local et persistant avec dossiers
+Exec=/home/algaarad/Documents/App-ToDoList/start.sh
+Icon=/home/algaarad/Documents/App-ToDoList/static/assets/icon.png
+Terminal=false
+Categories=Office;Utility;ProjectManagement;
+StartupNotify=false
+Keywords=todo;todolist;taches;organisation;
