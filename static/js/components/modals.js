@@ -323,6 +323,7 @@ export async function handleFolderSubmit(e) {
 export function openThemeModal() {
   updateMainBgControlsUI();
   updateMainBgPreview();
+  syncTitlebarStyleUI();
   document.getElementById('theme-modal').classList.remove('hidden');
 }
 
@@ -425,6 +426,64 @@ export async function saveMainTheme() {
 
 export function resetDefaultTheme() {
   applyPresetTheme('pro-dark');
+  applyTitlebarStyle('transparent');
 }
 
-export { setFolderBgColor1, setFolderBgColor2, setFolderBgAngle, setMainBgColor1, setMainBgColor2, setMainBgAngle };
+export function syncTitlebarStyleUI() {
+  const currentStyle = (state.settings && state.settings.titlebar_style) || 'transparent';
+  const hidden = document.getElementById('main-titlebar-style');
+  if (hidden) hidden.value = currentStyle;
+  document.querySelectorAll('.titlebar-option-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.titlebar === currentStyle);
+  });
+}
+
+export async function applyTitlebarStyle(styleKey) {
+  const cleanStyle = styleKey || 'transparent';
+  const hidden = document.getElementById('main-titlebar-style');
+  if (hidden) hidden.value = cleanStyle;
+
+  document.querySelectorAll('.titlebar-option-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.titlebar === cleanStyle);
+  });
+
+  // Notifier GTK4 immédiatement si exécuté dans la fenêtre native WebKit
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.set_titlebar_style) {
+    try {
+      const curBg = getCurrentMainBgValue ? getCurrentMainBgValue() : null;
+      window.webkit.messageHandlers.set_titlebar_style.postMessage(JSON.stringify({
+        style: cleanStyle,
+        bg_color: curBg
+      }));
+    } catch (e) {
+      console.warn("Erreur notification message GTK4:", e);
+    }
+  }
+
+  // Sauvegarder dans la base de données
+  try {
+    await api('/api/settings', 'PUT', { titlebar_style: cleanStyle });
+    if (!state.settings) state.settings = {};
+    state.settings.titlebar_style = cleanStyle;
+  } catch (e) {
+    console.error("Erreur enregistrement réglage titlebar_style:", e);
+  }
+}
+
+export function initTitlebarOptions() {
+  document.querySelectorAll('.titlebar-option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const styleKey = btn.dataset.titlebar;
+      applyTitlebarStyle(styleKey);
+    });
+  });
+}
+
+export { 
+  setFolderBgColor1, 
+  setFolderBgColor2, 
+  setFolderBgAngle, 
+  setMainBgColor1, 
+  setMainBgColor2, 
+  setMainBgAngle 
+};

@@ -287,6 +287,17 @@ Vous disposez de 3 modes selon votre usage :
 ```
 *(Ou tapez `ToDoList` dans le lanceur d'applications de votre système).*
 
+> **Personnalisation de la barre de titre système (GTK4 / Wayland) :**
+> Vous pouvez prévisualiser ou forcer le style de la barre supérieure directement au lancement ou dans l'onglet **Options ⚙️ > Apparence** :
+> ```bash
+> ./start.sh --titlebar transparent   # Transparente & intégrée (Style Spotify / Discord / VS Code)
+> ./start.sh --titlebar match-bg      # Même couleur sombre que le fond actif de l'application
+> ./start.sh --titlebar glass         # Verre fumé translucide avec reflets (Glassmorphism)
+> ./start.sh --titlebar neon          # Liseré cyber indigo lumineux avec halo néon
+> ./start.sh --titlebar minimal       # Barre compacte (28px) sans titre pour un écran 100% utile
+> ./start.sh --titlebar classic       # Thème système standard GNOME Adwaita
+> ```
+
 #### Mode B : Serveur d'Équipe partagé sur le réseau local
 Pour permettre à vos camarades de projet de se connecter à votre ToDoList :
 ```bash

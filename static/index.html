@@ -603,6 +603,107 @@
             Aperçu en direct
           </div>
         </div>
+
+        <hr class="separator">
+
+        <!-- Barre de titre de la fenêtre système (GTK4 / Linux) -->
+        <div class="form-group">
+          <label>Style de la barre de titre (Fenêtre système)</label>
+          <span class="sub-label">Personnalisez la barre supérieure où s'affichent le titre ToDoList et les boutons de fenêtre (fermer, réduire, agrandir) :</span>
+          
+          <div class="titlebar-style-grid" id="titlebar-style-grid">
+            <button type="button" class="titlebar-option-btn active" data-titlebar="transparent">
+              <div class="titlebar-preview transparent-preview">
+                <div class="preview-dots">
+                  <span class="pdot red"></span>
+                  <span class="pdot yellow"></span>
+                  <span class="pdot green"></span>
+                </div>
+                <span class="preview-title">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Transparente & Intégrée</span>
+                <span class="titlebar-desc">Style Spotify / Discord : le fond s'étend jusqu'en haut sans aucune coupure</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="match-bg">
+              <div class="titlebar-preview match-preview">
+                <div class="preview-dots">
+                  <span class="pdot red"></span>
+                  <span class="pdot yellow"></span>
+                  <span class="pdot green"></span>
+                </div>
+                <span class="preview-title">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Même couleur que le fond</span>
+                <span class="titlebar-desc">Fond uni sombre identique à l'application avec discrète bordure inférieure</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="glass">
+              <div class="titlebar-preview glass-preview">
+                <div class="preview-dots">
+                  <span class="pdot red"></span>
+                  <span class="pdot yellow"></span>
+                  <span class="pdot green"></span>
+                </div>
+                <span class="preview-title">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Verre Fumé Glassmorphism</span>
+                <span class="titlebar-desc">Look premium translucide avec reflet métallique et ombre portée diffuse</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="neon">
+              <div class="titlebar-preview neon-preview">
+                <div class="preview-dots">
+                  <span class="pdot red"></span>
+                  <span class="pdot yellow"></span>
+                  <span class="pdot green"></span>
+                </div>
+                <span class="preview-title">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Néon Cyber Indigo</span>
+                <span class="titlebar-desc">Bordure inférieure indigo électrique vibrante avec halo lumineux</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="minimal">
+              <div class="titlebar-preview minimal-preview">
+                <div class="preview-dots">
+                  <span class="pdot gray"></span>
+                  <span class="pdot gray"></span>
+                  <span class="pdot gray"></span>
+                </div>
+                <span class="preview-title minimal-hidden">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Minimaliste Compacte</span>
+                <span class="titlebar-desc">Hauteur réduite (28px), sans titre, boutons discrets pour maximiser l'écran</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="classic">
+              <div class="titlebar-preview classic-preview">
+                <div class="preview-dots">
+                  <span class="pdot gray"></span>
+                  <span class="pdot gray"></span>
+                  <span class="pdot gray"></span>
+                </div>
+                <span class="preview-title">ToDoList</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Système GNOME Standard</span>
+                <span class="titlebar-desc">Décorations natives du gestionnaire de fenêtres de votre OS (Adwaita)</span>
+              </div>
+            </button>
+          </div>
+          <input type="hidden" id="main-titlebar-style" value="transparent">
+        </div>
         </div>
 
         <!-- ONGLET 2 : LIAISON MULTI-PC & SYNCHRONISATION -->

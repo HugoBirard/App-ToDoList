@@ -8,6 +8,7 @@ Orchestre :
 - La fermeture propre du serveur lors de la fermeture de la fenêtre
 """
 
+import sys
 import time
 import socket
 import threading
@@ -71,7 +72,7 @@ def main():
 
     # 3. Ouvrir la fenêtre autonome et attendre sa fermeture
     try:
-        launch_app_window(app_url)
+        launch_app_window(app_url, sys.argv[1:])
     finally:
         if server_instance:
             print("Fermeture de l'application et arrêt du serveur...")
