@@ -216,6 +216,10 @@ class SecurityTestCase(unittest.TestCase):
         self.assertEqual(_safe_color("#10B981"), "#10B981")
         self.assertEqual(_safe_color("#12345678"), "#12345678")
 
+        # Longueurs non-CSS rejetées (5 chars, 7 chars ne sont pas des couleurs CSS)
+        self.assertEqual(_safe_color("#12345"), "#6366f1")     # 5 hex chars → invalide
+        self.assertEqual(_safe_color("#1234567"), "#6366f1")   # 7 hex chars → invalide
+
     def test_safe_bg_type_whitelist(self):
         """bg_type doit être restreint aux valeurs autorisées."""
         self.assertEqual(_safe_bg_type("solid"), "solid")
@@ -279,6 +283,41 @@ class SecurityTestCase(unittest.TestCase):
         with self.assertRaises(Exception) as ctx:
             handler.parse_body()
         self.assertIn("volumineux", str(ctx.exception).lower())
+
+    # ------------------------------------------------------------------------
+    # 🟠 FAILLE 10 : import_backup ne doit pas écraser les secrets masqués
+    # ------------------------------------------------------------------------
+
+    def test_import_backup_does_not_overwrite_secret_with_masked_value(self):
+        """Importer un backup contenant une valeur masquée (••••) ne doit pas écraser le vrai secret en base."""
+        service = TodoService(self.db_path)
+        real_webhook = "https://discord.com/api/webhooks/111222333/realSecretToken"
+        service.update_settings({"discord_webhook_url": real_webhook})
+
+        # Simuler un backup JSON issu d'une autre machine (valeur masquée dans le backup)
+        fake_backup = {
+            "folders": [],
+            "tasks": [],
+            "settings": {
+                "discord_webhook_url": "••••oken",   # valeur masquée issue de get_all_data()
+                "discord_author_name": "BackupBot"
+            }
+        }
+        service.import_backup(fake_backup, mode="merge")
+
+        # La vraie URL en base doit être INCHANGÉE
+        conn = service._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM settings WHERE key = 'discord_webhook_url'")
+        val_in_db = cursor.fetchone()["value"]
+        conn.close()
+
+        self.assertEqual(val_in_db, real_webhook,
+                         "import_backup a écrasé le vrai webhook par la valeur masquée !")
+
+        # Les réglages non-sensibles doivent bien être importés
+        data = service.get_all_data()
+        self.assertEqual(data["settings"].get("discord_author_name"), "BackupBot")
 
 
 if __name__ == "__main__":

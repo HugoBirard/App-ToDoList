@@ -14,7 +14,7 @@ from .discord import notify_task_created, notify_task_status_changed, notify_tas
 
 logger = logging.getLogger("todolist.services")
 
-_HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{3,8}$")
+_HEX_COLOR = re.compile(r"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
 _VALID_BG_TYPES = {"default", "solid", "gradient"}
 SENSITIVE_SETTINGS_KEYS = {"discord_webhook_url"}
 
@@ -629,6 +629,10 @@ class TodoService:
         # Réglages
         if isinstance(settings, dict):
             for k, v in settings.items():
+                # Ne jamais écraser un secret en base par une valeur masquée (••••)
+                if k in SENSITIVE_SETTINGS_KEYS and str(v).startswith("••••"):
+                    logger.warning("import_backup: valeur masquée ignorée pour la clé sensible '%s'", k)
+                    continue
                 cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (str(k), str(v)))
 
         conn.commit()
