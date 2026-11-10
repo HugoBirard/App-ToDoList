@@ -186,10 +186,12 @@ function setFolderBgColor1(color) {
   const c = color || '#161a24';
   const input = document.getElementById('folder-bg-color1');
   const hex = document.getElementById('folder-bg-color1-hex');
+  const btn = document.getElementById('folder-bg-color1-btn');
   if (input) input.value = c;
   if (hex) hex.value = c.toUpperCase();
-  document.querySelectorAll('#folder-solid-swatches .solid-swatch').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.color.toLowerCase() === c.toLowerCase());
+  if (btn) btn.style.backgroundColor = c;
+  document.querySelectorAll('#folder-solid-swatches .solid-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color.toLowerCase() === c.toLowerCase());
   });
 }
 
@@ -197,8 +199,10 @@ function setFolderBgColor2(color) {
   const c = color || '#2d3345';
   const input = document.getElementById('folder-bg-color2');
   const hex = document.getElementById('folder-bg-color2-hex');
+  const btn = document.getElementById('folder-bg-color2-btn');
   if (input) input.value = c;
   if (hex) hex.value = c.toUpperCase();
+  if (btn) btn.style.backgroundColor = c;
 }
 
 function setFolderBgAngle(angle) {
@@ -325,10 +329,12 @@ function setMainBgColor1(color) {
   const c = color || '#090a0d';
   const input = document.getElementById('main-bg-color1');
   const hex = document.getElementById('main-bg-color1-hex');
+  const btn = document.getElementById('main-bg-color1-btn');
   if (input) input.value = c;
   if (hex) hex.value = c.toUpperCase();
-  document.querySelectorAll('#main-solid-swatches .solid-swatch').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.color.toLowerCase() === c.toLowerCase());
+  if (btn) btn.style.backgroundColor = c;
+  document.querySelectorAll('#main-solid-swatches .solid-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color.toLowerCase() === c.toLowerCase());
   });
 }
 
@@ -336,8 +342,10 @@ function setMainBgColor2(color) {
   const c = color || '#1a1d27';
   const input = document.getElementById('main-bg-color2');
   const hex = document.getElementById('main-bg-color2-hex');
+  const btn = document.getElementById('main-bg-color2-btn');
   if (input) input.value = c;
   if (hex) hex.value = c.toUpperCase();
+  if (btn) btn.style.backgroundColor = c;
 }
 
 function setMainBgAngle(angle) {

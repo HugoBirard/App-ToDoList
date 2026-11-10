@@ -12,6 +12,17 @@ if ! grep -q "^Path=" "$DESKTOP_SRC"; then
   echo "Path=$DIR" >> "$DESKTOP_SRC"
 fi
 
+# Installer les icônes dans les thèmes d'icônes XDG (~/.local/share/icons)
+for THEME in "hicolor" "NC"; do
+  for RES in "256x256" "128x128" "48x48"; do
+    mkdir -p "$HOME/.local/share/icons/$THEME/$RES/apps"
+    cp -f "$DIR/static/assets/icon.png" "$HOME/.local/share/icons/$THEME/$RES/apps/todolist.png" 2>/dev/null || true
+  done
+  mkdir -p "$HOME/.local/share/icons/$THEME/scalable/apps"
+  cp -f "$DIR/static/assets/icon.svg" "$HOME/.local/share/icons/$THEME/scalable/apps/todolist.svg" 2>/dev/null || true
+  gtk-update-icon-cache -f "$HOME/.local/share/icons/$THEME" 2>/dev/null || true
+done
+
 # Rendre exécutables tous les lanceurs
 chmod +x "$DIR/main.py" "$DIR/start.sh" "$DIR/server.py" "$DESKTOP_SRC"
 gio set "$DESKTOP_SRC" metadata::trusted true 2>/dev/null
@@ -22,7 +33,8 @@ gsettings set org.gnome.nautilus.preferences executable-text-activation 'launch'
 # 1. Installer dans le menu système GNOME
 mkdir -p "$HOME/.local/share/applications"
 cp "$DESKTOP_SRC" "$HOME/.local/share/applications/todolist.desktop"
-chmod +x "$HOME/.local/share/applications/todolist.desktop"
+cp "$DESKTOP_SRC" "$HOME/.local/share/applications/ToDoList.desktop"
+chmod +x "$HOME/.local/share/applications/todolist.desktop" "$HOME/.local/share/applications/ToDoList.desktop"
 update-desktop-database "$HOME/.local/share/applications" 2>/dev/null
 
 # 2. Installer sur le Bureau si le dossier existe

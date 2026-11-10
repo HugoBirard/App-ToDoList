@@ -34,14 +34,29 @@ def main():
                 win.set_title(APP_NAME)
                 win.set_default_size(1180, 800)
 
-                webview = WebKit.WebView()
+                # Utiliser une session réseau éphémère pour garantir l'absence totale de cache disque obsolète
+                if hasattr(WebKit, "NetworkSession") and hasattr(WebKit.NetworkSession, "new_ephemeral"):
+                    session = WebKit.NetworkSession.new_ephemeral()
+                    webview = WebKit.WebView(network_session=session)
+                else:
+                    webview = WebKit.WebView()
+
                 settings = webview.get_settings()
                 if settings:
                     settings.set_enable_developer_extras(False)
+                    if hasattr(settings, "set_enable_page_cache"):
+                        settings.set_enable_page_cache(False)
+                    if hasattr(settings, "set_enable_offline_web_application_cache"):
+                        settings.set_enable_offline_web_application_cache(False)
 
                 webview.set_hexpand(True)
                 webview.set_vexpand(True)
-                webview.load_uri(url)
+
+                # Forcer le rechargement frais avec timestamp
+                import time
+                sep = "&" if "?" in url else "?"
+                fresh_url = f"{url}{sep}v={int(time.time())}"
+                webview.load_uri(fresh_url)
 
                 win.set_child(webview)
                 win.present()

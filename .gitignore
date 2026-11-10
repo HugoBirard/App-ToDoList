@@ -47,3 +47,6 @@ data/*_profile/
 env/
 venv/
 ENV/
+
+# Local backward compatibility symlink
+/ToDoList

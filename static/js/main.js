@@ -8,6 +8,11 @@ import { fetchInitialData } from './api.js';
 import { initTheme, toggleTheme, applyActiveBackground } from './theme.js';
 import { initCustomDropdowns } from './components/dropdowns.js';
 import { 
+  initColorPopover, 
+  openColorPopover, 
+  closeColorPopover 
+} from './components/colorpicker.js';
+import { 
   renderFolders, 
   selectQuickView, 
   resetCurrentFolderWeek 
@@ -147,7 +152,61 @@ function setupEventListeners() {
     r.addEventListener('change', updateMainBgControlsUI);
   });
 
-  // Swatches solides du thème principal
+  // Initialisation du nuancier de couleur 100% In-App
+  initColorPopover((targetKey, hexColor) => {
+    if (targetKey === 'main1') {
+      setMainBgColor1(hexColor);
+      updateMainBgPreview();
+    } else if (targetKey === 'main2') {
+      setMainBgColor2(hexColor);
+      updateMainBgPreview();
+    } else if (targetKey === 'folder1') {
+      setFolderBgColor1(hexColor);
+      updateFolderBgPreview();
+    } else if (targetKey === 'folder2') {
+      setFolderBgColor2(hexColor);
+      updateFolderBgPreview();
+    }
+  });
+
+  // Boutons triggers ouvrant le nuancier intégré
+  const mainBtn1 = document.getElementById('main-bg-color1-btn');
+  if (mainBtn1) {
+    mainBtn1.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = document.getElementById('main-bg-color1')?.value || '#090a0d';
+      openColorPopover('main1', mainBtn1, current);
+    });
+  }
+
+  const mainBtn2 = document.getElementById('main-bg-color2-btn');
+  if (mainBtn2) {
+    mainBtn2.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = document.getElementById('main-bg-color2')?.value || '#1a1d27';
+      openColorPopover('main2', mainBtn2, current);
+    });
+  }
+
+  const folderBtn1 = document.getElementById('folder-bg-color1-btn');
+  if (folderBtn1) {
+    folderBtn1.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = document.getElementById('folder-bg-color1')?.value || '#161a24';
+      openColorPopover('folder1', folderBtn1, current);
+    });
+  }
+
+  const folderBtn2 = document.getElementById('folder-bg-color2-btn');
+  if (folderBtn2) {
+    folderBtn2.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = document.getElementById('folder-bg-color2')?.value || '#2d3345';
+      openColorPopover('folder2', folderBtn2, current);
+    });
+  }
+
+  // Swatches solides du thème principal (1 clic pour appliquer)
   document.querySelectorAll('#main-solid-swatches .solid-swatch').forEach(btn => {
     btn.addEventListener('click', () => {
       setMainBgColor1(btn.dataset.color);
@@ -155,19 +214,14 @@ function setupEventListeners() {
     });
   });
 
-  // Synchronisation Hex et Color Picker pour le thème principal
+  // Synchronisation Hex pour le thème principal
   const mainC1 = document.getElementById('main-bg-color1');
   const mainC1Hex = document.getElementById('main-bg-color1-hex');
   if (mainC1 && mainC1Hex) {
-    mainC1.addEventListener('input', () => {
-      mainC1Hex.value = mainC1.value.toUpperCase();
-      updateMainBgPreview();
-    });
     mainC1Hex.addEventListener('input', () => {
       let val = mainC1Hex.value.trim();
       if (!val.startsWith('#') && val.length > 0) val = '#' + val;
       if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        mainC1.value = val;
         setMainBgColor1(val);
         updateMainBgPreview();
       }
@@ -177,15 +231,10 @@ function setupEventListeners() {
   const mainC2 = document.getElementById('main-bg-color2');
   const mainC2Hex = document.getElementById('main-bg-color2-hex');
   if (mainC2 && mainC2Hex) {
-    mainC2.addEventListener('input', () => {
-      mainC2Hex.value = mainC2.value.toUpperCase();
-      updateMainBgPreview();
-    });
     mainC2Hex.addEventListener('input', () => {
       let val = mainC2Hex.value.trim();
       if (!val.startsWith('#') && val.length > 0) val = '#' + val;
       if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        mainC2.value = val;
         setMainBgColor2(val);
         updateMainBgPreview();
       }
@@ -219,7 +268,7 @@ function setupEventListeners() {
     r.addEventListener('change', updateFolderBgControlsUI);
   });
 
-  // Swatches solides du dossier
+  // Swatches solides du dossier (1 clic pour appliquer)
   document.querySelectorAll('#folder-solid-swatches .solid-swatch').forEach(btn => {
     btn.addEventListener('click', () => {
       setFolderBgColor1(btn.dataset.color);
@@ -227,19 +276,14 @@ function setupEventListeners() {
     });
   });
 
-  // Synchronisation Hex et Color Picker pour le dossier
+  // Synchronisation Hex pour le dossier
   const folderC1 = document.getElementById('folder-bg-color1');
   const folderC1Hex = document.getElementById('folder-bg-color1-hex');
   if (folderC1 && folderC1Hex) {
-    folderC1.addEventListener('input', () => {
-      folderC1Hex.value = folderC1.value.toUpperCase();
-      updateFolderBgPreview();
-    });
     folderC1Hex.addEventListener('input', () => {
       let val = folderC1Hex.value.trim();
       if (!val.startsWith('#') && val.length > 0) val = '#' + val;
       if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        folderC1.value = val;
         setFolderBgColor1(val);
         updateFolderBgPreview();
       }
@@ -249,15 +293,10 @@ function setupEventListeners() {
   const folderC2 = document.getElementById('folder-bg-color2');
   const folderC2Hex = document.getElementById('folder-bg-color2-hex');
   if (folderC2 && folderC2Hex) {
-    folderC2.addEventListener('input', () => {
-      folderC2Hex.value = folderC2.value.toUpperCase();
-      updateFolderBgPreview();
-    });
     folderC2Hex.addEventListener('input', () => {
       let val = folderC2Hex.value.trim();
       if (!val.startsWith('#') && val.length > 0) val = '#' + val;
       if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        folderC2.value = val;
         setFolderBgColor2(val);
         updateFolderBgPreview();
       }
@@ -292,6 +331,7 @@ function setupEventListeners() {
   // Fermeture des modales
   document.querySelectorAll('.close-modal-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      closeColorPopover();
       closeFolderModal();
       closeThemeModal();
     });
@@ -300,14 +340,20 @@ function setupEventListeners() {
   const folderModal = document.getElementById('folder-modal');
   if (folderModal) {
     folderModal.addEventListener('click', (e) => {
-      if (e.target === folderModal) closeFolderModal();
+      if (e.target === folderModal) {
+        closeColorPopover();
+        closeFolderModal();
+      }
     });
   }
 
   const themeModal = document.getElementById('theme-modal');
   if (themeModal) {
     themeModal.addEventListener('click', (e) => {
-      if (e.target === themeModal) closeThemeModal();
+      if (e.target === themeModal) {
+        closeColorPopover();
+        closeThemeModal();
+      }
     });
   }
 

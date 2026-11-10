@@ -24,7 +24,24 @@ def log(message):
 
 
 def install_desktop_shortcuts():
-    """Installe le lanceur .desktop dans le menu GNOME et sur le Bureau s'il existe."""
+    """Installe le lanceur .desktop et les icônes dans le système."""
+    # 0. Installer les icônes dans le thème d'icônes XDG (~/.local/share/icons/hicolor)
+    try:
+        icon_svg = os.path.join(STATIC_DIR, "assets", "icon.svg")
+        for theme in ["hicolor", "NC"]:
+            for res in ["256x256", "128x128", "48x48"]:
+                dir_path = os.path.expanduser(f"~/.local/share/icons/{theme}/{res}/apps")
+                os.makedirs(dir_path, exist_ok=True)
+                if os.path.exists(ICON_PNG):
+                    shutil.copy2(ICON_PNG, os.path.join(dir_path, "todolist.png"))
+            scalable_dir = os.path.expanduser(f"~/.local/share/icons/{theme}/scalable/apps")
+            os.makedirs(scalable_dir, exist_ok=True)
+            if os.path.exists(icon_svg):
+                shutil.copy2(icon_svg, os.path.join(scalable_dir, "todolist.svg"))
+            subprocess.run(["gtk-update-icon-cache", "-f", os.path.expanduser(f"~/.local/share/icons/{theme}")], capture_output=True)
+    except Exception as e:
+        log(f"Erreur installation icônes système: {e}")
+
     desktop_content = f"""[Desktop Entry]
 Version=1.0
 Type=Application
@@ -44,13 +61,14 @@ Keywords=todo;todolist;taches;organisation;
     local_apps = os.path.expanduser("~/.local/share/applications")
     try:
         os.makedirs(local_apps, exist_ok=True)
-        target = os.path.join(local_apps, "todolist.desktop")
-        with open(target, "w", encoding="utf-8") as f:
-            f.write(desktop_content)
-        os.chmod(target, 0o755)
-        subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
+        for app_file in ["todolist.desktop", "ToDoList.desktop"]:
+            target = os.path.join(local_apps, app_file)
+            with open(target, "w", encoding="utf-8") as f:
+                f.write(desktop_content)
+            os.chmod(target, 0o755)
+            subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
         subprocess.run(["update-desktop-database", local_apps], capture_output=True)
-        log("Raccourci installé dans ~/.local/share/applications/todolist.desktop")
+        log("Raccourcis installés dans ~/.local/share/applications/")
     except Exception as e:
         log(f"Erreur installation raccourci local: {e}")
 
