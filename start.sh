@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Lance l'application ToDo List dans sa propre fenêtre native dédiée (style Spotify/VS Code)
+# Lance l'application ToDoList dans sa propre fenêtre native dédiée (style Spotify/VS Code)
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"

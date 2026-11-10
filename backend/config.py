@@ -1,5 +1,5 @@
 """
-Configuration globale et chemins de l'application ToDo List.
+Configuration globale et chemins de l'application ToDoList.
 """
 
 import os
@@ -17,7 +17,7 @@ if not os.path.exists(ICON_PNG):
 
 # Constantes Réseau & App
 DEFAULT_PORT = 4848
-APP_NAME = "ToDo List"
+APP_NAME = "ToDoList"
 APP_ID = "com.local.todolist"
 
 # Thème sombre professionnel par défaut

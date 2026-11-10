@@ -115,6 +115,8 @@ export function openAddFolderModal() {
   idInput.value = '';
   nameInput.value = '';
   weeklyInput.checked = false;
+  const submitBtn = document.getElementById('folder-submit-btn');
+  if (submitBtn) submitBtn.textContent = "Créer le dossier";
 
   const defaultRadio = document.querySelector('input[name="folder-bg-type"][value="default"]');
   if (defaultRadio) defaultRadio.checked = true;
@@ -144,6 +146,8 @@ export function openEditFolderModal(folderId) {
   idInput.value = folder.id;
   nameInput.value = folder.name;
   weeklyInput.checked = Boolean(folder.auto_reset_weekly);
+  const submitBtn = document.getElementById('folder-submit-btn');
+  if (submitBtn) submitBtn.textContent = "Enregistrer les modifications";
 
   const bgType = folder.bg_type || 'default';
   const radio = document.querySelector(`input[name="folder-bg-type"][value="${bgType}"]`);
@@ -297,6 +301,7 @@ export async function handleFolderSubmit(e) {
     if (updated) {
       const idx = state.folders.findIndex(f => f.id === parseInt(folderId));
       if (idx !== -1) state.folders[idx] = updated;
+      selectFolderView(parseInt(folderId, 10));
     }
   } else {
     const created = await api('/api/folders', 'POST', folderData);

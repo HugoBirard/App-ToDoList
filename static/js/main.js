@@ -6,7 +6,7 @@
 import { state } from './state.js';
 import { fetchInitialData } from './api.js';
 import { initTheme, toggleTheme, applyActiveBackground } from './theme.js';
-import { initCustomDropdowns } from './components/dropdowns.js';
+import { initCustomDropdowns, updateFolderDropdown } from './components/dropdowns.js';
 import { 
   initColorPopover, 
   openColorPopover, 
@@ -67,6 +67,7 @@ async function loadData() {
 
     applyActiveBackground(true);
     renderFolders();
+    updateFolderDropdown();
     renderTasks();
   }
 }

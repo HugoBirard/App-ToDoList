@@ -47,13 +47,14 @@ Version=1.0
 Type=Application
 Name={APP_NAME}
 GenericName=Gestionnaire de tâches
-Comment=Gestionnaire de To-Do List local et persistant avec dossiers
+Comment=Gestionnaire de ToDoList local et persistant avec dossiers
 Exec={os.path.join(BASE_DIR, 'start.sh')}
 Icon={ICON_PNG}
 Path={BASE_DIR}
 Terminal=false
 Categories=Office;Utility;ProjectManagement;
 StartupNotify=false
+StartupWMClass=todolist
 Keywords=todo;todolist;taches;organisation;
 """
 
@@ -75,6 +76,7 @@ Keywords=todo;todolist;taches;organisation;
                 pass
 
         subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
+        subprocess.run(["gio", "set", target, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
         subprocess.run(["update-desktop-database", local_apps], capture_output=True)
         log("Raccourci unique installé dans ~/.local/share/applications/todolist.desktop")
     except Exception as e:
@@ -87,6 +89,7 @@ Keywords=todo;todolist;taches;organisation;
             f.write(desktop_content)
         os.chmod(local_desktop, 0o755)
         subprocess.run(["gio", "set", local_desktop, "metadata::trusted", "true"], capture_output=True)
+        subprocess.run(["gio", "set", local_desktop, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
     except Exception:
         pass
 
@@ -100,6 +103,7 @@ Keywords=todo;todolist;taches;organisation;
                     f.write(desktop_content)
                 os.chmod(dest, 0o755)
                 subprocess.run(["gio", "set", dest, "metadata::trusted", "true"], capture_output=True)
+                subprocess.run(["gio", "set", dest, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
                 log(f"Raccourci installé sur {dest}")
             except Exception as e:
                 log(f"Erreur installation bureau {folder}: {e}")

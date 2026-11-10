@@ -179,6 +179,18 @@ class TodoService:
         cursor = conn.cursor()
         title = (data.get("title") or "").strip()
         folder_id = data.get("folder_id")
+
+        # Validation sécurisée de folder_id : si le dossier n'existe pas, on sélectionne le premier dossier valide
+        if folder_id is not None:
+            cursor.execute("SELECT id FROM folders WHERE id = ?", (folder_id,))
+            if not cursor.fetchone():
+                cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+                first_f = cursor.fetchone()
+                folder_id = first_f["id"] if first_f else None
+        else:
+            cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+            first_f = cursor.fetchone()
+            folder_id = first_f["id"] if first_f else None
         priority = data.get("priority", "normal")
         due_date = data.get("due_date", None)
         has_progress = 1 if data.get("has_progress") else 0

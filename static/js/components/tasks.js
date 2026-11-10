@@ -246,9 +246,16 @@ export async function handleAddTask(e) {
   const title = input.value.trim();
   if (!title) return;
 
-  let folderId = parseInt(folderSelect.value);
-  if (isNaN(folderId) && state.folders.length > 0) {
-    folderId = state.folders[0].id;
+  let folderId = parseInt(folderSelect ? folderSelect.value : '', 10);
+  const exists = state.folders.some(f => f.id === folderId);
+  if (!exists && state.folders.length > 0) {
+    const currentNum = Number(state.currentView);
+    if (!isNaN(currentNum) && state.folders.some(f => f.id === currentNum)) {
+      folderId = currentNum;
+    } else {
+      folderId = state.folders[0].id;
+    }
+    if (folderSelect) folderSelect.value = folderId;
   }
 
   const priority = prioritySelect.value;

@@ -42,8 +42,9 @@ export function applyActiveBackground(immediate = false) {
   if (targetBg === currentActiveBg) return;
   currentActiveBg = targetBg;
 
-  // Définir la variable CSS sur la racine
+  // Définir la variable CSS sur la racine et sur le body
   document.documentElement.style.setProperty('--active-bg', targetBg);
+  document.body.style.background = targetBg;
 
   const layer1 = document.getElementById('bg-layer-1');
   const layer2 = document.getElementById('bg-layer-2');

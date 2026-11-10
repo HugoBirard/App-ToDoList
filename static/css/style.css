@@ -51,12 +51,13 @@
 }
 
 html {
-  background-color: #08090c !important;
+  background-color: #08090c;
   min-height: 100%;
 }
 
 body {
-  background-color: #08090c !important;
+  background: var(--active-bg, var(--default-dark-bg));
+  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -68,7 +69,7 @@ body {
 .app-bg-layer {
   position: fixed;
   inset: 0;
-  z-index: -20;
+  z-index: -1;
   pointer-events: none;
   background-attachment: fixed;
   background-size: cover;
@@ -78,12 +79,10 @@ body {
 
 .app-bg-layer.active-layer {
   opacity: 1;
-  z-index: -10;
 }
 
 .app-bg-layer.hidden-layer {
   opacity: 0;
-  z-index: -20;
 }
 
 /* Layout */

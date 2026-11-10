@@ -6,7 +6,7 @@ Garantit une isolation totale : un crash C-level de WebKit ne tue pas le serveur
 import sys
 import os
 
-APP_NAME = "ToDo List"
+APP_NAME = "ToDoList"
 
 
 def main():

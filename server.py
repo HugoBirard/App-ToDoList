@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Serveur HTTP autonome pour l'application ToDo List.
+Serveur HTTP autonome pour l'application ToDoList.
 Peut être lancé directement : python3 server.py [--port 4848] [--no-window]
 """
 
