@@ -1,12 +1,9 @@
 /**
-/**
  * Composant de gestion de la synchronisation Multi-PC et de l'emplacement de stockage.
  */
 
 import { api } from '../api.js';
 import { state } from '../state.js';
-import { renderFolders } from './folders.js';
-import { renderTasks, renderCounters, updateProgress } from './tasks.js';
 import { showConfirmDialog, showNotificationDialog } from './modals.js';
 
 let lastKnownMtime = 0;

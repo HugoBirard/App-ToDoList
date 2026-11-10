@@ -6,7 +6,7 @@ DESKTOP_SRC="$DIR/ToDoList.desktop"
 
 # Mettre à jour dynamiquement les chemins et l'icône dans le fichier .desktop
 sed -i "s|^Exec=.*|Exec=$DIR/start.sh|" "$DESKTOP_SRC"
-sed -i "s|^Icon=.*|Icon=todolist|" "$DESKTOP_SRC"
+sed -i "s|^Icon=.*|Icon=$DIR/static/assets/icon.png|" "$DESKTOP_SRC"
 sed -i "s|^Path=.*|Path=$DIR|" "$DESKTOP_SRC"
 if ! grep -q "^Path=" "$DESKTOP_SRC"; then
   echo "Path=$DIR" >> "$DESKTOP_SRC"
