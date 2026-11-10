@@ -71,6 +71,45 @@ class ServicesTestCase(unittest.TestCase):
         folder = self.service.create_folder({"name": "Test Icon"})
         self.assertEqual(folder["icon"], "folder")
 
+    def test_storage_info_and_change_path(self):
+        info = self.service.get_storage_info()
+        self.assertTrue(info["file_exists"])
+        self.assertIn("current_db_path", info)
+        self.assertGreaterEqual(info["task_count"], 0)
+
+        # Migration vers un autre fichier
+        new_db = os.path.join(self.temp_dir.name, "shared_cloud", "todolist.db")
+        res = self.service.change_storage_path(new_db, action="migrate")
+        self.assertTrue(res["success"])
+        self.assertTrue(os.path.exists(new_db))
+
+        # Vérifier que les données sont bien dans la nouvelle base
+        new_info = self.service.get_storage_info()
+        self.assertEqual(os.path.abspath(new_info["current_db_path"]), os.path.abspath(new_db))
+
+        # Reset vers emplacement par défaut
+        res_reset = self.service.change_storage_path(None, action="reset")
+        self.assertTrue(res_reset["success"])
+
+    def test_export_and_import_backup(self):
+        # Création de données
+        folder = self.service.create_folder({"name": "Dossier Export"})
+        self.service.create_task({"title": "Tâche Exportable", "folder_id": folder["id"]})
+
+        backup = self.service.export_backup()
+        self.assertEqual(backup["app"], "ToDoList")
+        self.assertIn("folders", backup["data"])
+        self.assertIn("tasks", backup["data"])
+
+        # Test import en mode fusion
+        imported_data = self.service.import_backup(backup, mode="merge")
+        self.assertIn("folders", imported_data)
+        self.assertIn("tasks", imported_data)
+
+        # Test check_updates
+        updates = self.service.check_updates()
+        self.assertGreater(updates["last_modified"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -23,6 +23,19 @@ import {
   clearCompleted 
 } from './components/tasks.js';
 import { 
+  initSyncUI, 
+  initAutoSyncWatcher, 
+  fetchStorageInfo 
+} from './components/sync.js';
+import { 
+  initDiscordUI, 
+  updateDiscordUIFromState 
+} from './components/discord.js';
+import { 
+  initServerUI, 
+  updateServerStatusUI 
+} from './components/server.js';
+import { 
   openAddFolderModal, 
   closeFolderModal, 
   handleFolderSubmit, 
@@ -48,6 +61,10 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadData();
+  initSyncUI(loadData);
+  initAutoSyncWatcher(loadData);
+  initServerUI(loadData);
+  initDiscordUI();
   setupEventListeners();
 });
 
@@ -69,6 +86,8 @@ async function loadData() {
     renderFolders();
     updateFolderDropdown();
     renderTasks();
+    updateDiscordUIFromState();
+    updateServerStatusUI();
   }
 }
 

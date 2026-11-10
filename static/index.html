@@ -99,6 +99,11 @@
             </div>
             <p id="current-subtitle" class="subtitle">Vue d'ensemble de vos activités</p>
           </div>
+          <div id="remote-server-pill" class="remote-server-pill hidden" title="Connecté à un serveur d'équipe partagé">
+            <span class="pulse-dot"></span>
+            <span id="remote-server-pill-text">Serveur distant</span>
+            <button type="button" id="remote-server-pill-disconnect" class="pill-disconnect-btn" title="Déconnecter et revenir en mode local">✕</button>
+          </div>
         </div>
 
         <div class="header-right">
@@ -462,7 +467,29 @@
         </button>
       </div>
       
+      <!-- Navigation par Onglets -->
+      <div class="modal-tab-bar">
+        <button type="button" class="modal-tab active" id="modal-tab-btn-appearance">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          Apparence & Fond
+        </button>
+        <button type="button" class="modal-tab" id="modal-tab-btn-sync">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Liaison PC & Synchro
+        </button>
+        <button type="button" class="modal-tab" id="modal-tab-btn-server">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Serveur Réseau
+        </button>
+        <button type="button" class="modal-tab" id="modal-tab-btn-discord">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="feather-icon"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+          Discord & Équipe
+        </button>
+      </div>
+      
       <div class="theme-modal-body">
+        <!-- ONGLET 1 : APPARENCE & FOND -->
+        <div id="tab-pane-appearance" class="tab-pane active">
         <!-- Thèmes Pro Prédéfinis -->
         <div class="form-group">
           <label>Styles professionnels recommandés</label>
@@ -576,9 +603,279 @@
             Aperçu en direct
           </div>
         </div>
+        </div>
+
+        <!-- ONGLET 2 : LIAISON MULTI-PC & SYNCHRONISATION -->
+        <div id="tab-pane-sync" class="tab-pane hidden">
+          <div class="sync-intro-banner">
+            <span class="sync-intro-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
+            <div class="sync-intro-text">
+              <strong>Synchronisez vos listes entre plusieurs PC</strong> : Placez votre fichier de base de données dans un dossier partagé (ex : <em>Nextcloud</em>, <em>Dropbox</em>, <em>Syncthing</em>, <em>Google Drive</em> ou partage réseau <em>SMB/NFS</em>). Tous vos ordinateurs partageront automatiquement les mêmes tâches et dossiers en temps réel.
+            </div>
+          </div>
+
+          <!-- Carte d'état actuel du stockage -->
+          <div class="sync-card">
+            <div class="sync-card-header">
+              <span class="sync-card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Emplacement de stockage actif
+              </span>
+              <span id="sync-status-badge" class="sync-badge local">Local</span>
+            </div>
+
+            <div class="sync-path-display">
+              <span id="sync-current-path-text">Chargement...</span>
+              <button type="button" id="sync-copy-path-btn" class="sync-copy-btn" title="Copier le chemin">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+
+            <div class="sync-stats-row">
+              <span id="sync-stat-tasks">0 tâche(s)</span>
+              <span>•</span>
+              <span id="sync-stat-folders">0 dossier(s)</span>
+              <span>•</span>
+              <span id="sync-stat-size">0 Ko</span>
+              <span>•</span>
+              <span id="sync-stat-mtime">Modifié récemment</span>
+            </div>
+          </div>
+
+          <!-- Formulaire de changement d'emplacement partagé -->
+          <div class="form-group">
+            <label for="sync-path-input">Choisir ou connecter un dossier partagé / cloud</label>
+            <div class="sync-input-group">
+              <input 
+                type="text" 
+                id="sync-path-input" 
+                placeholder="Ex : ~/Nextcloud/ToDoList/todolist.db ou /mnt/partage/todolist.db" 
+                autocomplete="off"
+                spellcheck="false"
+              >
+              <button type="button" id="sync-browse-btn" class="btn btn-secondary" title="Parcourir vos dossiers...">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Parcourir...
+              </button>
+            </div>
+
+            <span class="sync-chips-label">Raccourcis rapides :</span>
+            <div class="sync-chips">
+              <button type="button" class="sync-chip" data-path="~/Nextcloud/ToDoList/todolist.db">Nextcloud</button>
+              <button type="button" class="sync-chip" data-path="~/Dropbox/ToDoList/todolist.db">Dropbox</button>
+              <button type="button" class="sync-chip" data-path="~/Syncthing/ToDoList/todolist.db">Syncthing</button>
+              <button type="button" class="sync-chip" data-path="~/Documents/ToDoList/todolist.db">Documents</button>
+            </div>
+
+            <div class="sync-actions-row">
+              <button type="button" id="sync-connect-btn" class="btn btn-primary" title="Utiliser un fichier existant déjà partagé">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Connecter cette base
+              </button>
+              <button type="button" id="sync-migrate-btn" class="btn btn-secondary" title="Copier vos listes actuelles vers ce nouvel emplacement">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>
+                Déplacer mes données ici
+              </button>
+              <button type="button" id="sync-reset-default-btn" class="btn btn-secondary" title="Revenir au stockage local par défaut">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Remettre à zéro
+              </button>
+            </div>
+          </div>
+
+          <hr class="separator" style="margin: 20px 0;">
+
+          <!-- Section Sauvegardes & Imports -->
+          <div class="form-group">
+            <label>Sauvegarde & Restauration manuelle</label>
+            <p class="subtitle" style="margin-top: 4px; font-size: 0.82rem;">Exportez vos listes sous forme de fichier JSON ou restaurez-les à tout moment.</p>
+            <div class="sync-backup-grid">
+              <button type="button" id="sync-export-json-btn" class="sync-backup-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger une sauvegarde (JSON)
+              </button>
+              <button type="button" id="sync-import-json-btn" class="sync-backup-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Importer / Restaurer un fichier
+              </button>
+              <input type="file" id="sync-file-picker" accept=".json" class="hidden">
+            </div>
+          </div>
+        </div>
+
+        <!-- ONGLET : SERVEUR RÉSEAU & ÉQUIPE -->
+        <div id="tab-pane-server" class="tab-pane hidden">
+          <div class="server-intro-banner">
+            <span class="server-intro-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
+            <div class="server-intro-text">
+              <strong>Travail collaboratif en direct</strong> : Connectez votre application au serveur ToDoList d'un collègue ou hébergez le serveur pour votre groupe de projet. Tout le monde partage les mêmes tâches en temps réel sans aucun conflit de fichier.
+            </div>
+          </div>
+
+          <!-- Carte État Actuel du Client -->
+          <div class="sync-card">
+            <div class="sync-card-header">
+              <span class="sync-card-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                Connexion active de l'application
+              </span>
+              <span id="server-connection-badge" class="sync-badge local">Serveur Local (127.0.0.1)</span>
+            </div>
+
+            <div class="sync-path-display">
+              <span id="server-current-url-text">http://127.0.0.1:4848 (Base locale)</span>
+            </div>
+          </div>
+
+          <!-- Section 1 : Se connecter à un serveur distant -->
+          <div class="form-group">
+            <label for="remote-server-input">Rejoindre le serveur d'un camarade de projet</label>
+            <div class="sync-input-group">
+              <input 
+                type="text" 
+                id="remote-server-input" 
+                placeholder="Ex : http://192.168.1.35:4848 ou https://projet.mon-domaine.fr" 
+                autocomplete="off"
+                spellcheck="false"
+              >
+              <button type="button" id="remote-server-test-btn" class="btn btn-secondary">
+                Tester
+              </button>
+            </div>
+            <div class="sync-actions-row" style="margin-top: 10px;">
+              <button type="button" id="remote-server-connect-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="20 6 9 17 4 12"/></svg>
+                Se connecter à ce serveur
+              </button>
+              <button type="button" id="remote-server-disconnect-btn" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Revenir en mode local
+              </button>
+            </div>
+            <div id="remote-server-feedback" class="discord-feedback hidden"></div>
+          </div>
+
+          <hr class="separator" style="margin: 20px 0;">
+
+          <!-- Section 2 : Héberger pour votre groupe -->
+          <div class="form-group">
+            <label>Héberger le serveur pour votre équipe</label>
+            <p class="subtitle" style="margin-top: 4px; font-size: 0.82rem;">Si vous lancez le serveur pour votre groupe, voici les adresses pour vos collègues :</p>
+            
+            <div class="server-host-card">
+              <div class="server-lan-urls" id="server-lan-urls-container">
+                <div class="server-lan-item">
+                  <span id="server-detected-lan-url">Détection des adresses locales...</span>
+                  <button type="button" id="server-copy-lan-btn" class="btn btn-sm btn-secondary" title="Copier pour vos collègues">Copier</button>
+                </div>
+              </div>
+
+              <div class="server-cmd-box" style="margin-top: 12px;">
+                <span class="sub-label">Commande pour lancer le serveur d'équipe partagé :</span>
+                <code>./lancer-serveur-equipe.sh</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ONGLET 3 : DISCORD & ÉQUIPE -->
+        <div id="tab-pane-discord" class="tab-pane hidden">
+          <div class="discord-intro-banner">
+            <span class="discord-intro-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="feather-icon"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+            </span>
+            <div class="discord-intro-text">
+              <strong>Synchronisation Discord en direct</strong> : Connectez votre salon de projet (#taches-projet). Vos camarades recevront instantanément des notifications élégantes à chaque tâche créée, validée ou supprimée.
+            </div>
+          </div>
+
+          <!-- Carte d'activation globale & Webhook -->
+          <div class="sync-card discord-card">
+            <div class="discord-header-row">
+              <label class="discord-toggle-label">
+                <input type="checkbox" id="discord-enabled-toggle">
+                <span class="discord-toggle-text">Activer les notifications Discord</span>
+              </label>
+              <span id="discord-status-badge" class="sync-badge local">Inactif</span>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label for="discord-webhook-url">URL du Webhook Discord</label>
+              <input 
+                type="text" 
+                id="discord-webhook-url" 
+                placeholder="https://discord.com/api/webhooks/..." 
+                autocomplete="off"
+                spellcheck="false"
+              >
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="discord-author-name">Votre nom ou pseudo pour les notifications</label>
+              <input 
+                type="text" 
+                id="discord-author-name" 
+                placeholder="Ex : Hugo (laissez vide pour 'Équipe')" 
+                maxlength="50"
+              >
+            </div>
+          </div>
+
+          <!-- Sélection des événements -->
+          <div class="form-group">
+            <label>Événements à envoyer sur Discord</label>
+            <div class="discord-events-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" id="discord-evt-created" checked>
+                <span>📝 Nouvelle tâche créée</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="discord-evt-completed" checked>
+                <span>✅ Tâche terminée ou réouverte</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="discord-evt-deleted" checked>
+                <span>🗑️ Tâche supprimée</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="discord-evt-folder" checked>
+                <span>📁 Nouveau dossier créé</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Actions de test et d'enregistrement -->
+          <div class="discord-actions-row">
+            <button type="button" id="discord-test-btn" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Envoyer un message test
+            </button>
+            <button type="button" id="discord-save-btn" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Enregistrer la configuration Discord
+            </button>
+          </div>
+          <div id="discord-test-feedback" class="discord-feedback hidden"></div>
+
+          <hr class="separator" style="margin: 20px 0;">
+
+          <!-- Guide pas-à-pas -->
+          <div class="discord-tutorial-box">
+            <h4>💡 Comment créer un webhook Discord en 30 secondes :</h4>
+            <ol>
+              <li>Dans votre serveur Discord, faites un <strong>clic droit</strong> sur votre salon textuel (ex : <code>#projet</code>) &gt; <em>Modifier le salon</em>.</li>
+              <li>Allez dans <strong>Intégrations</strong> &gt; <strong>Webhooks</strong> &gt; <strong>Nouveau Webhook</strong>.</li>
+              <li>Cliquez sur <strong>Copier l'URL du Webhook</strong>, puis collez-la dans le champ ci-dessus et cliquez sur <em>Enregistrer</em> !</li>
+            </ol>
+          </div>
+        </div>
       </div>
 
-      <div class="modal-actions">
+      <div class="modal-actions" id="theme-modal-actions">
         <button type="button" class="btn btn-secondary" id="reset-default-theme-btn">Réinitialiser (Noir & Gris Pro)</button>
         <button type="button" class="btn btn-primary" id="save-main-theme-btn">Appliquer</button>
       </div>

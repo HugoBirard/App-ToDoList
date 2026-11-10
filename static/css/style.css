@@ -486,6 +486,7 @@ body {
 .add-task-options {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   margin-top: 12px;
   flex-wrap: wrap;
@@ -746,7 +747,7 @@ select option, optgroup {
 }
 
 .add-task-options .btn {
-  margin-left: auto;
+  margin-left: 0;
 }
 
 /* Filter Actions Bar */
@@ -1261,6 +1262,7 @@ select option, optgroup {
 
 .emoji-picker, .color-picker {
   display: flex;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -1318,8 +1320,8 @@ select option, optgroup {
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
@@ -1463,6 +1465,7 @@ select option, optgroup {
 
 .icon-picker {
   display: flex;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -1574,8 +1577,9 @@ select option, optgroup {
 
 .bg-type-selector {
   display: flex;
-  gap: 14px;
-  margin-top: 6px;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
@@ -1595,7 +1599,8 @@ select option, optgroup {
 
 .color-inputs-row {
   display: flex;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -1603,6 +1608,7 @@ select option, optgroup {
 .color-input-field {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -1697,8 +1703,14 @@ select option, optgroup {
   letter-spacing: 0.5px;
 }
 
+.solid-palette-section .sub-label {
+  display: block;
+  text-align: center;
+}
+
 .solid-swatches-grid {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
@@ -1932,8 +1944,13 @@ select option, optgroup {
 }
 
 /* Sélecteur d'angle stylisé (Pills haute visibilité) */
+#main-angle-wrap span {
+  text-align: center;
+}
+
 .angle-pill-group {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 6px;
@@ -2039,4 +2056,558 @@ select option, optgroup {
   padding: 10px 18px;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+/* ==========================================================================
+   Onglets de la fenêtre de paramètres (Tabs)
+   ========================================================================== */
+
+.modal-tab-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.modal-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.modal-tab:hover {
+  color: var(--text-primary);
+}
+
+.modal-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.modal-tab .feather-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tab-pane {
+  display: block;
+}
+
+.tab-pane.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Section Liaison PC & Synchronisation
+   ========================================================================== */
+
+.sync-intro-banner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.sync-intro-icon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.sync-intro-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.sync-intro-text strong {
+  color: var(--text-primary);
+}
+
+.sync-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.sync-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sync-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sync-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sync-badge.local {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.sync-badge.custom {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sync-path-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.sync-path-display span {
+  flex: 1;
+}
+
+.sync-copy-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sync-copy-btn:hover {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sync-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.sync-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sync-input-group input {
+  flex: 1;
+  padding: 9px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+}
+
+.sync-input-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.sync-chips-label {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.sync-chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.sync-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sync-chip:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.sync-actions-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.sync-actions-row .btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  justify-content: center;
+}
+
+.sync-backup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.sync-backup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sync-backup-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Section Intégration Discord & Projet
+   ========================================================================== */
+
+.discord-intro-banner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(88, 101, 242, 0.10);
+  border: 1px solid rgba(88, 101, 242, 0.28);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.discord-intro-icon {
+  flex-shrink: 0;
+  color: #5865f2;
+}
+
+.discord-intro-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.discord-intro-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.discord-intro-text strong {
+  color: var(--text-primary);
+}
+
+.discord-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.discord-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.discord-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.discord-toggle-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #5865f2;
+  cursor: pointer;
+}
+
+.discord-toggle-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.discord-events-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-label:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(88, 101, 242, 0.4);
+}
+
+.checkbox-label input[type="checkbox"] {
+  accent-color: #5865f2;
+  cursor: pointer;
+}
+
+.discord-actions-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.discord-feedback {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  animation: fadeIn 0.25s ease;
+}
+
+.discord-feedback.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.discord-feedback.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.discord-tutorial-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.discord-tutorial-box h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.discord-tutorial-box ol {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.discord-tutorial-box code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #818cf8;
+}
+
+/* ==========================================================================
+   Section Mode Serveur Réseau & Pilote Distant
+   ========================================================================== */
+
+.server-intro-banner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(14, 165, 233, 0.10);
+  border: 1px solid rgba(14, 165, 233, 0.28);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.server-intro-icon {
+  flex-shrink: 0;
+  color: #0ea5e9;
+}
+
+.server-intro-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.server-intro-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.server-intro-text strong {
+  color: var(--text-primary);
+}
+
+.server-host-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.server-lan-urls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.server-lan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.server-cmd-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.server-cmd-box code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 0.88rem;
+  color: #38bdf8;
+  user-select: all;
+}
+
+/* Pastille Indicateur de Serveur Distant (Top Header) */
+.remote-server-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  margin-left: 12px;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #38bdf8;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.pill-disconnect-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.pill-disconnect-btn:hover {
+  color: #ef4444;
 }
