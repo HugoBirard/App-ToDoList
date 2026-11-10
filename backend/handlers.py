@@ -1,6 +1,6 @@
 """
 Gestionnaire HTTP et répartiteur d'API REST.
-Lie les requêtes HTTP entrantes aux méthodes du TodoService.
+Lie les requêtes HTTP entrantes aux méthodes du TodoService de façon robuste et sécurisée.
 """
 
 import json
@@ -25,6 +25,9 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
         super().end_headers()
 
     def send_json(self, data, status=200):
@@ -38,13 +41,33 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response_bytes)
 
+    def parse_id(self, val):
+        """Parse de manière sécurisée un entier d'identifiant d'URL compatible SQLite 64-bit."""
+        try:
+            n = int(val)
+            if 0 < n <= 9223372036854775807:
+                return n
+            return None
+        except (ValueError, TypeError, OverflowError):
+            return None
+
     def parse_body(self):
-        content_length = int(self.headers.get("Content-Length", 0))
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+        except (ValueError, TypeError):
+            content_length = 0
+
         if content_length <= 0:
             return {}
+
+        # Limite de taille de payload : 5 Mo
+        if content_length > 5 * 1024 * 1024:
+            return {}
+
         try:
-            return json.loads(self.rfile.read(content_length).decode("utf-8"))
-        except json.JSONDecodeError:
+            raw_body = self.rfile.read(content_length).decode("utf-8")
+            return json.loads(raw_body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
             return {}
 
     def do_OPTIONS(self):
@@ -55,105 +78,134 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
 
-        if path == "/api/data":
-            data = self.service.get_all_data()
-            self.send_json(data)
-            return
+            if path == "/api/data":
+                data = self.service.get_all_data()
+                self.send_json(data)
+                return
 
-        super().do_GET()
+            super().do_GET()
+        except Exception as e:
+            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
 
     def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-        parts = path.strip("/").split("/")
-        payload = self.parse_body()
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            parts = path.strip("/").split("/")
+            payload = self.parse_body()
 
-        # POST /api/folders/<id>/reset
-        if len(parts) == 4 and parts[0] == "api" and parts[1] == "folders" and parts[3] == "reset":
-            folder_id = int(parts[2])
-            self.service.reset_folder_tasks(folder_id)
-            self.send_json({"success": True})
-            return
-
-        # POST /api/folders
-        if path == "/api/folders":
-            folder = self.service.create_folder(payload)
-            self.send_json(folder, status=201)
-            return
-
-        # POST /api/tasks
-        if path == "/api/tasks":
-            title = (payload.get("title") or "").strip()
-            if not title:
-                self.send_json({"error": "Le titre est requis"}, status=400)
+            # POST /api/folders/<id>/reset
+            if len(parts) == 4 and parts[0] == "api" and parts[1] == "folders" and parts[3] == "reset":
+                folder_id = self.parse_id(parts[2])
+                if not folder_id:
+                    self.send_json({"error": "Identifiant de dossier invalide"}, status=400)
+                    return
+                self.service.reset_folder_tasks(folder_id)
+                self.send_json({"success": True})
                 return
-            task = self.service.create_task(payload)
-            self.send_json(task, status=201)
-            return
 
-        # POST /api/tasks/clear-completed
-        if path == "/api/tasks/clear-completed":
-            folder_id = payload.get("folder_id")
-            self.service.clear_completed(folder_id)
-            self.send_json({"success": True})
-            return
+            # POST /api/folders
+            if path == "/api/folders":
+                folder = self.service.create_folder(payload)
+                self.send_json(folder, status=201)
+                return
 
-        self.send_json({"error": "Route introuvable"}, status=404)
+            # POST /api/tasks
+            if path == "/api/tasks":
+                title = (payload.get("title") or "").strip()
+                if not title:
+                    self.send_json({"error": "Le titre est requis"}, status=400)
+                    return
+                task = self.service.create_task(payload)
+                self.send_json(task, status=201)
+                return
+
+            # POST /api/tasks/clear-completed
+            if path == "/api/tasks/clear-completed":
+                folder_id = payload.get("folder_id")
+                if folder_id is not None:
+                    folder_id = self.parse_id(folder_id)
+                self.service.clear_completed(folder_id)
+                self.send_json({"success": True})
+                return
+
+            self.send_json({"error": "Route introuvable"}, status=404)
+        except Exception as e:
+            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
 
     def do_PUT(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-        parts = path.strip("/").split("/")
-        payload = self.parse_body()
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            parts = path.strip("/").split("/")
+            payload = self.parse_body()
 
-        # PUT /api/settings
-        if path == "/api/settings":
-            settings = self.service.update_settings(payload)
-            self.send_json(settings)
-            return
+            # PUT /api/settings
+            if path == "/api/settings":
+                settings = self.service.update_settings(payload)
+                self.send_json(settings)
+                return
 
-        # PUT /api/folders/<id>
-        if len(parts) == 3 and parts[0] == "api" and parts[1] == "folders":
-            folder_id = int(parts[2])
-            updated = self.service.update_folder(folder_id, payload)
-            if updated:
-                self.send_json(updated)
-            else:
-                self.send_json({"error": "Dossier introuvable"}, status=404)
-            return
+            # PUT /api/folders/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "folders":
+                folder_id = self.parse_id(parts[2])
+                if not folder_id:
+                    self.send_json({"error": "Identifiant de dossier invalide"}, status=400)
+                    return
+                updated = self.service.update_folder(folder_id, payload)
+                if updated:
+                    self.send_json(updated)
+                else:
+                    self.send_json({"error": "Dossier introuvable"}, status=404)
+                return
 
-        # PUT /api/tasks/<id>
-        if len(parts) == 3 and parts[0] == "api" and parts[1] == "tasks":
-            task_id = int(parts[2])
-            updated = self.service.update_task(task_id, payload)
-            if updated:
-                self.send_json(updated)
-            else:
-                self.send_json({"error": "Tâche introuvable"}, status=404)
-            return
+            # PUT /api/tasks/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "tasks":
+                task_id = self.parse_id(parts[2])
+                if not task_id:
+                    self.send_json({"error": "Identifiant de tâche invalide"}, status=400)
+                    return
+                updated = self.service.update_task(task_id, payload)
+                if updated:
+                    self.send_json(updated)
+                else:
+                    self.send_json({"error": "Tâche introuvable"}, status=404)
+                return
 
-        self.send_json({"error": "Route introuvable"}, status=404)
+            self.send_json({"error": "Route introuvable"}, status=404)
+        except Exception as e:
+            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
 
     def do_DELETE(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-        parts = path.strip("/").split("/")
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            path = parsed.path
+            parts = path.strip("/").split("/")
 
-        # DELETE /api/folders/<id>
-        if len(parts) == 3 and parts[0] == "api" and parts[1] == "folders":
-            folder_id = int(parts[2])
-            self.service.delete_folder(folder_id)
-            self.send_json({"success": True})
-            return
+            # DELETE /api/folders/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "folders":
+                folder_id = self.parse_id(parts[2])
+                if not folder_id:
+                    self.send_json({"error": "Identifiant de dossier invalide"}, status=400)
+                    return
+                self.service.delete_folder(folder_id)
+                self.send_json({"success": True})
+                return
 
-        # DELETE /api/tasks/<id>
-        if len(parts) == 3 and parts[0] == "api" and parts[1] == "tasks":
-            task_id = int(parts[2])
-            self.service.delete_task(task_id)
-            self.send_json({"success": True})
-            return
+            # DELETE /api/tasks/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "tasks":
+                task_id = self.parse_id(parts[2])
+                if not task_id:
+                    self.send_json({"error": "Identifiant de tâche invalide"}, status=400)
+                    return
+                self.service.delete_task(task_id)
+                self.send_json({"success": True})
+                return
 
-        self.send_json({"error": "Route introuvable"}, status=404)
+            self.send_json({"error": "Route introuvable"}, status=404)
+        except Exception as e:
+            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)

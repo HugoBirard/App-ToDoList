@@ -114,6 +114,36 @@ class HandlersTestCase(unittest.TestCase):
         status, err = self._request("GET", "/api/unknown_endpoint")
         self.assertEqual(status, 404)
 
+    def test_invalid_url_identifiers(self):
+        # Non-integer IDs doivent renvoyer un statut 400 propre
+        status, err = self._request("PUT", "/api/tasks/abc", {"title": "Test"})
+        self.assertEqual(status, 400)
+        self.assertIn("error", err)
+
+        status, err = self._request("DELETE", "/api/tasks/notanumber")
+        self.assertEqual(status, 400)
+
+        status, err = self._request("DELETE", "/api/tasks/-5")
+        self.assertEqual(status, 400)
+
+        status, err = self._request("PUT", "/api/tasks/99999999999999999999999999999999", {"title": "Overflow"})
+        self.assertEqual(status, 400)
+
+    def test_security_headers(self):
+        url = f"{self.base_url}/api/data"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as resp:
+            headers = resp.headers
+            self.assertEqual(headers.get("X-Content-Type-Options"), "nosniff")
+            self.assertEqual(headers.get("X-Frame-Options"), "DENY")
+            self.assertEqual(headers.get("Referrer-Policy"), "no-referrer")
+
+    def test_sqli_resilience(self):
+        payload = "' OR '1'='1"
+        status, task = self._request("POST", "/api/tasks", {"title": payload})
+        self.assertEqual(status, 201)
+        self.assertEqual(task["title"], payload)
+
 
 if __name__ == "__main__":
     unittest.main()

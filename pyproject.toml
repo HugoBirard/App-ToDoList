@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "todolist-desktop"
 version = "1.0.0"
-description = "Application To-Do List autonome et locale avec fenêtrage natif GTK, tri par dossiers et persistance SQLite"
+description = "Application ToDoList autonome et locale avec fenêtrage natif GTK, tri par dossiers et persistance SQLite"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
