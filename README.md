@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
-  <img src="https://img.shields.io/badge/Tests-18%2F18%20Passed-success?style=flat" alt="Tests 18/18 Passed">
+  <img src="https://img.shields.io/badge/Tests-23%2F23%20Passed-success?style=flat" alt="Tests 23/23 Passed">
   <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat" alt="License MIT">
@@ -100,55 +100,71 @@ Le projet est articulé selon une **architecture en couches découplée**, garan
 
 ```mermaid
 flowchart TD
-    subgraph UI_Shell["Couche Affichage Bureau (Native Window)"]
-        W1["GTK4 + WebKit6 (Prioritaire)"]
+    subgraph UI_Shell["Couche Bureau & Fenêtrage Natif (GTK4 / Wayland / CSD)"]
+        W1["GTK4 + WebKit6 (Priorité 1 Native)"]
+        HB["HeaderBar CSD Personnalisable (Transparente, Match-BG, Glass, Néon, Minimal, Classic)"]
+        BRIDGE["Pont IPC WebKit (UserContentManager / set_titlebar_style)"]
         W2["GNOME Web Epiphany (--application-mode)"]
         W3["Chromium Engine (--app=URL)"]
-        W4["GTK3 + WebKit2"]
+        W4["GTK3 + WebKit2 (Fallback)"]
+        W1 --- HB
+        HB <--> BRIDGE
     end
 
     subgraph Frontend["Couche Frontend Modulaire (HTML5 / CSS / ES6)"]
-        HTML["index.html (Structure sémantique & 4 onglets)"]
-        CSS["style.css (Tokens, Glassmorphism, Choix centrés)"]
+        HTML["index.html (Structure sémantique & 4 onglets : Apparence, Synchro, Réseau, Discord)"]
+        CSS["style.css (Tokens design, Glassmorphism, Miniatures & Choix centrés)"]
         JS_M["main.js (Bootstrap & Initialisation)"]
         JS_STATE["state.js (Store réactif centralisé)"]
         JS_API["api.js (Client HTTP REST & Mode distant)"]
-        JS_COMP["components/ (dropdowns, folders, modals, tasks, sync, server, discord)"]
-        JS_ICONS["icons.js (SVG vectoriels)"]
+        
+        subgraph Components["Composants Métier (static/js/components/)"]
+            C_MODAL["modals.js (Thèmes, Barres de titre, Dossiers)"]
+            C_SERVER["server.js (Client serveur distant & IP LAN)"]
+            C_DISCORD["discord.js (Configuration Webhooks & Tests)"]
+            C_SYNC["sync.js (Liaison multi-PC, Import/Export JSON)"]
+            C_TASKS["tasks.js (Progression 0-100%, Sliders, CRUD)"]
+            C_FOLDERS["folders.js (Dossiers, Resets hebdos, Badges)"]
+        end
+        
+        JS_ICONS["icons.js (SVG vectoriels sécurisés)"]
         JS_THEME["theme.js (Moteur de rendu thèmes & dégradés)"]
     end
 
     subgraph Backend["Couche Serveur & Métier (Python 3 Standard)"]
         MAIN["main.py (Orchestrateur & Lanceur d'application)"]
-        SERVER["server.py (Serveur HTTP Threading & Support Réseau 0.0.0.0)"]
+        SERVER["server.py (Serveur HTTP Threading & Partage Réseau 0.0.0.0)"]
         HANDLER["backend/handlers.py (Dispatcher REST & Fichiers statiques)"]
         SERVICE["backend/services.py (TodoService - Logique métier pure)"]
-        DISCORD["backend/discord.py (Émetteur de Webhooks & Rich Embeds)"]
-        DB["backend/database.py (Connexions SQLite & Migrations)"]
+        DISCORD["backend/discord.py (Émetteur asynchrone Webhooks & Embeds)"]
+        DB["backend/database.py (Connexions SQLite, WAL & Migrations)"]
     end
 
-    subgraph External["Intégrations Externes"]
-        DISCORD_BOT["discord_bot.py (Bot Discord interactif)"]
-        DISCORD_API["API Discord (Webhooks)"]
+    subgraph External["Intégrations Externes & Collaboration"]
+        DISCORD_BOT["discord_bot.py (Bot Discord interactif autonome)"]
+        DISCORD_API["API Discord (Salons textuels & Webhooks)"]
+        LAN_CLIENTS["Navigateurs & Clients distants sur le réseau local (LAN)"]
     end
 
-    subgraph Storage["Couche Données"]
-        SQLITE[("data/todolist.db (SQLite3)")]
+    subgraph Storage["Couche Données Persistantes"]
+        SQLITE[("data/todolist.db (SQLite3 avec clés étrangères & WAL)")]
     end
 
+    BRIDGE <-->|Changement de style en direct| C_MODAL
     UI_Shell -->|Affiche via HTTP local ou distant| HTML
     HTML --> JS_M
-    JS_M --> JS_COMP
-    JS_COMP --> JS_STATE
-    JS_COMP --> JS_API
+    JS_M --> Components
+    Components --> JS_STATE
+    Components --> JS_API
     JS_API -->|Requêtes REST JSON| HANDLER
+    LAN_CLIENTS -->|Accès HTTP 0.0.0.0:4848| HANDLER
     HANDLER --> SERVICE
     SERVICE --> DB
     SERVICE --> DISCORD
     DISCORD -->|Envoi asynchrone| DISCORD_API
     DISCORD_BOT -->|Appels REST /api/| HANDLER
     DB --> SQLITE
-    MAIN -->|Lance & Surveille| UI_Shell
+    MAIN -->|Lance & Supervise| UI_Shell
 ```
 
 ### Arborescence détaillée du projet
@@ -163,8 +179,8 @@ App-ToDoList/
 │   ├── handlers.py                # Dispatcher d'API REST HTTP & serveur de fichiers statiques
 │   ├── services.py                # Logique métier pure (CRUD, progression 100%, reset hebdo)
 │   ├── window.py                  # Gestionnaire et fallbacks de fenêtres natives autonomes
-│   ├── window_gtk3.py             # Lanceur dédié GTK3 + WebKit2
-│   └── window_gtk4.py             # Lanceur dédié GTK4 + WebKit6 (prioritaire)
+│   ├── window_gtk3.py             # Lanceur dédié GTK3 + WebKit2 (Fallback)
+│   └── window_gtk4.py             # Lanceur dédié GTK4 + WebKit6 (HeaderBar CSD & CSS Provider dynamique)
 │
 ├── static/                        # Couche interface utilisateur (ES6 Modules & CSS)
 │   ├── index.html                 # Structure de la vue principale et modale à 4 onglets
@@ -181,7 +197,7 @@ App-ToDoList/
 │   │       ├── discord.js         # Interface et configuration des notifications Discord
 │   │       ├── dropdowns.js       # Composant de listes déroulantes stylisées
 │   │       ├── folders.js         # Gestion des dossiers, compteurs et resets
-│   │       ├── modals.js          # Fenêtres modales (Création dossier & Thèmes)
+│   │       ├── modals.js          # Fenêtres modales (Création dossier, Thèmes & Styles de barre de titre)
 │   │       ├── server.js          # Gestion du client serveur distant et affichage des IP LAN
 │   │       ├── sync.js            # Gestion de la synchronisation Multi-PC & onglets
 │   │       └── tasks.js           # Rendu des tâches, barres de progression, inline edit
@@ -189,12 +205,13 @@ App-ToDoList/
 │       ├── icon.png               # Icône PNG 256x256 pour le système
 │       └── icon.svg               # Icône vectorielle SVG
 │
-├── tests/                         # Suite de tests unitaires et d'intégration (18/18)
+├── tests/                         # Suite de tests unitaires et d'intégration (23/23)
 │   ├── __init__.py                # Package tests
 │   ├── test_database.py           # Validation du schéma SQLite et des migrations
 │   ├── test_services.py           # Validation des règles métier (100% = fait, reset hebdo)
 │   ├── test_handlers.py           # Validation des routes API REST et détection réseau
-│   └── test_discord.py            # Validation anti-SSRF, format des embeds et déclencheurs
+│   ├── test_discord.py            # Validation anti-SSRF, format des embeds et déclencheurs
+│   └── test_titlebar.py           # Validation des styles de HeaderBar, parsing CLI et CSS GTK4
 │
 ├── data/                          # Données applicatives persistantes
 │   ├── .gitkeep                   # Maintien du dossier dans git
@@ -358,13 +375,14 @@ Le projet intègre une suite de tests unitaires et d'intégration validée avec 
 python3 -m unittest discover tests
 ```
 
-### Périmètre des tests (18 tests au total)
+### Périmètre des tests (23 tests au total)
 | Fichier de test | Domaine testé | Statut |
 | :--- | :--- | :---: |
 | `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations de colonnes | ✅ Passé |
 | `tests/test_services.py` | Règle de complétion 100%, décochage 0%, calcul d'échéance à 7 jours | ✅ Passé |
 | `tests/test_handlers.py` | Routes API REST, validation des entrées, codes HTTP et détection réseau | ✅ Passé |
 | `tests/test_discord.py` | Sécurité anti-SSRF, format des Rich Embeds, déclencheurs d'événements | ✅ Passé |
+| `tests/test_titlebar.py` | Styles de HeaderBar, parsing arguments CLI, compatibilité parseur CSS GTK4 | ✅ Passé |
 
 ---
 
