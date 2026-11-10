@@ -50,13 +50,40 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
+html {
+  background-color: #08090c !important;
+  min-height: 100%;
+}
+
 body {
-  background: var(--active-bg, var(--default-dark-bg));
-  background-attachment: fixed;
+  background-color: #08090c !important;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background 0.4s ease, color 0.3s ease;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+/* Calques de transition de fond en fondu croisé continu (zéro flash blanc) */
+.app-bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -20;
+  pointer-events: none;
+  background-attachment: fixed;
+  background-size: cover;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.app-bg-layer.active-layer {
+  opacity: 1;
+  z-index: -10;
+}
+
+.app-bg-layer.hidden-layer {
+  opacity: 0;
+  z-index: -20;
 }
 
 /* Layout */
@@ -1189,17 +1216,22 @@ select option, optgroup {
   border-radius: var(--radius-lg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  width: 90%;
-  max-width: 480px;
+  width: 92%;
+  max-width: 520px;
+  max-height: 88vh; /* Ne dépasse JAMAIS la hauteur de la fenêtre */
+  display: flex;
+  flex-direction: column;
   padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .form-group {
@@ -1264,11 +1296,39 @@ select option, optgroup {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
+#folder-form {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(88vh - 140px);
+  padding-right: 6px;
+}
+
+#folder-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+#folder-form::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+#folder-form::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-secondary);
+  z-index: 10;
 }
 
 .hidden {
@@ -1443,6 +1503,22 @@ select option, optgroup {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
+  max-height: calc(88vh - 140px);
+  padding-right: 6px;
+}
+
+.theme-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.theme-modal-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.theme-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .preset-theme-grid {

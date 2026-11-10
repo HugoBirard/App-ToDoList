@@ -30,11 +30,11 @@ gio set "$DESKTOP_SRC" metadata::trusted true 2>/dev/null
 # Configurer Nautilus pour permettre l'exécution
 gsettings set org.gnome.nautilus.preferences executable-text-activation 'launch' 2>/dev/null || true
 
-# 1. Installer dans le menu système GNOME
+# 1. Installer dans le menu système GNOME (raccourci unique, sans doublon)
 mkdir -p "$HOME/.local/share/applications"
 cp "$DESKTOP_SRC" "$HOME/.local/share/applications/todolist.desktop"
-cp "$DESKTOP_SRC" "$HOME/.local/share/applications/ToDoList.desktop"
-chmod +x "$HOME/.local/share/applications/todolist.desktop" "$HOME/.local/share/applications/ToDoList.desktop"
+rm -f "$HOME/.local/share/applications/ToDoList.desktop"
+chmod +x "$HOME/.local/share/applications/todolist.desktop"
 update-desktop-database "$HOME/.local/share/applications" 2>/dev/null
 
 # 2. Installer sur le Bureau si le dossier existe

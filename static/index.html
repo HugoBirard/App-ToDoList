@@ -7,9 +7,13 @@
   <meta name="application-name" content="ToDo List">
   <meta name="theme-color" content="#08090c">
   <link rel="icon" type="image/png" href="assets/icon.png">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
+  <!-- Calques d'arrière-plan en fondu croisé continu (zéro flash blanc) -->
+  <div id="bg-layer-1" class="app-bg-layer active-layer"></div>
+  <div id="bg-layer-2" class="app-bg-layer hidden-layer"></div>
+
   <div class="app-layout">
     <!-- Barre latérale / Dossiers -->
     <aside class="sidebar" id="sidebar">
@@ -658,6 +662,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=3"></script>
+  <script type="module" src="js/main.js?v=4"></script>
 </body>
 </html>

@@ -65,7 +65,7 @@ async function loadData() {
       if (saved) state.mainBg = saved;
     }
 
-    applyActiveBackground();
+    applyActiveBackground(true);
     renderFolders();
     renderTasks();
   }

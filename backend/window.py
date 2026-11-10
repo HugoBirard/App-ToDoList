@@ -61,14 +61,22 @@ Keywords=todo;todolist;taches;organisation;
     local_apps = os.path.expanduser("~/.local/share/applications")
     try:
         os.makedirs(local_apps, exist_ok=True)
-        for app_file in ["todolist.desktop", "ToDoList.desktop"]:
-            target = os.path.join(local_apps, app_file)
-            with open(target, "w", encoding="utf-8") as f:
-                f.write(desktop_content)
-            os.chmod(target, 0o755)
-            subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
+        target = os.path.join(local_apps, "todolist.desktop")
+        with open(target, "w", encoding="utf-8") as f:
+            f.write(desktop_content)
+        os.chmod(target, 0o755)
+
+        # Nettoyer l'ancien doublon ToDoList.desktop pour n'avoir qu'un seul lanceur
+        duplicate = os.path.join(local_apps, "ToDoList.desktop")
+        if os.path.exists(duplicate):
+            try:
+                os.remove(duplicate)
+            except Exception:
+                pass
+
+        subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
         subprocess.run(["update-desktop-database", local_apps], capture_output=True)
-        log("Raccourcis installés dans ~/.local/share/applications/")
+        log("Raccourci unique installé dans ~/.local/share/applications/todolist.desktop")
     except Exception as e:
         log(f"Erreur installation raccourci local: {e}")
 
