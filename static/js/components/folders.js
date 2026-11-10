@@ -6,7 +6,7 @@ import { state, getCurrentViewTasks, escapeHtml } from '../state.js';
 import { applyActiveBackground } from '../theme.js';
 import { renderTasks } from './tasks.js';
 import { api } from '../api.js';
-import { openEditFolderModal } from './modals.js';
+import { openEditFolderModal, showConfirmDialog } from './modals.js';
 import { renderIcon } from '../icons.js';
 import { updateFolderDropdown } from './dropdowns.js';
 
@@ -193,10 +193,19 @@ export async function deleteFolder(folderId) {
 
   const count = state.tasks.filter(t => t.folder_id === folderId).length;
   const msg = count > 0 
-    ? `Ce dossier contient ${count} tâche(s). Supprimer le dossier et TOUTES ses tâches ?` 
-    : `Supprimer le dossier "${folder.name}" ?`;
+    ? `Ce dossier contient ${count} tâche(s). Supprimer définitivement le dossier et TOUTES ses tâches associées ?` 
+    : `Voulez-vous vraiment supprimer définitivement le dossier "${folder.name}" ?`;
 
-  if (!confirm(msg)) return;
+  const confirmed = await showConfirmDialog({
+    title: "Supprimer le dossier",
+    message: msg,
+    confirmText: "Supprimer",
+    cancelText: "Annuler",
+    isDanger: true,
+    icon: "trash"
+  });
+
+  if (!confirmed) return;
 
   state.folders = state.folders.filter(f => f.id !== folderId);
   state.tasks = state.tasks.filter(t => t.folder_id !== folderId);
@@ -212,13 +221,21 @@ export async function deleteFolder(folderId) {
 }
 
 export async function resetCurrentFolderWeek() {
-  if (typeof state.currentView !== 'number') return;
-  const folder = state.folders.find(f => f.id === state.currentView);
+  const currentViewNum = Number(state.currentView);
+  if (isNaN(currentViewNum) || currentViewNum <= 0) return;
+  const folder = state.folders.find(f => Number(f.id) === currentViewNum);
   if (!folder) return;
 
-  if (!confirm(`Remettre toutes les tâches du dossier "${folder.name}" à l'état initial (non faites, 0%) pour la nouvelle semaine ?`)) {
-    return;
-  }
+  const confirmed = await showConfirmDialog({
+    title: "Réinitialiser la semaine",
+    message: `Remettre toutes les tâches du dossier "${folder.name}" à l'état initial (non faites, 0%) pour la nouvelle semaine ?`,
+    confirmText: "Réinitialiser",
+    cancelText: "Annuler",
+    isDanger: false,
+    icon: "repeat"
+  });
+
+  if (!confirmed) return;
 
   const res = await api(`/api/folders/${folder.id}/reset`, 'POST');
   if (res && res.success) {

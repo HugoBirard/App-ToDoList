@@ -31,7 +31,13 @@ import {
   updateFolderBgControlsUI,
   updateFolderBgPreview,
   selectIcon,
-  selectColor
+  selectColor,
+  setFolderBgColor1,
+  setFolderBgColor2,
+  setFolderBgAngle,
+  setMainBgColor1,
+  setMainBgColor2,
+  setMainBgAngle
 } from './components/modals.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -121,12 +127,7 @@ function setupEventListeners() {
     folderResetBtn.addEventListener('click', resetCurrentFolderWeek);
   }
 
-  // Modal Personnalisation Fond & Paramètres
-  const openThemeModalBtn = document.getElementById('open-theme-modal-btn');
-  if (openThemeModalBtn) {
-    openThemeModalBtn.addEventListener('click', openThemeModal);
-  }
-
+  // Modal Personnalisation Fond & Paramètres (depuis la barre latérale en bas à gauche)
   const sidebarSettingsBtn = document.getElementById('sidebar-settings-btn');
   if (sidebarSettingsBtn) {
     sidebarSettingsBtn.addEventListener('click', openThemeModal);
@@ -146,12 +147,57 @@ function setupEventListeners() {
     r.addEventListener('change', updateMainBgControlsUI);
   });
 
-  ['main-bg-color1', 'main-bg-color2', 'main-bg-angle'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', updateMainBgPreview);
-      el.addEventListener('change', updateMainBgPreview);
-    }
+  // Swatches solides du thème principal
+  document.querySelectorAll('#main-solid-swatches .solid-swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMainBgColor1(btn.dataset.color);
+      updateMainBgPreview();
+    });
+  });
+
+  // Synchronisation Hex et Color Picker pour le thème principal
+  const mainC1 = document.getElementById('main-bg-color1');
+  const mainC1Hex = document.getElementById('main-bg-color1-hex');
+  if (mainC1 && mainC1Hex) {
+    mainC1.addEventListener('input', () => {
+      mainC1Hex.value = mainC1.value.toUpperCase();
+      updateMainBgPreview();
+    });
+    mainC1Hex.addEventListener('input', () => {
+      let val = mainC1Hex.value.trim();
+      if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        mainC1.value = val;
+        setMainBgColor1(val);
+        updateMainBgPreview();
+      }
+    });
+  }
+
+  const mainC2 = document.getElementById('main-bg-color2');
+  const mainC2Hex = document.getElementById('main-bg-color2-hex');
+  if (mainC2 && mainC2Hex) {
+    mainC2.addEventListener('input', () => {
+      mainC2Hex.value = mainC2.value.toUpperCase();
+      updateMainBgPreview();
+    });
+    mainC2Hex.addEventListener('input', () => {
+      let val = mainC2Hex.value.trim();
+      if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        mainC2.value = val;
+        setMainBgColor2(val);
+        updateMainBgPreview();
+      }
+    });
+  }
+
+  // Pilules d'angle pour le thème principal
+  document.querySelectorAll('#main-angle-pills .angle-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMainBgAngle(btn.dataset.angle);
+      updateMainBgPreview();
+    });
   });
 
   document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -173,12 +219,57 @@ function setupEventListeners() {
     r.addEventListener('change', updateFolderBgControlsUI);
   });
 
-  ['folder-bg-color1', 'folder-bg-color2', 'folder-bg-angle'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', updateFolderBgPreview);
-      el.addEventListener('change', updateFolderBgPreview);
-    }
+  // Swatches solides du dossier
+  document.querySelectorAll('#folder-solid-swatches .solid-swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setFolderBgColor1(btn.dataset.color);
+      updateFolderBgPreview();
+    });
+  });
+
+  // Synchronisation Hex et Color Picker pour le dossier
+  const folderC1 = document.getElementById('folder-bg-color1');
+  const folderC1Hex = document.getElementById('folder-bg-color1-hex');
+  if (folderC1 && folderC1Hex) {
+    folderC1.addEventListener('input', () => {
+      folderC1Hex.value = folderC1.value.toUpperCase();
+      updateFolderBgPreview();
+    });
+    folderC1Hex.addEventListener('input', () => {
+      let val = folderC1Hex.value.trim();
+      if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        folderC1.value = val;
+        setFolderBgColor1(val);
+        updateFolderBgPreview();
+      }
+    });
+  }
+
+  const folderC2 = document.getElementById('folder-bg-color2');
+  const folderC2Hex = document.getElementById('folder-bg-color2-hex');
+  if (folderC2 && folderC2Hex) {
+    folderC2.addEventListener('input', () => {
+      folderC2Hex.value = folderC2.value.toUpperCase();
+      updateFolderBgPreview();
+    });
+    folderC2Hex.addEventListener('input', () => {
+      let val = folderC2Hex.value.trim();
+      if (!val.startsWith('#') && val.length > 0) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        folderC2.value = val;
+        setFolderBgColor2(val);
+        updateFolderBgPreview();
+      }
+    });
+  }
+
+  // Pilules d'angle pour le dossier
+  document.querySelectorAll('#folder-angle-pills .angle-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setFolderBgAngle(btn.dataset.angle);
+      updateFolderBgPreview();
+    });
   });
 
   document.querySelectorAll('.icon-opt').forEach(btn => {
@@ -187,6 +278,15 @@ function setupEventListeners() {
 
   document.querySelectorAll('.color-opt').forEach(btn => {
     btn.addEventListener('click', () => selectColor(btn.dataset.color));
+  });
+
+  // Protection contre la fermeture intempestive : un clic à l'intérieur de la boîte modale ne doit JAMAIS fermer la modale
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => e.stopPropagation());
+  });
+
+  document.querySelectorAll('input[type="color"]').forEach(cp => {
+    cp.addEventListener('click', (e) => e.stopPropagation());
   });
 
   // Fermeture des modales

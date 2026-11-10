@@ -10,15 +10,20 @@ export function applyActiveBackground() {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 
   // 1. Si on est dans un dossier avec un fond personnalisé dédié
-  if (typeof state.currentView === 'number') {
-    const folder = state.folders.find(f => f.id === state.currentView);
+  const currentViewNum = Number(state.currentView);
+  if (!isNaN(currentViewNum) && currentViewNum > 0) {
+    const folder = state.folders.find(f => Number(f.id) === currentViewNum);
     if (folder && folder.bg_type && folder.bg_type !== 'default') {
       if (folder.bg_type === 'solid' && folder.bg_color1) {
+        document.body.style.background = folder.bg_color1;
         document.body.style.setProperty('--active-bg', folder.bg_color1);
         return;
-      } else if (folder.bg_type === 'gradient' && folder.bg_color1 && folder.bg_color2) {
+      } else if (folder.bg_type === 'gradient') {
+        const c1 = folder.bg_color1 || '#161a24';
+        const c2 = folder.bg_color2 || '#2d3345';
         const angle = folder.bg_angle || 135;
-        const grad = `linear-gradient(${angle}deg, ${folder.bg_color1} 0%, ${folder.bg_color2} 100%)`;
+        const grad = `linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`;
+        document.body.style.background = grad;
         document.body.style.setProperty('--active-bg', grad);
         return;
       }
@@ -27,12 +32,15 @@ export function applyActiveBackground() {
 
   // 2. Si on est en mode clair
   if (isLight) {
+    document.body.style.background = DEFAULT_LIGHT_BG;
     document.body.style.setProperty('--active-bg', DEFAULT_LIGHT_BG);
     return;
   }
 
   // 3. Sinon, restaurer le fond principal sombre
-  document.body.style.setProperty('--active-bg', state.mainBg || DEFAULT_PRO_BG);
+  const mainBg = state.mainBg || DEFAULT_PRO_BG;
+  document.body.style.background = mainBg;
+  document.body.style.setProperty('--active-bg', mainBg);
 }
 
 export function initTheme() {

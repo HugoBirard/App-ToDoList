@@ -6,6 +6,7 @@ import { state, getCurrentViewTasks, escapeHtml } from '../state.js';
 import { api } from '../api.js';
 import { renderCounters, updateProgress } from './folders.js';
 import { renderIcon } from '../icons.js';
+import { showConfirmDialog, showNotificationDialog } from './modals.js';
 
 export function renderTasks() {
   const list = document.getElementById('task-list');
@@ -312,7 +313,16 @@ export async function editTaskTitle(taskId) {
 }
 
 export async function deleteTask(taskId) {
-  if (!confirm("Voulez-vous vraiment supprimer cette tâche ?")) return;
+  const confirmed = await showConfirmDialog({
+    title: "Supprimer la tâche",
+    message: "Voulez-vous vraiment supprimer définitivement cette tâche ?",
+    confirmText: "Supprimer",
+    cancelText: "Annuler",
+    isDanger: true,
+    icon: "trash"
+  });
+  if (!confirmed) return;
+
   state.tasks = state.tasks.filter(t => t.id !== taskId);
   renderCounters();
   updateProgress();
@@ -323,18 +333,32 @@ export async function deleteTask(taskId) {
 export async function clearCompleted() {
   const completedCount = state.tasks.filter(t => t.completed).length;
   if (completedCount === 0) {
-    alert("Aucune tâche terminée à nettoyer !");
+    await showNotificationDialog({
+      title: "Nettoyage des tâches",
+      message: "Aucune tâche terminée à nettoyer !",
+      icon: "info"
+    });
     return;
   }
 
-  const inFolder = typeof state.currentView === 'number';
+  const currentViewNum = Number(state.currentView);
+  const inFolder = !isNaN(currentViewNum) && currentViewNum > 0;
   const msg = inFolder 
     ? "Supprimer définitivement toutes les tâches terminées de ce dossier ?"
     : "Supprimer définitivement TOUTES les tâches terminées de tous les dossiers ?";
 
-  if (!confirm(msg)) return;
+  const confirmed = await showConfirmDialog({
+    title: "Nettoyer les tâches terminées",
+    message: msg,
+    confirmText: "Nettoyer",
+    cancelText: "Annuler",
+    isDanger: true,
+    icon: "trash"
+  });
 
-  const folderId = inFolder ? state.currentView : null;
+  if (!confirmed) return;
+
+  const folderId = inFolder ? currentViewNum : null;
   if (inFolder) {
     state.tasks = state.tasks.filter(t => !(t.completed && t.folder_id === folderId));
   } else {

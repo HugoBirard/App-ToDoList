@@ -7,6 +7,10 @@ DESKTOP_SRC="$DIR/ToDoList.desktop"
 # Mettre à jour dynamiquement les chemins absolus dans le fichier .desktop
 sed -i "s|^Exec=.*|Exec=$DIR/start.sh|" "$DESKTOP_SRC"
 sed -i "s|^Icon=.*|Icon=$DIR/static/assets/icon.png|" "$DESKTOP_SRC"
+sed -i "s|^Path=.*|Path=$DIR|" "$DESKTOP_SRC"
+if ! grep -q "^Path=" "$DESKTOP_SRC"; then
+  echo "Path=$DIR" >> "$DESKTOP_SRC"
+fi
 
 # Rendre exécutables tous les lanceurs
 chmod +x "$DIR/main.py" "$DIR/start.sh" "$DIR/server.py" "$DESKTOP_SRC"

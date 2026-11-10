@@ -6,6 +6,7 @@ GenericName=Gestionnaire de tâches
 Comment=Gestionnaire de To-Do List local et persistant avec dossiers
 Exec=/home/algaarad/Documents/App-ToDoList/start.sh
 Icon=/home/algaarad/Documents/App-ToDoList/static/assets/icon.png
+Path=/home/algaarad/Documents/App-ToDoList
 Terminal=false
 Categories=Office;Utility;ProjectManagement;
 StartupNotify=false
