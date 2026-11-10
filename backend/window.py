@@ -24,18 +24,37 @@ def log(message):
 
 
 def install_desktop_shortcuts():
-    """Installe le lanceur .desktop dans le menu GNOME et sur le Bureau s'il existe."""
+    """Installe le lanceur .desktop et les icônes dans le système."""
+    # 0. Installer les icônes dans le thème d'icônes XDG (~/.local/share/icons/hicolor)
+    try:
+        icon_svg = os.path.join(STATIC_DIR, "assets", "icon.svg")
+        for theme in ["hicolor", "NC"]:
+            for res in ["256x256", "128x128", "48x48"]:
+                dir_path = os.path.expanduser(f"~/.local/share/icons/{theme}/{res}/apps")
+                os.makedirs(dir_path, exist_ok=True)
+                if os.path.exists(ICON_PNG):
+                    shutil.copy2(ICON_PNG, os.path.join(dir_path, "todolist.png"))
+            scalable_dir = os.path.expanduser(f"~/.local/share/icons/{theme}/scalable/apps")
+            os.makedirs(scalable_dir, exist_ok=True)
+            if os.path.exists(icon_svg):
+                shutil.copy2(icon_svg, os.path.join(scalable_dir, "todolist.svg"))
+            subprocess.run(["gtk-update-icon-cache", "-f", os.path.expanduser(f"~/.local/share/icons/{theme}")], capture_output=True)
+    except Exception as e:
+        log(f"Erreur installation icônes système: {e}")
+
     desktop_content = f"""[Desktop Entry]
 Version=1.0
 Type=Application
 Name={APP_NAME}
 GenericName=Gestionnaire de tâches
-Comment=Gestionnaire de To-Do List local et persistant avec dossiers
+Comment=Gestionnaire de ToDoList local et persistant avec dossiers
 Exec={os.path.join(BASE_DIR, 'start.sh')}
 Icon={ICON_PNG}
+Path={BASE_DIR}
 Terminal=false
 Categories=Office;Utility;ProjectManagement;
 StartupNotify=false
+StartupWMClass=todolist
 Keywords=todo;todolist;taches;organisation;
 """
 
@@ -47,9 +66,32 @@ Keywords=todo;todolist;taches;organisation;
         with open(target, "w", encoding="utf-8") as f:
             f.write(desktop_content)
         os.chmod(target, 0o755)
-        log("Raccourci installé dans ~/.local/share/applications/todolist.desktop")
+
+        # Nettoyer l'ancien doublon ToDoList.desktop pour n'avoir qu'un seul lanceur
+        duplicate = os.path.join(local_apps, "ToDoList.desktop")
+        if os.path.exists(duplicate):
+            try:
+                os.remove(duplicate)
+            except Exception:
+                pass
+
+        subprocess.run(["gio", "set", target, "metadata::trusted", "true"], capture_output=True)
+        subprocess.run(["gio", "set", target, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
+        subprocess.run(["update-desktop-database", local_apps], capture_output=True)
+        log("Raccourci unique installé dans ~/.local/share/applications/todolist.desktop")
     except Exception as e:
         log(f"Erreur installation raccourci local: {e}")
+
+    # Mettre également à jour le fichier .desktop local dans le dossier du projet
+    try:
+        local_desktop = os.path.join(BASE_DIR, "ToDoList.desktop")
+        with open(local_desktop, "w", encoding="utf-8") as f:
+            f.write(desktop_content)
+        os.chmod(local_desktop, 0o755)
+        subprocess.run(["gio", "set", local_desktop, "metadata::trusted", "true"], capture_output=True)
+        subprocess.run(["gio", "set", local_desktop, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
+    except Exception:
+        pass
 
     # 2. Bureau si un dossier Desktop ou Bureau existe
     for folder in ["Desktop", "Bureau"]:
@@ -61,6 +103,7 @@ Keywords=todo;todolist;taches;organisation;
                     f.write(desktop_content)
                 os.chmod(dest, 0o755)
                 subprocess.run(["gio", "set", dest, "metadata::trusted", "true"], capture_output=True)
+                subprocess.run(["gio", "set", dest, "metadata::custom-icon", f"file://{ICON_PNG}"], capture_output=True)
                 log(f"Raccourci installé sur {dest}")
             except Exception as e:
                 log(f"Erreur installation bureau {folder}: {e}")

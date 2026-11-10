@@ -7,6 +7,19 @@ from datetime import datetime, timedelta
 from .database import get_connection
 
 
+def _safe_int(val, default=0, min_val=None, max_val=None):
+    """Convertit de manière sécurisée en entier sans lever d'exception."""
+    try:
+        res = int(val)
+    except (ValueError, TypeError, OverflowError):
+        res = default
+    if min_val is not None and res < min_val:
+        res = min_val
+    if max_val is not None and res > max_val:
+        res = max_val
+    return res
+
+
 class TodoService:
     def __init__(self, db_path=None):
         self.db_path = db_path
@@ -83,14 +96,14 @@ class TodoService:
     def create_folder(self, data):
         conn = self._conn()
         cursor = conn.cursor()
-        name = (data.get("name") or "Nouveau dossier").strip()
-        icon = data.get("icon") or "folder"
-        color = data.get("color") or "#4f46e5"
+        name = str(data.get("name") or "Nouveau dossier").strip()[:100]
+        icon = str(data.get("icon") or "folder")[:50]
+        color = str(data.get("color") or "#4f46e5")[:20]
         auto_reset_weekly = 1 if data.get("auto_reset_weekly") else 0
-        bg_type = data.get("bg_type", "default")
-        bg_color1 = data.get("bg_color1", "")
-        bg_color2 = data.get("bg_color2", "")
-        bg_angle = int(data.get("bg_angle", 135))
+        bg_type = str(data.get("bg_type", "default"))[:30]
+        bg_color1 = str(data.get("bg_color1", ""))[:50]
+        bg_color2 = str(data.get("bg_color2", ""))[:50]
+        bg_angle = _safe_int(data.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
         cursor.execute(
             """INSERT INTO folders (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle) 
@@ -112,28 +125,28 @@ class TodoService:
 
         if "name" in data:
             fields.append("name = ?")
-            values.append(data["name"].strip())
+            values.append(str(data["name"]).strip()[:100])
         if "icon" in data:
             fields.append("icon = ?")
-            values.append(data["icon"])
+            values.append(str(data["icon"])[:50])
         if "color" in data:
             fields.append("color = ?")
-            values.append(data["color"])
+            values.append(str(data["color"])[:20])
         if "auto_reset_weekly" in data:
             fields.append("auto_reset_weekly = ?")
             values.append(1 if data["auto_reset_weekly"] else 0)
         if "bg_type" in data:
             fields.append("bg_type = ?")
-            values.append(data["bg_type"])
+            values.append(str(data["bg_type"])[:30])
         if "bg_color1" in data:
             fields.append("bg_color1 = ?")
-            values.append(data["bg_color1"])
+            values.append(str(data["bg_color1"])[:50])
         if "bg_color2" in data:
             fields.append("bg_color2 = ?")
-            values.append(data["bg_color2"])
+            values.append(str(data["bg_color2"])[:50])
         if "bg_angle" in data:
             fields.append("bg_angle = ?")
-            values.append(int(data["bg_angle"]))
+            values.append(_safe_int(data["bg_angle"], default=135, min_val=0, max_val=360))
 
         if fields:
             values.append(folder_id)
@@ -177,14 +190,26 @@ class TodoService:
     def create_task(self, data):
         conn = self._conn()
         cursor = conn.cursor()
-        title = (data.get("title") or "").strip()
+        title = str(data.get("title") or "").strip()[:500]
         folder_id = data.get("folder_id")
-        priority = data.get("priority", "normal")
+
+        # Validation sécurisée de folder_id : si le dossier n'existe pas, on sélectionne le premier dossier valide
+        if folder_id is not None:
+            cursor.execute("SELECT id FROM folders WHERE id = ?", (folder_id,))
+            if not cursor.fetchone():
+                cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+                first_f = cursor.fetchone()
+                folder_id = first_f["id"] if first_f else None
+        else:
+            cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+            first_f = cursor.fetchone()
+            folder_id = first_f["id"] if first_f else None
+        priority = str(data.get("priority", "normal"))[:20]
         due_date = data.get("due_date", None)
+        if due_date:
+            due_date = str(due_date)[:30]
         has_progress = 1 if data.get("has_progress") else 0
-        progress = int(data.get("progress", 0))
-        if progress < 0: progress = 0
-        if progress > 100: progress = 100
+        progress = _safe_int(data.get("progress", 0), default=0, min_val=0, max_val=100)
 
         # Règle des 100%
         completed = 1 if (has_progress and progress >= 100) else (1 if data.get("completed") else 0)
@@ -215,7 +240,7 @@ class TodoService:
 
         if "title" in data:
             fields.append("title = ?")
-            values.append(data["title"].strip())
+            values.append(str(data["title"]).strip()[:500])
 
         has_progress = data.get("has_progress", existing["has_progress"])
         if "has_progress" in data:
@@ -224,9 +249,7 @@ class TodoService:
 
         # Règle de cohérence progression <-> complétion
         if "progress" in data:
-            prog = int(data["progress"])
-            if prog < 0: prog = 0
-            if prog > 100: prog = 100
+            prog = _safe_int(data["progress"], default=0, min_val=0, max_val=100)
             fields.append("progress = ?")
             values.append(prog)
             if prog >= 100:
@@ -250,14 +273,21 @@ class TodoService:
                     fields.append("progress = 0")
 
         if "folder_id" in data:
+            fid = data["folder_id"]
+            if fid is not None:
+                cursor.execute("SELECT id FROM folders WHERE id = ?", (fid,))
+                if not cursor.fetchone():
+                    cursor.execute("SELECT id FROM folders ORDER BY id ASC LIMIT 1")
+                    first_f = cursor.fetchone()
+                    fid = first_f["id"] if first_f else None
             fields.append("folder_id = ?")
-            values.append(data["folder_id"])
+            values.append(fid)
         if "priority" in data:
             fields.append("priority = ?")
-            values.append(data["priority"])
+            values.append(str(data["priority"])[:20])
         if "due_date" in data:
             fields.append("due_date = ?")
-            values.append(data["due_date"])
+            values.append(str(data["due_date"])[:30] if data["due_date"] else None)
 
         if fields:
             values.append(task_id)

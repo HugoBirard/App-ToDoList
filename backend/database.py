@@ -9,9 +9,11 @@ from .config import DATA_DIR, DB_PATH
 
 
 def get_connection(db_path=DB_PATH):
-    """Retourne une connexion SQLite configurée avec accès par nom de colonne."""
-    conn = sqlite3.connect(db_path)
+    """Retourne une connexion SQLite configurée avec accès par nom de colonne et mode WAL concurrent."""
+    conn = sqlite3.connect(db_path, timeout=30.0)
     conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA busy_timeout = 30000")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -134,7 +136,7 @@ def _seed_default_data(cursor):
     general_id = 1
     cursor.execute(
         "INSERT INTO tasks (folder_id, title, completed, has_progress, progress) VALUES (?, ?, ?, ?, ?)",
-        (general_id, "Bienvenue dans votre To-Do List !", 0, 0, 0)
+        (general_id, "Bienvenue dans votre ToDoList !", 0, 0, 0)
     )
     cursor.execute(
         "INSERT INTO tasks (folder_id, title, completed, has_progress, progress) VALUES (?, ?, ?, ?, ?)",

@@ -1,7 +1,7 @@
-# ToDo List - Application de Bureau Locale & Autonome
+# ToDoList - Application de Bureau Locale & Autonome
 
 <p align="center">
-  <img src="static/assets/icon.png" alt="ToDo List Icon" width="110" height="110">
+  <img src="static/assets/icon.png" alt="ToDoList Icon" width="110" height="110">
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## 📌 Présentation du projet
 
-**ToDo List** est une application de bureau conçue pour les utilisateurs recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale** et une **confidentialité absolue** :
+**ToDoList** est une application de bureau conçue pour les utilisateurs recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale** et une **confidentialité absolue** :
 
 - **Fenêtrage autonome dédié** : L'application ne s'ouvre **jamais** dans un onglet classique de navigateur avec barre d'URL. Elle dispose de sa propre fenêtre système isolée, de son icône dans le dock et se ferme proprement comme n'importe quel logiciel natif.
 - **Zéro dépendance externe (`Zero-Dependency`)** : Fonctionne directement avec la **bibliothèque standard Python 3** (`sqlite3`, `http.server`, `urllib`, `json`, `subprocess`). Zéro environnement lourd, zéro `npm install`, zéro `pip install` obligatoire.
@@ -268,7 +268,7 @@ Vous disposez de 3 manières simples de lancer l'application :
 
 #### Méthode A : Depuis vos applications système (Comme Spotify)
 - Appuyez sur la touche `Super` (Windows) de votre clavier.
-- Tapez **"ToDo List"**.
+- Tapez **"ToDoList"**.
 - Cliquez sur l'icône de l'application ! Vous pouvez faire un clic droit pour l'épingler à votre dock / favoris.
 
 #### Méthode B : En ligne de commande ou double-clic

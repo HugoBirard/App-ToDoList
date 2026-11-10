@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Point d'entrée principal de l'application ToDo List.
+Point d'entrée principal de l'application ToDoList.
 Orchestre :
 - L'installation automatique du raccourci système
 - La détection de port et le démarrage du serveur en arrière-plan

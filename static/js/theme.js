@@ -6,33 +6,72 @@ import { state, DEFAULT_PRO_BG, DEFAULT_LIGHT_BG, PRESETS } from './state.js';
 import { api } from './api.js';
 import { renderIcon } from './icons.js';
 
-export function applyActiveBackground() {
+let currentActiveBg = null;
+let currentActiveLayer = 1;
+
+export function applyActiveBackground(immediate = false) {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  let targetBg = null;
 
   // 1. Si on est dans un dossier avec un fond personnalisé dédié
-  if (typeof state.currentView === 'number') {
-    const folder = state.folders.find(f => f.id === state.currentView);
+  const currentViewNum = Number(state.currentView);
+  if (!isNaN(currentViewNum) && currentViewNum > 0) {
+    const folder = state.folders.find(f => Number(f.id) === currentViewNum);
     if (folder && folder.bg_type && folder.bg_type !== 'default') {
       if (folder.bg_type === 'solid' && folder.bg_color1) {
-        document.body.style.setProperty('--active-bg', folder.bg_color1);
-        return;
-      } else if (folder.bg_type === 'gradient' && folder.bg_color1 && folder.bg_color2) {
+        targetBg = folder.bg_color1;
+      } else if (folder.bg_type === 'gradient') {
+        const c1 = folder.bg_color1 || '#161a24';
+        const c2 = folder.bg_color2 || '#2d3345';
         const angle = folder.bg_angle || 135;
-        const grad = `linear-gradient(${angle}deg, ${folder.bg_color1} 0%, ${folder.bg_color2} 100%)`;
-        document.body.style.setProperty('--active-bg', grad);
-        return;
+        targetBg = `linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`;
       }
     }
   }
 
   // 2. Si on est en mode clair
-  if (isLight) {
-    document.body.style.setProperty('--active-bg', DEFAULT_LIGHT_BG);
-    return;
+  if (!targetBg && isLight) {
+    targetBg = DEFAULT_LIGHT_BG;
   }
 
   // 3. Sinon, restaurer le fond principal sombre
-  document.body.style.setProperty('--active-bg', state.mainBg || DEFAULT_PRO_BG);
+  if (!targetBg) {
+    targetBg = state.mainBg || DEFAULT_PRO_BG;
+  }
+
+  if (targetBg === currentActiveBg) return;
+  currentActiveBg = targetBg;
+
+  // Définir la variable CSS sur la racine et sur le body
+  document.documentElement.style.setProperty('--active-bg', targetBg);
+  document.body.style.background = targetBg;
+
+  const layer1 = document.getElementById('bg-layer-1');
+  const layer2 = document.getElementById('bg-layer-2');
+
+  // Si les couches n'existent pas encore (fallback)
+  if (!layer1 || !layer2) {
+    document.body.style.background = targetBg;
+    return;
+  }
+
+  if (immediate) {
+    layer1.style.background = targetBg;
+    layer1.className = 'app-bg-layer active-layer';
+    layer2.className = 'app-bg-layer hidden-layer';
+    currentActiveLayer = 1;
+    return;
+  }
+
+  // Fondu croisé ultra-fluide entre les 2 couches d'arrière-plan (zéro flash blanc)
+  const nextLayer = currentActiveLayer === 1 ? layer2 : layer1;
+  const prevLayer = currentActiveLayer === 1 ? layer1 : layer2;
+
+  nextLayer.style.background = targetBg;
+  nextLayer.className = 'app-bg-layer active-layer';
+  prevLayer.className = 'app-bg-layer hidden-layer';
+
+  currentActiveLayer = currentActiveLayer === 1 ? 2 : 1;
 }
 
 export function initTheme() {

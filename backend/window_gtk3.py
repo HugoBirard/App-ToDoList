@@ -5,7 +5,7 @@ Lanceur autonome de fenêtre native GTK3 + WebKit2 dans un processus dédié.
 import sys
 import os
 
-APP_NAME = "ToDo List"
+APP_NAME = "ToDoList"
 
 
 def main():

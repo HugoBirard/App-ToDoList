@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ToDo List</title>
-  <meta name="application-name" content="ToDo List">
+  <title>ToDoList</title>
+  <meta name="application-name" content="ToDoList">
   <meta name="theme-color" content="#08090c">
   <link rel="icon" type="image/png" href="assets/icon.png">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
+  <!-- Calques d'arrière-plan en fondu croisé continu (zéro flash blanc) -->
+  <div id="bg-layer-1" class="app-bg-layer active-layer"></div>
+  <div id="bg-layer-2" class="app-bg-layer hidden-layer"></div>
+
   <div class="app-layout">
     <!-- Barre latérale / Dossiers -->
     <aside class="sidebar" id="sidebar">
@@ -98,10 +102,6 @@
         </div>
 
         <div class="header-right">
-          <!-- Bouton Options & Paramètres (remplace le bouton Fond mal placé) -->
-          <button id="open-theme-modal-btn" class="icon-btn header-settings-btn" title="Options et personnalisation (Fond, Thème)">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          </button>
           <!-- Action manuelle pour dossier hebdomadaire -->
           <button id="folder-reset-btn" class="btn btn-secondary btn-sm hidden" title="Remettre immédiatement toutes les tâches de ce dossier à l'état initial">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -158,7 +158,7 @@
               <div class="dropdown-menu">
                 <!-- Rempli dynamiquement -->
               </div>
-              <input type="hidden" id="task-folder-select" value="1">
+              <input type="hidden" id="task-folder-select" value="">
             </div>
 
             <!-- Type de suivi : Case classique ou Barre de progression -->
@@ -374,26 +374,70 @@
 
           <!-- Contrôles couleur dossier (masqués par défaut) -->
           <div id="folder-bg-controls" class="bg-controls hidden">
-            <div class="color-inputs-row">
+            <!-- Nuances solides cliquables pour couleur unie (1 clic direct, 100% fiable) -->
+            <div id="folder-solid-palette" class="solid-palette-section hidden">
+              <span class="sub-label">Couleurs unies recommandées (1 clic pour appliquer)</span>
+              <div class="solid-swatches-grid" id="folder-solid-swatches">
+                <button type="button" class="solid-swatch" data-color="#090a0d" style="background: #090a0d;" title="Noir Pro"></button>
+                <button type="button" class="solid-swatch" data-color="#121316" style="background: #121316;" title="Carbone Pur"></button>
+                <button type="button" class="solid-swatch" data-color="#18181b" style="background: #18181b;" title="Zinc Profond"></button>
+                <button type="button" class="solid-swatch" data-color="#0f172a" style="background: #0f172a;" title="Ardoise Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#1e293b" style="background: #1e293b;" title="Ardoise Bleue"></button>
+                <button type="button" class="solid-swatch" data-color="#13192b" style="background: #13192b;" title="Bleu Cobalt"></button>
+                <button type="button" class="solid-swatch" data-color="#1e1b4b" style="background: #1e1b4b;" title="Indigo Nuit"></button>
+                <button type="button" class="solid-swatch" data-color="#2e1065" style="background: #2e1065;" title="Améthyste Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#3b0764" style="background: #3b0764;" title="Pourpre Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#4c1d95" style="background: #4c1d95;" title="Violet Royal"></button>
+                <button type="button" class="solid-swatch" data-color="#1d4ed8" style="background: #1d4ed8;" title="Bleu Électrique"></button>
+                <button type="button" class="solid-swatch" data-color="#0369a1" style="background: #0369a1;" title="Bleu Océan"></button>
+                <button type="button" class="solid-swatch" data-color="#042f2e" style="background: #042f2e;" title="Sarcelle Nuit"></button>
+                <button type="button" class="solid-swatch" data-color="#064e3b" style="background: #064e3b;" title="Émeraude Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#065f46" style="background: #065f46;" title="Vert Profond"></button>
+                <button type="button" class="solid-swatch" data-color="#14532d" style="background: #14532d;" title="Forêt Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#15803d" style="background: #15803d;" title="Vert Vif"></button>
+                <button type="button" class="solid-swatch" data-color="#3f3f46" style="background: #3f3f46;" title="Gris Acier"></button>
+                <button type="button" class="solid-swatch" data-color="#4c0519" style="background: #4c0519;" title="Bordeaux Profond"></button>
+                <button type="button" class="solid-swatch" data-color="#7f1d1d" style="background: #7f1d1d;" title="Grenat Nuit"></button>
+                <button type="button" class="solid-swatch" data-color="#881337" style="background: #881337;" title="Rubis Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#78350f" style="background: #78350f;" title="Ambre Sombre"></button>
+                <button type="button" class="solid-swatch" data-color="#451a03" style="background: #451a03;" title="Chocolat"></button>
+                <button type="button" class="solid-swatch" data-color="#1c1917" style="background: #1c1917;" title="Terre Sombre"></button>
+              </div>
+            </div>
+
+            <div class="color-inputs-row" style="margin-top: 12px;">
               <div class="color-input-field">
                 <span id="folder-c1-label">Couleur 1</span>
-                <input type="color" id="folder-bg-color1" value="#161a24">
+                <div class="color-hex-row">
+                  <button type="button" id="folder-bg-color1-btn" class="color-picker-trigger" style="background: #161a24;" title="Ouvrir la palette intégrée"></button>
+                  <input type="text" id="folder-bg-color1-hex" class="hex-color-input" value="#161A24" maxlength="7" spellcheck="false" placeholder="#161A24">
+                  <input type="hidden" id="folder-bg-color1" value="#161a24">
+                </div>
               </div>
               <div class="color-input-field" id="folder-c2-wrap">
                 <span>Couleur 2</span>
-                <input type="color" id="folder-bg-color2" value="#2d3345">
-              </div>
-              <div class="color-input-field" id="folder-angle-wrap">
-                <span>Angle</span>
-                <select id="folder-bg-angle">
-                  <option value="135" selected>Diagonale (135°)</option>
-                  <option value="180">Vertical (180°)</option>
-                  <option value="90">Horizontal (90°)</option>
-                </select>
+                <div class="color-hex-row">
+                  <button type="button" id="folder-bg-color2-btn" class="color-picker-trigger" style="background: #2d3345;" title="Ouvrir la palette intégrée"></button>
+                  <input type="text" id="folder-bg-color2-hex" class="hex-color-input" value="#2D3345" maxlength="7" spellcheck="false" placeholder="#2D3345">
+                  <input type="hidden" id="folder-bg-color2" value="#2d3345">
+                </div>
               </div>
             </div>
+
+            <!-- Sélecteur d'angle stylisé (sans select natif blanc) -->
+            <div class="color-input-field" id="folder-angle-wrap" style="margin-top: 10px;">
+              <span>Orientation du dégradé</span>
+              <div class="angle-pill-group" id="folder-angle-pills">
+                <button type="button" class="angle-pill active" data-angle="135">135° Diagonale</button>
+                <button type="button" class="angle-pill" data-angle="180">180° Vertical</button>
+                <button type="button" class="angle-pill" data-angle="90">90° Horizontal</button>
+                <button type="button" class="angle-pill" data-angle="45">45° Inversé</button>
+              </div>
+              <input type="hidden" id="folder-bg-angle" value="135">
+            </div>
+
             <!-- Aperçu -->
-            <div class="bg-preview-box" id="folder-bg-preview" style="background: #161a24;">Aperçu du dossier</div>
+            <div class="bg-preview-box" id="folder-bg-preview" style="background: #161a24; margin-top: 12px;">Aperçu du dossier</div>
           </div>
         </div>
 
@@ -466,24 +510,66 @@
             </label>
           </div>
 
+          <!-- Nuances solides cliquables pour couleur unie (1 clic direct, 100% fiable) -->
+          <div id="main-solid-palette" class="solid-palette-section hidden" style="margin-top: 12px;">
+            <span class="sub-label">Couleurs unies recommandées (1 clic pour appliquer)</span>
+            <div class="solid-swatches-grid" id="main-solid-swatches">
+              <button type="button" class="solid-swatch active" data-color="#090a0d" style="background: #090a0d;" title="Noir Pro"></button>
+              <button type="button" class="solid-swatch" data-color="#121316" style="background: #121316;" title="Carbone Pur"></button>
+              <button type="button" class="solid-swatch" data-color="#18181b" style="background: #18181b;" title="Zinc Profond"></button>
+              <button type="button" class="solid-swatch" data-color="#0f172a" style="background: #0f172a;" title="Ardoise Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#1e293b" style="background: #1e293b;" title="Ardoise Bleue"></button>
+              <button type="button" class="solid-swatch" data-color="#13192b" style="background: #13192b;" title="Bleu Cobalt"></button>
+              <button type="button" class="solid-swatch" data-color="#1e1b4b" style="background: #1e1b4b;" title="Indigo Nuit"></button>
+              <button type="button" class="solid-swatch" data-color="#2e1065" style="background: #2e1065;" title="Améthyste Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#3b0764" style="background: #3b0764;" title="Pourpre Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#4c1d95" style="background: #4c1d95;" title="Violet Royal"></button>
+              <button type="button" class="solid-swatch" data-color="#1d4ed8" style="background: #1d4ed8;" title="Bleu Électrique"></button>
+              <button type="button" class="solid-swatch" data-color="#0369a1" style="background: #0369a1;" title="Bleu Océan"></button>
+              <button type="button" class="solid-swatch" data-color="#042f2e" style="background: #042f2e;" title="Sarcelle Nuit"></button>
+              <button type="button" class="solid-swatch" data-color="#064e3b" style="background: #064e3b;" title="Émeraude Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#065f46" style="background: #065f46;" title="Vert Profond"></button>
+              <button type="button" class="solid-swatch" data-color="#14532d" style="background: #14532d;" title="Forêt Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#15803d" style="background: #15803d;" title="Vert Vif"></button>
+              <button type="button" class="solid-swatch" data-color="#3f3f46" style="background: #3f3f46;" title="Gris Acier"></button>
+              <button type="button" class="solid-swatch" data-color="#4c0519" style="background: #4c0519;" title="Bordeaux Profond"></button>
+              <button type="button" class="solid-swatch" data-color="#7f1d1d" style="background: #7f1d1d;" title="Grenat Nuit"></button>
+              <button type="button" class="solid-swatch" data-color="#881337" style="background: #881337;" title="Rubis Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#78350f" style="background: #78350f;" title="Ambre Sombre"></button>
+              <button type="button" class="solid-swatch" data-color="#451a03" style="background: #451a03;" title="Chocolat"></button>
+              <button type="button" class="solid-swatch" data-color="#1c1917" style="background: #1c1917;" title="Terre Sombre"></button>
+            </div>
+          </div>
+
           <div class="color-inputs-row" style="margin-top: 12px;">
             <div class="color-input-field">
               <span id="main-c1-label">Couleur 1</span>
-              <input type="color" id="main-bg-color1" value="#090a0d">
+              <div class="color-hex-row">
+                <button type="button" id="main-bg-color1-btn" class="color-picker-trigger" style="background: #090a0d;" title="Ouvrir la palette intégrée"></button>
+                <input type="text" id="main-bg-color1-hex" class="hex-color-input" value="#090A0D" maxlength="7" spellcheck="false" placeholder="#090A0D">
+                <input type="hidden" id="main-bg-color1" value="#090a0d">
+              </div>
             </div>
             <div class="color-input-field" id="main-c2-wrap">
               <span>Couleur 2</span>
-              <input type="color" id="main-bg-color2" value="#1a1d27">
+              <div class="color-hex-row">
+                <button type="button" id="main-bg-color2-btn" class="color-picker-trigger" style="background: #1a1d27;" title="Ouvrir la palette intégrée"></button>
+                <input type="text" id="main-bg-color2-hex" class="hex-color-input" value="#1A1D27" maxlength="7" spellcheck="false" placeholder="#1A1D27">
+                <input type="hidden" id="main-bg-color2" value="#1a1d27">
+              </div>
             </div>
-            <div class="color-input-field" id="main-angle-wrap">
-              <span>Angle</span>
-              <select id="main-bg-angle">
-                <option value="135" selected>Diagonale (135°)</option>
-                <option value="180">Vertical (180°)</option>
-                <option value="90">Horizontal (90°)</option>
-                <option value="45">Diagonale inversée (45°)</option>
-              </select>
+          </div>
+
+          <!-- Sélecteur d'angle stylisé (sans select natif blanc) -->
+          <div class="color-input-field" id="main-angle-wrap" style="margin-top: 10px;">
+            <span>Orientation du dégradé</span>
+            <div class="angle-pill-group" id="main-angle-pills">
+              <button type="button" class="angle-pill active" data-angle="135">135° Diagonale</button>
+              <button type="button" class="angle-pill" data-angle="180">180° Vertical</button>
+              <button type="button" class="angle-pill" data-angle="90">90° Horizontal</button>
+              <button type="button" class="angle-pill" data-angle="45">45° Inversé</button>
             </div>
+            <input type="hidden" id="main-bg-angle" value="135">
           </div>
 
           <div class="bg-preview-box" id="main-bg-preview" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%); margin-top: 12px;">
@@ -499,6 +585,83 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- Modal de confirmation & dialogue élégant (Dark Pro Glassmorphism) -->
+  <div class="modal-backdrop hidden" id="confirm-modal">
+    <div class="modal confirm-dialog">
+      <div class="confirm-icon-wrap" id="confirm-icon-wrap">
+        <span id="confirm-icon"></span>
+      </div>
+      <h3 class="confirm-title" id="confirm-title">Confirmation</h3>
+      <p class="confirm-message" id="confirm-message"></p>
+      <div class="modal-actions confirm-actions">
+        <button type="button" class="btn btn-secondary" id="confirm-cancel-btn">Annuler</button>
+        <button type="button" class="btn btn-danger" id="confirm-ok-btn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sélecteur de couleur popover 100% in-app (aucune boîte de dialogue GTK/système externe) -->
+  <div id="app-color-popover" class="color-popover hidden">
+    <div class="popover-header">
+      <span class="popover-title">Nuancier intégré</span>
+      <button type="button" class="icon-btn popover-close-btn" id="popover-close-btn" title="Fermer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="popover-body">
+      <div class="popover-swatches-grid" id="popover-swatches">
+        <!-- 30 nuances réparties par colonnes de couleurs -->
+        <button type="button" class="p-swatch" data-color="#000000" style="background: #000000;" title="#000000"></button>
+        <button type="button" class="p-swatch" data-color="#090a0d" style="background: #090a0d;" title="#090A0D"></button>
+        <button type="button" class="p-swatch" data-color="#121316" style="background: #121316;" title="#121316"></button>
+        <button type="button" class="p-swatch" data-color="#18181b" style="background: #18181b;" title="#18181B"></button>
+        <button type="button" class="p-swatch" data-color="#27272a" style="background: #27272a;" title="#27272A"></button>
+        <button type="button" class="p-swatch" data-color="#3f3f46" style="background: #3f3f46;" title="#3F3F46"></button>
+
+        <button type="button" class="p-swatch" data-color="#070c18" style="background: #070c18;" title="#070C18"></button>
+        <button type="button" class="p-swatch" data-color="#0f172a" style="background: #0f172a;" title="#0F172A"></button>
+        <button type="button" class="p-swatch" data-color="#1e293b" style="background: #1e293b;" title="#1E293B"></button>
+        <button type="button" class="p-swatch" data-color="#13192b" style="background: #13192b;" title="#13192B"></button>
+        <button type="button" class="p-swatch" data-color="#1d4ed8" style="background: #1d4ed8;" title="#1D4ED8"></button>
+        <button type="button" class="p-swatch" data-color="#38bdf8" style="background: #38bdf8;" title="#38BDF8"></button>
+
+        <button type="button" class="p-swatch" data-color="#11081c" style="background: #11081c;" title="#11081C"></button>
+        <button type="button" class="p-swatch" data-color="#1e1b4b" style="background: #1e1b4b;" title="#1E1B4B"></button>
+        <button type="button" class="p-swatch" data-color="#2e1065" style="background: #2e1065;" title="#2E1065"></button>
+        <button type="button" class="p-swatch" data-color="#4c1d95" style="background: #4c1d95;" title="#4C1D95"></button>
+        <button type="button" class="p-swatch" data-color="#7c3aed" style="background: #7c3aed;" title="#7C3AED"></button>
+        <button type="button" class="p-swatch" data-color="#c084fc" style="background: #c084fc;" title="#C084FC"></button>
+
+        <button type="button" class="p-swatch" data-color="#05140e" style="background: #05140e;" title="#05140E"></button>
+        <button type="button" class="p-swatch" data-color="#064e3b" style="background: #064e3b;" title="#064E3B"></button>
+        <button type="button" class="p-swatch" data-color="#065f46" style="background: #065f46;" title="#065F46"></button>
+        <button type="button" class="p-swatch" data-color="#14532d" style="background: #14532d;" title="#14532D"></button>
+        <button type="button" class="p-swatch" data-color="#15803d" style="background: #15803d;" title="#15803D"></button>
+        <button type="button" class="p-swatch" data-color="#4ade80" style="background: #4ade80;" title="#4ADE80"></button>
+
+        <button type="button" class="p-swatch" data-color="#1c1214" style="background: #1c1214;" title="#1C1214"></button>
+        <button type="button" class="p-swatch" data-color="#4c0519" style="background: #4c0519;" title="#4C0519"></button>
+        <button type="button" class="p-swatch" data-color="#7f1d1d" style="background: #7f1d1d;" title="#7F1D1D"></button>
+        <button type="button" class="p-swatch" data-color="#991b1b" style="background: #991b1b;" title="#991B1B"></button>
+        <button type="button" class="p-swatch" data-color="#b45309" style="background: #b45309;" title="#B45309"></button>
+        <button type="button" class="p-swatch" data-color="#f59e0b" style="background: #f59e0b;" title="#F59E0B"></button>
+      </div>
+
+      <!-- Curseur de teinte spectre complet -->
+      <div class="popover-hue-row">
+        <span class="sub-label">Spectre chromatique</span>
+        <input type="range" id="popover-hue-slider" min="0" max="360" value="220" class="hue-slider">
+      </div>
+
+      <!-- Aperçu et saisie manuelle -->
+      <div class="popover-footer-row">
+        <div class="popover-preview-swatch" id="popover-preview-swatch" style="background: #090a0d;"></div>
+        <input type="text" id="popover-hex-input" class="hex-color-input" value="#090A0D" maxlength="7" spellcheck="false">
+        <button type="button" class="btn btn-primary btn-sm" id="popover-apply-btn">Choisir</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>

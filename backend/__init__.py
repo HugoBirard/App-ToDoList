@@ -1,5 +1,5 @@
 """
-Package backend ToDo List.
+Package backend ToDoList.
 """
 
 from .config import BASE_DIR, STATIC_DIR, DATA_DIR, DB_PATH, DEFAULT_PORT
