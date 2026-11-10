@@ -5,6 +5,8 @@ Supporte les emplacements personnalisés pour la synchronisation multi-PC (Nextc
 
 import json
 import os
+import socket
+import subprocess
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
@@ -67,3 +69,29 @@ APP_ID = "com.local.todolist"
 
 # Thème sombre professionnel par défaut
 DEFAULT_PRO_BG = "linear-gradient(135deg, #08090c 0%, #131620 50%, #1a1e2b 100%)"
+
+
+def get_lan_ips():
+    """Détecte les adresses IPv4 locales de la machine pour le partage réseau."""
+    ips = set()
+    try:
+        proc = subprocess.run(["hostname", "-I"], capture_output=True, text=True, timeout=2)
+        for part in proc.stdout.split():
+            part = part.strip()
+            if part and not part.startswith("127.") and not part.startswith("172.17."):
+                ips.add(part)
+    except Exception:
+        pass
+
+    if not ips:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                s.connect(("8.8.8.8", 80))
+                ip = s.getsockname()[0]
+                if ip and not ip.startswith("127."):
+                    ips.add(ip)
+        except Exception:
+            pass
+
+    return sorted(list(ips))
+

@@ -32,6 +32,10 @@ import {
   updateDiscordUIFromState 
 } from './components/discord.js';
 import { 
+  initServerUI, 
+  updateServerStatusUI 
+} from './components/server.js';
+import { 
   openAddFolderModal, 
   closeFolderModal, 
   handleFolderSubmit, 
@@ -59,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadData();
   initSyncUI(loadData);
   initAutoSyncWatcher(loadData);
+  initServerUI(loadData);
   initDiscordUI();
   setupEventListeners();
 });
@@ -82,6 +87,7 @@ async function loadData() {
     updateFolderDropdown();
     renderTasks();
     updateDiscordUIFromState();
+    updateServerStatusUI();
   }
 }
 

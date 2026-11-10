@@ -170,6 +170,13 @@ class HandlersTestCase(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertTrue(imported.get("success"))
 
+        # GET /api/network/info
+        status, net_info = self._request("GET", "/api/network/info")
+        self.assertEqual(status, 200)
+        self.assertIn("local_url", net_info)
+        self.assertIn("network_ips", net_info)
+        self.assertIn("network_urls", net_info)
+
 
 if __name__ == "__main__":
     unittest.main()

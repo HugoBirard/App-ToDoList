@@ -8,7 +8,7 @@ import os
 import subprocess
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler
-from .config import STATIC_DIR
+from .config import STATIC_DIR, DEFAULT_PORT, get_lan_ips
 from .services import TodoService
 from .discord import send_test_message
 
@@ -103,6 +103,24 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             # GET /api/storage/export
             if path == "/api/storage/export":
                 self.send_json(self.service.export_backup())
+                return
+
+            # GET /api/network/info
+            if path == "/api/network/info":
+                ips = get_lan_ips()
+                host_header = self.headers.get("Host", f"127.0.0.1:{DEFAULT_PORT}")
+                port = DEFAULT_PORT
+                if ":" in host_header:
+                    try:
+                        port = int(host_header.split(":")[-1])
+                    except Exception:
+                        pass
+                self.send_json({
+                    "port": port,
+                    "local_url": f"http://127.0.0.1:{port}",
+                    "network_ips": ips,
+                    "network_urls": [f"http://{ip}:{port}" for ip in ips]
+                })
                 return
 
             super().do_GET()

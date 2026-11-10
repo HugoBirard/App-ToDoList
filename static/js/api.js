@@ -1,16 +1,65 @@
 /**
  * Module Client API REST.
- * Fournit une interface unifiée pour communiquer avec le backend Python.
+ * Fournit une interface unifiée pour communiquer avec le backend local ou un serveur distant.
  */
+
+let customApiBase = localStorage.getItem('todolist_remote_server') || '';
+
+export function getApiBase() {
+  return customApiBase;
+}
+
+export function setApiBase(url) {
+  customApiBase = (url || '').trim().replace(/\/+$/, '');
+  if (customApiBase) {
+    localStorage.setItem('todolist_remote_server', customApiBase);
+  } else {
+    localStorage.removeItem('todolist_remote_server');
+  }
+}
+
+export async function testServerConnection(url) {
+  const cleanUrl = (url || '').trim().replace(/\/+$/, '');
+  if (!cleanUrl) return { success: false, message: 'URL manquante' };
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(`${cleanUrl}/api/data`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`Code HTTP ${res.status}`);
+    const data = await res.json();
+    return {
+      success: true,
+      foldersCount: data.folders?.length || 0,
+      tasksCount: data.tasks?.length || 0
+    };
+  } catch (err) {
+    return { success: false, message: err.name === 'AbortError' ? 'Délai d\'attente dépassé (timeout 6s)' : err.message };
+  }
+}
+
+export async function fetchNetworkInfo() {
+  return await api('/api/network/info');
+}
 
 export async function api(endpoint, method = 'GET', data = null) {
   try {
+    const base = getApiBase();
+    let targetUrl = endpoint;
+    if (base && endpoint.startsWith('/api')) {
+      targetUrl = `${base}${endpoint}`;
+    }
+
     const options = {
       method,
       headers: { 'Content-Type': 'application/json' }
     };
     if (data) options.body = JSON.stringify(data);
-    const res = await fetch(endpoint, options);
+    const res = await fetch(targetUrl, options);
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     return await res.json();
   } catch (err) {

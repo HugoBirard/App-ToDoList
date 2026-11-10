@@ -365,6 +365,28 @@ L'application expose une API REST légère et prédictible servant du JSON en UT
 | `POST` | `/api/tasks/clear-completed` | Supprime toutes les tâches terminées (globalement ou pour un `folder_id` donné) |
 | `PUT` | `/api/settings` | Enregistre un paramètre global (ex: `main_background`, réglages Discord) |
 | `POST` | `/api/discord/test` | Teste l'envoi d'un message sur un webhook Discord |
+| `GET` | `/api/network/info` | Retourne les adresses IP locales et URLs réseau de la machine hôte |
+
+---
+
+## 🌐 Mode Serveur Réseau (Partage d'équipe en direct)
+
+Vous pouvez partager une même ToDoList avec toute votre équipe en temps réel sans passer par un cloud externe :
+
+### 1. Héberger le serveur pour l'équipe
+Sur l'ordinateur de l'hôte, lancez le serveur partagé :
+```bash
+./lancer-serveur-equipe.sh
+# ou : python3 server.py --share
+```
+Le terminal affiche vos adresses IP locales (ex : `http://192.168.1.35:4848`).
+
+### 2. Rejoindre le serveur depuis un autre PC
+Chaque membre de l'équipe peut alors :
+* **Depuis l'application ToDoList :** Aller dans **Options (⚙️) > Serveur Réseau**, entrer l'adresse du serveur (ex. `http://192.168.1.35:4848`) et cliquer sur **Se connecter à ce serveur**.
+* **Ou directement depuis un navigateur web :** Ouvrir l'URL dans Chrome/Firefox (`http://192.168.1.35:4848`).
+
+Toutes les modifications sont synchronisées instantanément pour tous les membres !
 
 ---
 
