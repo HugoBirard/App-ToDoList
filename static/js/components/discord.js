@@ -74,6 +74,11 @@ export function initDiscordUI() {
         return;
       }
 
+      if (webhookUrl.startsWith('••••')) {
+        showFeedback('Veuillez saisir l\'URL complète du Webhook pour effectuer le test.', 'error');
+        return;
+      }
+
       if (!webhookUrl.startsWith('https://discord.com/api/webhooks/') && 
           !webhookUrl.startsWith('https://discordapp.com/api/webhooks/')) {
         showFeedback('L\'URL doit commencer par https://discord.com/api/webhooks/...', 'error');
@@ -116,9 +121,9 @@ export function initDiscordUI() {
       const evtDeleted = document.getElementById('discord-evt-deleted');
       const evtFolder = document.getElementById('discord-evt-folder');
 
+      const rawWebhookUrl = (urlInput?.value || '').trim();
       const payload = {
         discord_enabled: enabledToggle?.checked ? '1' : '0',
-        discord_webhook_url: (urlInput?.value || '').trim(),
         discord_author_name: (authorInput?.value || '').trim(),
         discord_notify_created: evtCreated?.checked ? '1' : '0',
         discord_notify_completed: evtCompleted?.checked ? '1' : '0',
@@ -126,9 +131,14 @@ export function initDiscordUI() {
         discord_notify_folder: evtFolder?.checked ? '1' : '0'
       };
 
+      // Si l'utilisateur n'a pas ré-écrit l'URL masquée, ne pas écraser le secret côté serveur
+      if (!rawWebhookUrl.startsWith('••••')) {
+        payload.discord_webhook_url = rawWebhookUrl;
+      }
+
       const res = await api('/api/settings', 'PUT', payload);
       if (res) {
-        state.settings = { ...(state.settings || {}), ...payload };
+        state.settings = { ...(state.settings || {}), ...res };
         updateDiscordUIFromState();
         showFeedback('💾 Configuration Discord enregistrée avec succès !', 'success');
         showNotificationDialog('Intégration Discord', 'Vos réglages Discord ont été enregistrés avec succès. Les membres de votre groupe de projet recevront les notifications sur votre salon Discord.');

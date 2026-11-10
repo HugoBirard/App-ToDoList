@@ -12,7 +12,8 @@
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
-  <img src="https://img.shields.io/badge/Tests-23%2F23%20Passed-success?style=flat" alt="Tests 23/23 Passed">
+  <img src="https://img.shields.io/badge/Tests-38%2F38%20Passed-success?style=flat" alt="Tests 38/38 Passed">
+  <img src="https://img.shields.io/badge/Security-Hardened%20%26%20Audited-brightgreen?style=flat&logo=shield" alt="Security Hardened">
   <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat" alt="License MIT">

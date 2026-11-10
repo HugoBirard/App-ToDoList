@@ -63,9 +63,10 @@ export function renderTasks() {
 
     // Badge Dossier
     let folderBadgeHtml = '';
+    const safeFolderColor = folder && /^#[0-9a-fA-F]{3,8}$/.test(folder.color) ? folder.color : '#6366f1';
     if (folder && typeof state.currentView !== 'number') {
       folderBadgeHtml = `
-        <span class="folder-badge" style="border-left: 3px solid ${folder.color}">
+        <span class="folder-badge">
           ${renderIcon(folder.icon)} ${escapeHtml(folder.name)}
         </span>
       `;
@@ -136,6 +137,9 @@ export function renderTasks() {
         <button class="icon-btn btn-delete-task" title="Supprimer la tâche">${renderIcon('trash')}</button>
       </div>
     `;
+
+    const fBadge = item.querySelector('.folder-badge');
+    if (fBadge) fBadge.style.borderLeft = `3px solid ${safeFolderColor}`;
 
     // Attacher événements de manière propre
     const chk = item.querySelector('.task-checkbox');

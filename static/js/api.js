@@ -4,6 +4,7 @@
  */
 
 let customApiBase = localStorage.getItem('todolist_remote_server') || '';
+let customApiToken = localStorage.getItem('todolist_remote_token') || '';
 
 export function getApiBase() {
   return customApiBase;
@@ -18,18 +19,41 @@ export function setApiBase(url) {
   }
 }
 
-export async function testServerConnection(url) {
+export function getApiToken() {
+  return customApiToken;
+}
+
+export function setApiToken(token) {
+  customApiToken = (token || '').trim();
+  if (customApiToken) {
+    localStorage.setItem('todolist_remote_token', customApiToken);
+  } else {
+    localStorage.removeItem('todolist_remote_token');
+  }
+}
+
+export async function testServerConnection(url, token = null) {
   const cleanUrl = (url || '').trim().replace(/\/+$/, '');
   if (!cleanUrl) return { success: false, message: 'URL manquante' };
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const headers = { 'Content-Type': 'application/json' };
+    const effectiveToken = (token !== null ? token : getApiToken()).trim();
+    if (effectiveToken) {
+      headers['Authorization'] = `Bearer ${effectiveToken}`;
+    }
+
     const res = await fetch(`${cleanUrl}/api/data`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       signal: controller.signal
     });
     clearTimeout(timeoutId);
+
+    if (res.status === 401) {
+      return { success: false, message: 'Non autorisé : jeton d\'accès requis ou invalide.' };
+    }
     if (!res.ok) throw new Error(`Code HTTP ${res.status}`);
     const data = await res.json();
     return {
@@ -54,9 +78,15 @@ export async function api(endpoint, method = 'GET', data = null) {
       targetUrl = `${base}${endpoint}`;
     }
 
+    const headers = { 'Content-Type': 'application/json' };
+    const token = getApiToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const options = {
       method,
-      headers: { 'Content-Type': 'application/json' }
+      headers
     };
     if (data) options.body = JSON.stringify(data);
     const res = await fetch(targetUrl, options);

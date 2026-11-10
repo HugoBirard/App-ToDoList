@@ -47,9 +47,11 @@ export function renderFolderList() {
       ? `<span class="folder-mini-badge" title="Fond personnalisé">${renderIcon('palette')}</span>`
       : '';
 
+    const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(folder.color) ? folder.color : '#6366f1';
+
     item.innerHTML = `
       <div class="folder-info">
-        <span class="folder-pill" style="background-color: ${folder.color};"></span>
+        <span class="folder-pill"></span>
         <span class="folder-icon">${renderIcon(folder.icon)}</span>
         <span class="folder-name">${escapeHtml(folder.name)}</span>
         ${weeklyBadge}
@@ -61,6 +63,9 @@ export function renderFolderList() {
         <button class="icon-btn delete-folder-btn" title="Supprimer le dossier">${renderIcon('trash')}</button>
       </div>
     `;
+
+    const pill = item.querySelector('.folder-pill');
+    if (pill) pill.style.backgroundColor = safeColor;
 
     // Event listeners
     item.querySelector('.edit-folder-btn').onclick = (e) => {

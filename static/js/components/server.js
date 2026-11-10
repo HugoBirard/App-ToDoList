@@ -2,16 +2,22 @@
  * Composant de gestion du Mode Serveur Réseau (Client Distant et Hébergement d'Équipe).
  */
 
-import { getApiBase, setApiBase, testServerConnection, fetchNetworkInfo } from '../api.js';
+import { getApiBase, setApiBase, getApiToken, setApiToken, testServerConnection, fetchNetworkInfo } from '../api.js';
 import { showNotificationDialog } from './modals.js';
 
 export function updateServerStatusUI() {
   const currentBase = getApiBase();
+  const currentToken = getApiToken();
   const badge = document.getElementById('server-connection-badge');
   const currentUrlText = document.getElementById('server-current-url-text');
   const remotePill = document.getElementById('remote-server-pill');
   const remotePillText = document.getElementById('remote-server-pill-text');
   const input = document.getElementById('remote-server-input');
+  const tokenInput = document.getElementById('remote-server-token');
+
+  if (currentToken && tokenInput && !tokenInput.value) {
+    tokenInput.value = currentToken;
+  }
 
   if (currentBase) {
     if (badge) {
@@ -42,6 +48,7 @@ export function updateServerStatusUI() {
 
 export function initServerUI(loadDataCallback) {
   const input = document.getElementById('remote-server-input');
+  const tokenInput = document.getElementById('remote-server-token');
   const testBtn = document.getElementById('remote-server-test-btn');
   const connectBtn = document.getElementById('remote-server-connect-btn');
   const disconnectBtn = document.getElementById('remote-server-disconnect-btn');
@@ -59,6 +66,7 @@ export function initServerUI(loadDataCallback) {
   if (testBtn) {
     testBtn.onclick = async () => {
       const targetUrl = (input?.value || '').trim();
+      const token = (tokenInput?.value || '').trim();
       if (!targetUrl) {
         showFeedback('Veuillez renseigner l\'URL du serveur distant.', 'error');
         return;
@@ -68,7 +76,7 @@ export function initServerUI(loadDataCallback) {
       testBtn.disabled = true;
       testBtn.textContent = 'Test en cours...';
 
-      const res = await testServerConnection(targetUrl);
+      const res = await testServerConnection(targetUrl, token);
       testBtn.disabled = false;
       testBtn.textContent = origText;
 
@@ -84,21 +92,23 @@ export function initServerUI(loadDataCallback) {
   if (connectBtn) {
     connectBtn.onclick = async () => {
       const targetUrl = (input?.value || '').trim();
+      const token = (tokenInput?.value || '').trim();
       if (!targetUrl) {
         showFeedback('Veuillez renseigner l\'URL du serveur distant.', 'error');
         return;
       }
 
       connectBtn.disabled = true;
-      const testRes = await testServerConnection(targetUrl);
+      const testRes = await testServerConnection(targetUrl, token);
       connectBtn.disabled = false;
 
       if (!testRes.success) {
-        showFeedback(`❌ Connexion échouée : ${testRes.message}. Vérifiez que le serveur est bien lancé.`, 'error');
+        showFeedback(`❌ Connexion échouée : ${testRes.message}. Vérifiez l'adresse et le jeton d'accès.`, 'error');
         return;
       }
 
       setApiBase(targetUrl);
+      setApiToken(token);
       updateServerStatusUI();
       showFeedback('✅ Connecté avec succès ! Chargement des tâches du serveur...', 'success');
 
@@ -114,7 +124,9 @@ export function initServerUI(loadDataCallback) {
   // 3. Déconnexion (Revenir en mode local)
   const handleDisconnect = async () => {
     setApiBase('');
+    setApiToken('');
     if (input) input.value = '';
+    if (tokenInput) tokenInput.value = '';
     updateServerStatusUI();
     showFeedback('Mode local restauré.', 'success');
     if (loadDataCallback) await loadDataCallback();

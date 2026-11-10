@@ -3,12 +3,32 @@ Service métier de gestion des dossiers, tâches et réglages.
 Contient toute la logique métier (réinitialisation hebdomadaire, calcul de complétion, etc.).
 """
 
+import logging
 import os
+import re
 import shutil
 from datetime import datetime, timedelta
 from .config import DEFAULT_DB_PATH, get_current_db_path, load_local_config, save_local_config
 from .database import get_connection, init_db
 from .discord import notify_task_created, notify_task_status_changed, notify_task_deleted, notify_folder_created
+
+logger = logging.getLogger("todolist.services")
+
+_HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{3,8}$")
+_VALID_BG_TYPES = {"default", "solid", "gradient"}
+SENSITIVE_SETTINGS_KEYS = {"discord_webhook_url"}
+
+
+def _safe_color(value, default="#6366f1"):
+    """Valide et retourne une couleur hexadécimale sûre (évite injections CSS/HTML)."""
+    v = str(value or "").strip()
+    return v if _HEX_COLOR.match(v) else default
+
+
+def _safe_bg_type(value, default="default"):
+    """Valide le type de fond selon une liste blanche stricte."""
+    v = str(value or "").strip().lower()
+    return v if v in _VALID_BG_TYPES else default
 
 
 def _safe_int(val, default=0, min_val=None, max_val=None):
@@ -46,10 +66,20 @@ class TodoService:
         tasks = [dict(row) for row in cursor.fetchall()]
 
         cursor.execute("SELECT key, value FROM settings")
-        settings = {row["key"]: row["value"] for row in cursor.fetchall()}
+        raw_settings = {row["key"]: row["value"] for row in cursor.fetchall()}
 
         conn.close()
-        return {"folders": folders, "tasks": tasks, "settings": settings}
+
+        # Masquer les données sensibles (ex: webhook Discord)
+        safe_settings = {}
+        for k, v in raw_settings.items():
+            if k in SENSITIVE_SETTINGS_KEYS and v:
+                safe_settings[k] = "••••" + str(v)[-4:] if len(str(v)) > 4 else "••••"
+            else:
+                safe_settings[k] = v
+        safe_settings["discord_webhook_configured"] = bool(raw_settings.get("discord_webhook_url"))
+
+        return {"folders": folders, "tasks": tasks, "settings": safe_settings}
 
     def check_weekly_resets(self, conn=None):
         """Vérifie si 7 jours se sont écoulés pour les dossiers hebdomadaires et remet leurs tâches à zéro."""
@@ -77,6 +107,7 @@ class TodoService:
                     if (now - last_dt) >= timedelta(days=7):
                         should_reset = True
                 except Exception:
+                    logger.debug("Date last_reset_at invalide pour dossier %s", folder_id, exc_info=True)
                     should_reset = True
 
             if should_reset:
@@ -122,7 +153,7 @@ class TodoService:
             elif action_type == "folder_created" and str(settings.get("discord_notify_folder", "1")) == "1":
                 notify_folder_created(webhook_url, kwargs.get("folder_name", "Dossier"), author=author)
         except Exception:
-            pass
+            logger.warning("Erreur lors de la notification Discord", exc_info=True)
 
     # --- Dossiers ---
 
@@ -131,11 +162,11 @@ class TodoService:
         cursor = conn.cursor()
         name = str(data.get("name") or "Nouveau dossier").strip()[:100]
         icon = str(data.get("icon") or "folder")[:50]
-        color = str(data.get("color") or "#4f46e5")[:20]
+        color = _safe_color(data.get("color"), default="#4f46e5")
         auto_reset_weekly = 1 if data.get("auto_reset_weekly") else 0
-        bg_type = str(data.get("bg_type", "default"))[:30]
-        bg_color1 = str(data.get("bg_color1", ""))[:50]
-        bg_color2 = str(data.get("bg_color2", ""))[:50]
+        bg_type = _safe_bg_type(data.get("bg_type"), default="default")
+        bg_color1 = _safe_color(data.get("bg_color1"), default="") if data.get("bg_color1") else ""
+        bg_color2 = _safe_color(data.get("bg_color2"), default="") if data.get("bg_color2") else ""
         bg_angle = _safe_int(data.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
         cursor.execute(
@@ -165,19 +196,19 @@ class TodoService:
             values.append(str(data["icon"])[:50])
         if "color" in data:
             fields.append("color = ?")
-            values.append(str(data["color"])[:20])
+            values.append(_safe_color(data["color"], default="#4f46e5"))
         if "auto_reset_weekly" in data:
             fields.append("auto_reset_weekly = ?")
             values.append(1 if data["auto_reset_weekly"] else 0)
         if "bg_type" in data:
             fields.append("bg_type = ?")
-            values.append(str(data["bg_type"])[:30])
+            values.append(_safe_bg_type(data["bg_type"], default="default"))
         if "bg_color1" in data:
             fields.append("bg_color1 = ?")
-            values.append(str(data["bg_color1"])[:50])
+            values.append(_safe_color(data["bg_color1"], default="") if data["bg_color1"] else "")
         if "bg_color2" in data:
             fields.append("bg_color2 = ?")
-            values.append(str(data["bg_color2"])[:50])
+            values.append(_safe_color(data["bg_color2"], default="") if data["bg_color2"] else "")
         if "bg_angle" in data:
             fields.append("bg_angle = ?")
             values.append(_safe_int(data["bg_angle"], default=135, min_val=0, max_val=360))
@@ -397,12 +428,13 @@ class TodoService:
         conn = self._conn()
         cursor = conn.cursor()
         for k, v in payload.items():
+            # Ne pas écraser une valeur sensible existante avec une valeur masquée
+            if k in SENSITIVE_SETTINGS_KEYS and str(v).startswith("••••"):
+                continue
             cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (str(k), str(v)))
         conn.commit()
-        cursor.execute("SELECT key, value FROM settings")
-        settings = {row["key"]: row["value"] for row in cursor.fetchall()}
         conn.close()
-        return settings
+        return self.get_all_data()["settings"]
 
     # --- Synchronisation & Multi-PC ---
 
@@ -428,7 +460,7 @@ class TodoService:
             folder_count = cursor.fetchone()[0]
             conn.close()
         except Exception:
-            pass
+            logger.warning("Erreur lors de la lecture des statistiques de la base", exc_info=True)
 
         return {
             "current_db_path": active_path,
@@ -469,7 +501,7 @@ class TodoService:
                     conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
                     conn.close()
                 except Exception:
-                    pass
+                    logger.warning("Erreur lors du checkpoint WAL", exc_info=True)
                 shutil.copy2(current_path, target_path)
 
         # Initialiser ou valider le schéma sur le nouvel emplacement
@@ -498,7 +530,7 @@ class TodoService:
             folder_count = cursor.fetchone()[0]
             conn.close()
         except Exception:
-            pass
+            logger.debug("Erreur lors de check_updates", exc_info=True)
 
         return {
             "last_modified": last_modified,
@@ -535,11 +567,11 @@ class TodoService:
         for f in folders:
             name = (f.get("name") or "Dossier importé").strip()[:100]
             icon = str(f.get("icon") or "folder")[:50]
-            color = str(f.get("color") or "#4f46e5")[:20]
+            color = _safe_color(f.get("color"), default="#4f46e5")
             auto_reset_weekly = 1 if f.get("auto_reset_weekly") else 0
-            bg_type = str(f.get("bg_type", "default"))[:30]
-            bg_color1 = str(f.get("bg_color1", ""))[:50]
-            bg_color2 = str(f.get("bg_color2", ""))[:50]
+            bg_type = _safe_bg_type(f.get("bg_type"), default="default")
+            bg_color1 = _safe_color(f.get("bg_color1"), default="") if f.get("bg_color1") else ""
+            bg_color2 = _safe_color(f.get("bg_color2"), default="") if f.get("bg_color2") else ""
             bg_angle = _safe_int(f.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
             # En mode fusion, si un dossier de même nom existe, le réutiliser
