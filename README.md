@@ -1,17 +1,19 @@
-# ToDoList - Application de Bureau Locale & Autonome
+# ToDoList - Application de Bureau Locale, Réseau & Autonome
 
 <p align="center">
   <img src="static/assets/icon.png" alt="ToDoList Icon" width="110" height="110">
 </p>
 
 <p align="center">
-  <strong>Gestionnaire de tâches moderne, local et persistant avec fenêtrage natif dédié, suivi par progression, dossiers thématiques et réinitialisations hebdomadaires intelligentes.</strong>
+  <strong>Gestionnaire de tâches moderne, local et collaboratif avec fenêtrage natif dédié, suivi par progression, dossiers thématiques, synchronisation multi-PC, mode serveur réseau et intégration Discord en direct.</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
+  <img src="https://img.shields.io/badge/Tests-18%2F18%20Passed-success?style=flat" alt="Tests 18/18 Passed">
+  <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat" alt="License MIT">
 </p>
@@ -20,11 +22,12 @@
 
 ## 📌 Présentation du projet
 
-**ToDoList** est une application de bureau conçue pour les utilisateurs recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale** et une **confidentialité absolue** :
+**ToDoList** est une application de bureau conçue pour les utilisateurs et équipes de projet recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale**, une **confidentialité absolue** et des capacités puissantes de **travail collaboratif** :
 
 - **Fenêtrage autonome dédié** : L'application ne s'ouvre **jamais** dans un onglet classique de navigateur avec barre d'URL. Elle dispose de sa propre fenêtre système isolée, de son icône dans le dock et se ferme proprement comme n'importe quel logiciel natif.
-- **Zéro dépendance externe (`Zero-Dependency`)** : Fonctionne directement avec la **bibliothèque standard Python 3** (`sqlite3`, `http.server`, `urllib`, `json`, `subprocess`). Zéro environnement lourd, zéro `npm install`, zéro `pip install` obligatoire.
-- **100% Locale & Privée** : Vos données restent exclusivement sur votre machine dans une base SQLite robuste. Aucune télémétrie, aucun compte obligatoire, fonctionne hors-ligne en continu.
+- **Zéro dépendance obligatoire (`Zero-Dependency`)** : Fonctionne directement avec la **bibliothèque standard Python 3** (`sqlite3`, `http.server`, `urllib`, `json`, `subprocess`). Zéro environnement lourd, zéro `npm install`, zéro `pip install` obligatoire pour le fonctionnement de base.
+- **100% Locale & Privée par défaut** : Vos données restent exclusivement sur votre machine dans une base SQLite robuste. Aucune télémétrie, aucun compte obligatoire, fonctionne hors-ligne en continu.
+- **Collaboration & Équipe intégrées** : Travaillez à plusieurs sur un projet grâce au **Mode Serveur Réseau en direct** et à l'**intégration Discord (Webhooks & Bot interactif)**.
 
 ---
 
@@ -41,7 +44,7 @@ L'application orchestre un lancement fenêtré avec un système de fallback à 4
 
 ### 2. 📁 Organisation par dossiers thématiques
 - Classement par dossiers sur-mesure (ex: *Projets, Routine Quotidienne, Cours, Personnel*).
-- Icône vectorielle SVG personnalisable par dossier (sélection d'icônes intégrées : classeur, mallette, cible, code, maison, etc.).
+- Icône vectorielle SVG personnalisable par dossier (sélection d'icônes intégrées : classeur, mallette, cible, fusée, maison, etc.).
 - Couleur d'accentuation dédiée et badges dynamiques affichant le nombre de tâches en attente.
 - Vues rapides universelles : **Toutes les tâches**, **À faire**, **Terminées**.
 
@@ -58,32 +61,36 @@ L'application orchestre un lancement fenêtré avec un système de fallback à 4
 - Le backend calcule la différence de temps depuis la dernière réinitialisation (`last_reset_at + 7 jours`). Dès que le délai est atteint, les tâches du dossier repassent automatiquement à 0% et non cochées.
 - Bouton de **réinitialisation manuelle instantanée** disponible à tout moment pour relancer une routine sans attendre les 7 jours.
 
-### 5. 🎨 Thèmes & Arrière-plans sur-mesure
+### 5. 🎨 Thèmes, Arrière-plans & Ergonomie Centrée
 - **Thème Sombre Pro** par défaut, aux finitions soignées (glassmorphism, bordures semi-transparentes).
 - Personnalisation complète de l'arrière-plan principal ou par dossier :
   - **Dégradé personnalisé** avec 2 couleurs et sélection de l'angle (45°, 90°, 135°, 180°).
-  - **Couleur unie**.
-  - Presets prêts à l'emploi (Noir & Gris Pro, Bleu Nuit, Violet Moderne, Vert Émeraude, etc.).
+  - **Couleur unie** avec nuancier direct.
+  - Presets prêts à l'emploi (Noir & Gris Pro, Carbone, Bleu Nuit, Ardoise, Émeraude, Améthyste).
+- **Interface harmonieuse & centrée** : Les sélecteurs de choix, boutons d'angles, onglets et boutons d'action sont centrés pour un confort visuel optimal sans risque de déborder de l'écran.
 
-### 6. 🎛️ Composants d'interface sur mesure
-- **Listes déroulantes personnalisées (Custom Dropdowns)** : Remplacement complet des éléments `<select>` natifs du système d'exploitation par des menus stylisés en CSS/JS avec flèches SVG et bordures translucides.
-- Édition rapide du titre en double-cliquant sur une tâche.
-- Nettoyage en 1 clic des tâches terminées d'un dossier.
-- Dialogues de confirmation personnalisés pour éviter toute suppression involontaire.
-
-### 7. 💾 Persistance robuste SQLite ACID
-- Base relationnelle locale stockée dans `data/todolist.db`.
-- Activation explicite des clés étrangères (`PRAGMA foreign_keys = ON`) avec suppression en cascade.
-- **Système de migrations automatiques non destructives** au démarrage de l'application (ajout dynamique des colonnes manquantes sans risque de perte de données).
-- **Mode WAL (*Write-Ahead Logging*)** : Concurrence multi-processus fluide sans blocage de base.
-
-### 8. 🌐 Synchronisation Multi-PC & Partage Cloud
+### 6. 🌐 Synchronisation Multi-PC & Partage Cloud
 - **Partagez facilement vos listes entre plusieurs PC** en sélectionnant un dossier synchronisé (Nextcloud, Dropbox, Syncthing, Google Drive ou partage réseau SMB/NFS).
-- Configuration simplifiée dans **Options & Paramètres > Liaison PC & Synchro** :
-  - **Connecter** une base partagée existante (pour le 2ème PC).
-  - **Déplacer** vos listes actuelles vers le dossier partagé (pour le 1er PC).
+- Configuration dans **Options & Paramètres > Liaison PC & Synchro** :
+  - **Connecter** une base partagée existante (pour le second PC).
+  - **Déplacer** vos listes actuelles vers le dossier partagé (pour le premier PC).
   - **Surveillance automatique en direct** : Toute modification apportée sur un autre PC est détectée et rafraîchie à l'écran automatiquement.
   - **Sauvegardes manuelles** : Export et Import / Restauration de fichiers de sauvegarde JSON.
+
+### 7. 🚀 Mode Serveur Réseau (Partage d'équipe en direct)
+- **Hébergez votre ToDoList en local ou sur votre réseau** : Un membre de l'équipe lance le serveur via `./lancer-serveur-equipe.sh`.
+- **Connexion client distante** : Dans l'onglet **Serveur Réseau**, entrez l'adresse de l'hôte (ex : `http://192.168.1.35:4848`) et profitez d'une synchronisation en temps réel avec pastille de statut active.
+- **Accès navigateur sans installation** : Tout collègue sur le réseau peut également ouvrir l'adresse directement dans son navigateur web (Chrome, Firefox, Safari).
+
+### 8. 🎮 Intégration Discord (Webhooks & Bot interactif)
+- **Notifications Webhook en direct** : Connectez votre salon Discord de projet (`#taches-projet`) pour recevoir des embeds stylisés à chaque création, validation ou suppression de tâche.
+- **Bot Discord interactif (`discord_bot.py`)** : Permet à l'équipe de consulter, ajouter et terminer des tâches directement avec les commandes `!todo`, `!todo add <titre>` et `!todo done <id>`.
+
+### 9. 💾 Persistance robuste SQLite ACID
+- Base relationnelle locale stockée dans `data/todolist.db`.
+- Activation explicite des clés étrangères (`PRAGMA foreign_keys = ON`) avec suppression en cascade.
+- **Système de migrations automatiques non destructives** au démarrage de l'application.
+- **Mode WAL (*Write-Ahead Logging*)** : Concurrence multi-processus fluide sans blocage de base.
 
 ---
 
@@ -94,36 +101,42 @@ Le projet est articulé selon une **architecture en couches découplée**, garan
 ```mermaid
 flowchart TD
     subgraph UI_Shell["Couche Affichage Bureau (Native Window)"]
-        W1["GTK4 + WebKit6 (Isolé)"]
+        W1["GTK4 + WebKit6 (Prioritaire)"]
         W2["GNOME Web Epiphany (--application-mode)"]
         W3["Chromium Engine (--app=URL)"]
         W4["GTK3 + WebKit2"]
     end
 
     subgraph Frontend["Couche Frontend Modulaire (HTML5 / CSS / ES6)"]
-        HTML["index.html (Structure sémantique)"]
-        CSS["style.css (Tokens & Glassmorphism)"]
-        JS_M["main.js (Bootstrap & Événements)"]
+        HTML["index.html (Structure sémantique & 4 onglets)"]
+        CSS["style.css (Tokens, Glassmorphism, Choix centrés)"]
+        JS_M["main.js (Bootstrap & Initialisation)"]
         JS_STATE["state.js (Store réactif centralisé)"]
-        JS_API["api.js (Client HTTP REST)"]
-        JS_COMP["components/ (dropdowns, folders, modals, tasks)"]
-        JS_ICONS["icons.js (SVG vectoriels Lucide/Feather)"]
-        JS_THEME["theme.js (Moteur de rendu d'arrière-plan)"]
+        JS_API["api.js (Client HTTP REST & Mode distant)"]
+        JS_COMP["components/ (dropdowns, folders, modals, tasks, sync, server, discord)"]
+        JS_ICONS["icons.js (SVG vectoriels)"]
+        JS_THEME["theme.js (Moteur de rendu thèmes & dégradés)"]
     end
 
     subgraph Backend["Couche Serveur & Métier (Python 3 Standard)"]
-        MAIN["main.py (Orchestrateur & gestionnaire de port)"]
-        SERVER["server.py (Serveur HTTP autonome Threading)"]
-        HANDLER["backend/handlers.py (Dispatcher REST & Static Files)"]
+        MAIN["main.py (Orchestrateur & Lanceur d'application)"]
+        SERVER["server.py (Serveur HTTP Threading & Support Réseau 0.0.0.0)"]
+        HANDLER["backend/handlers.py (Dispatcher REST & Fichiers statiques)"]
         SERVICE["backend/services.py (TodoService - Logique métier pure)"]
+        DISCORD["backend/discord.py (Émetteur de Webhooks & Rich Embeds)"]
         DB["backend/database.py (Connexions SQLite & Migrations)"]
+    end
+
+    subgraph External["Intégrations Externes"]
+        DISCORD_BOT["discord_bot.py (Bot Discord interactif)"]
+        DISCORD_API["API Discord (Webhooks)"]
     end
 
     subgraph Storage["Couche Données"]
         SQLITE[("data/todolist.db (SQLite3)")]
     end
 
-    UI_Shell -->|Affiche via HTTP local| HTML
+    UI_Shell -->|Affiche via HTTP local ou distant| HTML
     HTML --> JS_M
     JS_M --> JS_COMP
     JS_COMP --> JS_STATE
@@ -131,6 +144,9 @@ flowchart TD
     JS_API -->|Requêtes REST JSON| HANDLER
     HANDLER --> SERVICE
     SERVICE --> DB
+    SERVICE --> DISCORD
+    DISCORD -->|Envoi asynchrone| DISCORD_API
+    DISCORD_BOT -->|Appels REST /api/| HANDLER
     DB --> SQLITE
     MAIN -->|Lance & Surveille| UI_Shell
 ```
@@ -141,50 +157,58 @@ flowchart TD
 App-ToDoList/
 ├── backend/                       # Couche logique serveur & bureau (Python)
 │   ├── __init__.py                # Exports du package backend
-│   ├── config.py                  # Chemins absolus, ports et constantes globales
+│   ├── config.py                  # Chemins absolus, ports, détection IP locales et constantes
 │   ├── database.py                # Gestionnaire de connexion SQLite & migrations de schéma
+│   ├── discord.py                 # Module d'envoi asynchrone des Rich Embeds Discord (Webhooks)
 │   ├── handlers.py                # Dispatcher d'API REST HTTP & serveur de fichiers statiques
-│   ├── services.py                # Logique métier pure (CRUD, 100% progress, weekly reset)
+│   ├── services.py                # Logique métier pure (CRUD, progression 100%, reset hebdo)
 │   ├── window.py                  # Gestionnaire et fallbacks de fenêtres natives autonomes
 │   ├── window_gtk3.py             # Lanceur dédié GTK3 + WebKit2
 │   └── window_gtk4.py             # Lanceur dédié GTK4 + WebKit6 (prioritaire)
 │
 ├── static/                        # Couche interface utilisateur (ES6 Modules & CSS)
-│   ├── index.html                 # Structure de la vue principale et des modales
+│   ├── index.html                 # Structure de la vue principale et modale à 4 onglets
 │   ├── css/
-│   │   └── style.css              # Variables CSS, design tokens, responsive & thèmes
+│   │   └── style.css              # Variables CSS, design tokens, choix centrés & thèmes
 │   ├── js/
-│   │   ├── api.js                 # Client HTTP (fetch JSON, gestion d'erreurs)
+│   │   ├── api.js                 # Client HTTP (fetch JSON, mode serveur distant, détection réseau)
 │   │   ├── state.js               # Store d'état applicatif en mémoire
 │   │   ├── icons.js               # Dictionnaire d'icônes vectorielles SVG sécurisées
 │   │   ├── theme.js               # Moteur de génération des dégradés et couleurs
 │   │   ├── main.js                # Point d'entrée frontend et liaisons d'événements
 │   │   └── components/
+│   │       ├── colorpicker.js     # Sélecteur de couleur intégré popover
+│   │       ├── discord.js         # Interface et configuration des notifications Discord
 │   │       ├── dropdowns.js       # Composant de listes déroulantes stylisées
 │   │       ├── folders.js         # Gestion des dossiers, compteurs et resets
 │   │       ├── modals.js          # Fenêtres modales (Création dossier & Thèmes)
+│   │       ├── server.js          # Gestion du client serveur distant et affichage des IP LAN
+│   │       ├── sync.js            # Gestion de la synchronisation Multi-PC & onglets
 │   │       └── tasks.js           # Rendu des tâches, barres de progression, inline edit
 │   └── assets/
 │       ├── icon.png               # Icône PNG 256x256 pour le système
 │       └── icon.svg               # Icône vectorielle SVG
 │
-├── tests/                         # Suite de tests unitaires et d'intégration
+├── tests/                         # Suite de tests unitaires et d'intégration (18/18)
 │   ├── __init__.py                # Package tests
 │   ├── test_database.py           # Validation du schéma SQLite et des migrations
 │   ├── test_services.py           # Validation des règles métier (100% = fait, reset hebdo)
-│   └── test_handlers.py           # Validation des routes API REST et codes HTTP
+│   ├── test_handlers.py           # Validation des routes API REST et détection réseau
+│   └── test_discord.py            # Validation anti-SSRF, format des embeds et déclencheurs
 │
 ├── data/                          # Données applicatives persistantes
 │   ├── .gitkeep                   # Maintien du dossier dans git
 │   └── todolist.db                # Base de données SQLite locale (ignorée par git)
 │
 ├── .gitignore                     # Exclusion des fichiers temporaires, logs et DB
+├── discord_bot.py                 # Bot Discord interactif autonome (!todo, !todo add, !todo done)
 ├── installer-raccourci.sh         # Script d'installation du raccourci système GNOME/Bureau
+├── lancer-serveur-equipe.sh       # Script de démarrage du serveur d'équipe partagé sur le réseau
 ├── LICENSE                        # Licence open source MIT
 ├── main.py                        # Lanceur principal (Orchestrateur Serveur + Fenêtre GUI)
 ├── pyproject.toml                 # Métadonnées de packaging Python standard (PEP 621)
 ├── README.md                      # Documentation complète du projet
-├── server.py                      # Lanceur de serveur HTTP direct / headless
+├── server.py                      # Lanceur de serveur HTTP autonome (options --host, --port, --share)
 ├── start.sh                       # Script bash exécutable de démarrage rapide
 └── ToDoList.desktop               # Raccourci standard pour environnements de bureau Linux (XDG)
 ```
@@ -201,28 +225,24 @@ App-ToDoList/
 | **Environnements de Bureau (DE)** | GNOME, KDE Plasma, XFCE, Cinnamon, MATE | ✅ **100% Supporté** | Fichier `.desktop` standard compatible freedesktop.org / XDG |
 | **Gestionnaires de fenêtres Tiling** | i3, Sway, Hyprland, bspwm | ✅ **Supporté** | S'ouvre comme une fenêtre client Wayland/X11 standard |
 | **Windows 10 / 11 (via WSL2 + WSLg)** | Fenêtre native graphique | ✅ **Supporté** | Fonctionne nativement avec l'affichage graphique WSLg |
-| **Windows / macOS (hors WSL)** | Mode Serveur Web Local | 🌐 **Supporté** | Exécution avec `python3 server.py` dans Chrome/Firefox/Safari/Edge |
+| **Windows / macOS (hors WSL)** | Mode Serveur Web Local ou Distant | 🌐 **Supporté** | Exécution avec `python3 server.py` dans Chrome/Firefox/Safari/Edge |
 
 ---
 
-## 🚀 Guide d'installation pas-à-pas
+## 🚀 Guide d'installation et de démarrage rapide
 
 ### Étape 1 : Cloner le dépôt
-
-Ouvrez un terminal et clonez le dépôt GitHub :
 
 ```bash
 git clone git@github.com:HugoBirard/App-ToDoList.git
 cd App-ToDoList
 ```
 
-*(Ou téléchargez et extrayez l'archive ZIP du projet puis ouvrez un terminal dans le dossier extrait).*
-
 ---
 
-### Étape 2 : Installer les composants recommandés (selon votre distribution)
+### Étape 2 : Installer les bibliothèques d'affichage recommandées (selon votre distribution)
 
-L'application ne requiert **aucun paquet tiers Python** (`pip`). Pour profiter de la **fenêtre native GTK4 dédiée de haute qualité**, installez simplement les bibliothèques d'affichage de votre distribution :
+L'application ne requiert **aucun paquet tiers Python** (`pip`). Pour profiter de la fenêtre native GTK4 dédiée de haute qualité :
 
 #### 🔹 Ubuntu, Debian, Linux Mint, Pop!_OS
 ```bash
@@ -240,57 +260,127 @@ sudo dnf install -y python3 python3-gobject gtk4 webkitgtk6.0
 sudo pacman -S --needed python python-gobject gtk4 webkit2gtk-6.0
 ```
 
-#### 🔹 openSUSE
-```bash
-sudo zypper install python3-gobject typelib-Gtk-4_0 typelib-WebKit-6_0
-```
-
 > [!TIP]
-> **Vous n'avez pas les droits `sudo` ou utilisez un autre système ?**
-> Aucun problème ! L'application dispose d'un **système de repli automatique intelligent** :
-> 1. Si GTK4 n'est pas présent, elle cherche **GNOME Web** (`epiphany`).
-> 2. Sinon, elle cherche **Google Chrome**, **Chromium** ou **Brave** et s'ouvre en mode application (`--app`).
-> 3. Sinon, elle utilise **GTK3**.
-> 4. Vous pouvez aussi simplement lancer le serveur web local (`python3 server.py`) sans rien installer.
+> **Vous n'avez pas les droits `sudo` ?**  
+> L'application bascule automatiquement sur GNOME Web (`epiphany`), Chrome/Chromium (`--app`), ou le mode serveur local sans aucune intervention de votre part.
 
 ---
 
 ### Étape 3 : Installer le raccourci système (1 clic)
 
 Exécutez le script d'installation automatique :
-
 ```bash
 ./installer-raccourci.sh
 ```
 
-Ce script effectue automatiquement toutes les configurations nécessaires :
-1. Rend exécutables tous les lanceurs (`start.sh`, `main.py`, `server.py`).
-2. Détecte le chemin absolu du dossier sur votre disque et configure dynamiquement le fichier `ToDoList.desktop`.
-3. Installe le raccourci dans votre menu d'applications GNOME (`~/.local/share/applications/todolist.desktop`).
-4. Dépose un raccourci directement sur votre **Bureau** (si le dossier Bureau ou Desktop existe) et configure la confiance Nautilus.
+Ce script configure l'icône vectorielle, rend tous les lanceurs exécutables et installe le raccourci dans vos applications GNOME et sur votre Bureau.
 
 ---
 
 ### Étape 4 : Lancer l'application
 
-Vous disposez de 3 manières simples de lancer l'application :
+Vous disposez de 3 modes selon votre usage :
 
-#### Méthode A : Depuis vos applications système (Comme Spotify)
-- Appuyez sur la touche `Super` (Windows) de votre clavier.
-- Tapez **"ToDoList"**.
-- Cliquez sur l'icône de l'application ! Vous pouvez faire un clic droit pour l'épingler à votre dock / favoris.
-
-#### Méthode B : En ligne de commande ou double-clic
+#### Mode A : Application de Bureau native (Recommandé)
 ```bash
 ./start.sh
 ```
+*(Ou tapez `ToDoList` dans le lanceur d'applications de votre système).*
 
-#### Méthode C : Mode serveur web (Headless)
-Pratique pour les serveurs, machines distantes ou navigateurs classiques :
+#### Mode B : Serveur d'Équipe partagé sur le réseau local
+Pour permettre à vos camarades de projet de se connecter à votre ToDoList :
+```bash
+./lancer-serveur-equipe.sh
+# ou : python3 server.py --share
+```
+L'écran affiche vos adresses IP réseau (ex : `http://192.168.1.35:4848`).
+
+#### Mode C : Mode Serveur Local Headless
 ```bash
 python3 server.py --port 4848
 ```
-Puis accédez à l'interface depuis n'importe quel navigateur : `http://localhost:4848`.
+Puis accédez à `http://localhost:4848` dans votre navigateur.
+
+---
+
+## 🌐 Guide d'utilisation collaborative (Projet d'Équipe)
+
+### 1. Se connecter au serveur ToDoList d'un collègue
+1. Ouvrez votre application ToDoList.
+2. Cliquez sur la roue dentée **Options (⚙️) > Serveur Réseau**.
+3. Renseignez l'adresse IP fournie par votre collègue (ex : `http://192.168.1.35:4848`).
+4. Cliquez sur **Tester**, puis sur **Se connecter à ce serveur**.
+5. Une pastille lumineuse bleue s'affiche en haut de l'écran pour confirmer la connexion en direct !
+
+### 2. Intégration Discord (Webhooks en direct)
+1. Dans votre salon Discord de projet (ex : `#taches-projet`), faites un clic droit > *Modifier le salon* > *Intégrations* > *Webhooks* > *Nouveau Webhook* > *Copier l'URL du Webhook*.
+2. Dans ToDoList, allez dans **Options (⚙️) > Discord & Équipe**.
+3. Cochez **« Activer les notifications Discord »**, collez l'URL et entrez votre pseudo.
+4. Cliquez sur **« Envoyer un message test »** pour vérifier immédiatement la liaison !
+
+### 3. Bot Discord Interactif (`discord_bot.py`)
+Permet à votre équipe de piloter les tâches sans quitter Discord :
+
+```bash
+# Installation de la bibliothèque Discord (optionnelle)
+pip install discord.py
+
+# Démarrage du bot avec votre Token
+python3 discord_bot.py --token "VOTRE_TOKEN_BOT"
+```
+
+| Commande Discord | Action réalisée |
+| :--- | :--- |
+| `!todo` ou `!todo list` | Affiche toutes les tâches ouvertes du projet classées par dossier |
+| `!todo add <titre>` | Crée immédiatement une tâche dans l'application ToDoList |
+| `!todo done <id>` | Marque la tâche `#id` comme complétée |
+| `!todo folders` | Affiche la liste des dossiers du projet |
+| `!todo help` | Affiche l'aide des commandes |
+
+---
+
+## 🧪 Tests & Qualité du code
+
+Le projet intègre une suite de tests unitaires et d'intégration validée avec le module standard `unittest` :
+
+```bash
+python3 -m unittest discover tests
+```
+
+### Périmètre des tests (18 tests au total)
+| Fichier de test | Domaine testé | Statut |
+| :--- | :--- | :---: |
+| `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations de colonnes | ✅ Passé |
+| `tests/test_services.py` | Règle de complétion 100%, décochage 0%, calcul d'échéance à 7 jours | ✅ Passé |
+| `tests/test_handlers.py` | Routes API REST, validation des entrées, codes HTTP et détection réseau | ✅ Passé |
+| `tests/test_discord.py` | Sécurité anti-SSRF, format des Rich Embeds, déclencheurs d'événements | ✅ Passé |
+
+---
+
+## 📡 Spécification de l'API REST
+
+L'application expose une API REST légère servant du JSON en UTF-8 :
+
+| Méthode | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/data` | Récupère tous les dossiers, tâches et paramètres (vérifie les resets hebdo) |
+| `POST` | `/api/folders` | Crée un nouveau dossier (`name`, `icon`, `color`, `auto_reset_weekly`, `bg_*`) |
+| `PUT` | `/api/folders/<id>` | Met à jour les propriétés ou le style d'un dossier |
+| `DELETE` | `/api/folders/<id>` | Supprime un dossier et cascade la suppression de ses tâches |
+| `POST` | `/api/folders/<id>/reset` | Réinitialise manuellement toutes les tâches du dossier à 0% et non terminées |
+| `POST` | `/api/tasks` | Crée une nouvelle tâche (`title`, `folder_id`, `has_progress`, `progress`, etc.) |
+| `PUT` | `/api/tasks/<id>` | Met à jour une tâche (cochage, modification de progression, renommage) |
+| `DELETE` | `/api/tasks/<id>` | Supprime définitivement une tâche |
+| `POST` | `/api/tasks/clear-completed` | Supprime toutes les tâches terminées (globalement ou pour un dossier donné) |
+| `PUT` | `/api/settings` | Enregistre un paramètre global (ex : `main_background`, réglages Discord) |
+| `POST` | `/api/discord/test` | Teste l'envoi d'un message sur un webhook Discord |
+| `GET` | `/api/network/info` | Retourne les adresses IP locales et URLs réseau de la machine hôte |
+| `GET` | `/api/sync/status` | Retourne l'état actuel du fichier de stockage |
+| `GET` | `/api/sync/check-updates` | Retourne l'horodatage de modification du fichier pour la synchro automatique |
+| `POST` | `/api/storage/change-path` | Modifie ou connecte un nouvel emplacement de base de données |
+| `POST` | `/api/storage/browse` | Ouvre un sélecteur de fichier natif pour choisir la base partagée |
+| `GET` | `/api/storage/export` | Exporte toutes les données sous forme de fichier JSON |
+| `POST` | `/api/storage/import` | Importe ou fusionne un fichier de sauvegarde JSON |
 
 ---
 
@@ -302,13 +392,13 @@ Puis accédez à l'interface depuis n'importe quel navigateur : `http://localhos
 Sous certaines versions de GNOME, le bureau requiert une autorisation explicite au premier lancement :
 1. Faites un **clic droit** sur l'icône `ToDoList.desktop` sur votre bureau.
 2. Cliquez sur **« Autoriser le lancement »** (*Allow Launching*).
-3. L'icône de l'application s'affichera immédiatement et le double-clic fonctionnera !
+3. L'icône de l'application s'affiche immédiatement et le double-clic fonctionne.
 </details>
 
 <details>
 <summary><strong>Comment changer le port réseau par défaut ?</strong></summary>
 
-Par défaut, l'application utilise le port `4848`. Si ce port est déjà occupé, elle sélectionne automatiquement le premier port libre consécutif (4849, 4850, ...). Vous pouvez également forcer un port manuellement :
+Par défaut, l'application utilise le port `4848`. Si ce port est occupé, elle sélectionne automatiquement le port libre suivant (4849, 4850, ...). Vous pouvez également forcer un port manuellement :
 ```bash
 python3 server.py --port 5050
 ```
@@ -317,103 +407,12 @@ python3 server.py --port 5050
 <details>
 <summary><strong>Où sont sauvegardées mes données ?</strong></summary>
 
-Toutes vos données (dossiers, tâches, progression, préférences de thèmes) sont sauvegardées localement dans le fichier :
+Toutes vos données (dossiers, tâches, progression, préférences de thèmes et réglages) sont sauvegardées localement dans :
 ```
 data/todolist.db
 ```
-Ce fichier est une base de données standard SQLite. Vous pouvez sauvegarder ce fichier pour conserver vos tâches ou le copier sur un autre ordinateur.
+Ce fichier est une base de données standard SQLite. Vous pouvez sauvegarder ce fichier, le déplacer vers un dossier cloud (Dropbox, Nextcloud, Google Drive) ou le partager en réseau local.
 </details>
-
----
-
-## 🧪 Tests & Qualité du code
-
-Le projet comprend une suite complète de tests unitaires et d'intégration couvrant la base de données, la logique métier et l'API HTTP, utilisant exclusivement le module standard `unittest` de Python :
-
-```bash
-python3 -m unittest discover tests
-```
-
-Pour exécuter avec vérification stricte des avertissements :
-```bash
-python3 -W error -m unittest discover tests
-```
-
-### Périmètre des tests
-| Fichier de test | Domaine testé |
-| :--- | :--- |
-| `tests/test_database.py` | Création des tables, index, clés étrangères, intégrité des migrations de colonnes |
-| `tests/test_services.py` | Règle de complétion à 100%, décochage à 0%, détection de l'échéance de 7 jours pour le reset hebdo |
-| `tests/test_handlers.py` | Endpoints API REST (`GET /api/data`, `POST /api/folders`, `POST /api/tasks`, validation, codes 200/201/400/404) |
-
----
-
-## 📡 Spécification de l'API REST
-
-L'application expose une API REST légère et prédictible servant du JSON en UTF-8 :
-
-| Méthode | Route | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/data` | Récupère tous les dossiers, tâches et paramètres (vérifie au passage les resets hebdo) |
-| `POST` | `/api/folders` | Crée un nouveau dossier (`name`, `icon`, `color`, `auto_reset_weekly`, `bg_*`) |
-| `PUT` | `/api/folders/<id>` | Met à jour les propriétés ou le style d'un dossier |
-| `DELETE` | `/api/folders/<id>` | Supprime un dossier et cascade la suppression de ses tâches |
-| `POST` | `/api/folders/<id>/reset` | Réinitialise manuellement toutes les tâches du dossier à 0% et non terminées |
-| `POST` | `/api/tasks` | Crée une nouvelle tâche (`title`, `folder_id`, `has_progress`, `progress`, etc.) |
-| `PUT` | `/api/tasks/<id>` | Met à jour une tâche (cochage, modification de progression, renommage) |
-| `DELETE` | `/api/tasks/<id>` | Supprime définitivement une tâche |
-| `POST` | `/api/tasks/clear-completed` | Supprime toutes les tâches terminées (globalement ou pour un `folder_id` donné) |
-| `PUT` | `/api/settings` | Enregistre un paramètre global (ex: `main_background`, réglages Discord) |
-| `POST` | `/api/discord/test` | Teste l'envoi d'un message sur un webhook Discord |
-| `GET` | `/api/network/info` | Retourne les adresses IP locales et URLs réseau de la machine hôte |
-
----
-
-## 🌐 Mode Serveur Réseau (Partage d'équipe en direct)
-
-Vous pouvez partager une même ToDoList avec toute votre équipe en temps réel sans passer par un cloud externe :
-
-### 1. Héberger le serveur pour l'équipe
-Sur l'ordinateur de l'hôte, lancez le serveur partagé :
-```bash
-./lancer-serveur-equipe.sh
-# ou : python3 server.py --share
-```
-Le terminal affiche vos adresses IP locales (ex : `http://192.168.1.35:4848`).
-
-### 2. Rejoindre le serveur depuis un autre PC
-Chaque membre de l'équipe peut alors :
-* **Depuis l'application ToDoList :** Aller dans **Options (⚙️) > Serveur Réseau**, entrer l'adresse du serveur (ex. `http://192.168.1.35:4848`) et cliquer sur **Se connecter à ce serveur**.
-* **Ou directement depuis un navigateur web :** Ouvrir l'URL dans Chrome/Firefox (`http://192.168.1.35:4848`).
-
-Toutes les modifications sont synchronisées instantanément pour tous les membres !
-
----
-
-## 🎮 Intégration Discord & Travail en Équipe
-
-ToDoList intègre un support complet pour Discord, idéal pour les projets de groupe :
-
-### 1. Notifications par Webhook en direct
-Dans **Options (⚙️) > Discord & Équipe** :
-* Entrez l'URL de votre Webhook Discord (créée en 2 clics dans les paramètres de votre salon).
-* Personnalisez votre pseudo pour que vos camarades sachent qui fait quoi.
-* Activez les notifications pour la création, complétion ou suppression de tâches.
-* Cliquez sur **Envoyer un message test** pour vérifier immédiatement la liaison !
-
-### 2. Bot Discord Interactif (`discord_bot.py`)
-Un bot complet est inclus dans le projet pour permettre à votre équipe de piloter les tâches sans quitter Discord :
-* `!todo` ou `!todo list` : Liste les tâches ouvertes par dossier.
-* `!todo add <titre>` : Crée une nouvelle tâche dans l'application.
-* `!todo done <id>` : Marque une tâche comme terminée.
-* `!todo folders` : Affiche les dossiers du projet.
-
-**Pour lancer le bot :**
-```bash
-pip install discord.py
-export DISCORD_BOT_TOKEN="votre_token_de_bot"
-python3 discord_bot.py
-```
 
 ---
 
