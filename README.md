@@ -81,41 +81,100 @@ pip install -r requirement.txt
 
 ---
 
-### 4. Lancer ToDoList
+---
 
-Choisissez le mode de lancement qui convient à votre usage :
+## 💻 Toutes les Commandes Terminal & Modes de Lancement
 
-#### Mode A : Lancement direct de l'application
+Retrouvez ici toutes les commandes utiles dans votre terminal pour installer, lancer, personnaliser, mettre à jour et gérer l'application :
+
+### 1. Lancement de l'application de bureau
+#### 🔹 Lancement direct standard
 ```bash
 ./start.sh
 # ou directement :
 python3 main.py
 ```
 
-#### Mode B : Installer le raccourci dans vos Applications GNOME & Bureau
-Installe automatiquement l'icône vectorielle officielle et le lanceur dans votre menu d'applications :
+#### 🔹 Personnalisation de la barre de titre GTK4 CSD au lancement
+Personnalisez la barre supérieure native directement via l'argument `--titlebar` :
+```bash
+# Nouveaux Univers Immersifs & Subcultures
+./start.sh --titlebar street       # Streetwear Acid Volt (Jaune fluo découpé & bold)
+./start.sh --titlebar cyberpunk    # Neo-Tokyo Cyberpunk (Bordure néon magenta & lueur cyan)
+./start.sh --titlebar lava         # Lampe à Lave Magma (Lueur incandescente orange & ambre)
+./start.sh --titlebar techno       # Berlin Techno Laser (Ligne blanche ultra-fine & boutons carrés)
+./start.sh --titlebar y2k          # Chrome & Y2K Iridescent (Métal liquide lilas & reflets)
+./start.sh --titlebar arcade       # 80s Retro Synthwave (Coucher de soleil magenta & arcade)
+./start.sh --titlebar luxury       # Midnight Gold Executive (Or brossé champagne & onyx)
+./start.sh --titlebar zen          # Nordic Zen Mist (Vert matcha doux & brume)
+
+# Essentiels Pro & Épurés
+./start.sh --titlebar transparent  # Transparente & intégrée (Style Spotify / Discord)
+./start.sh --titlebar match-bg     # Même couleur sombre que le fond actif de l'application
+./start.sh --titlebar glass        # Verre fumé translucide avec reflets (Glassmorphism)
+./start.sh --titlebar neon         # Liseré cyber indigo lumineux avec halo néon
+./start.sh --titlebar minimal      # Barre compacte (28px) sans titre pour un écran 100% utile
+./start.sh --titlebar classic      # Thème système standard GNOME Adwaita
+```
+
+#### 🔹 Installer le raccourci dans le menu des applications & bureau
+Installe automatiquement l'icône vectorielle officielle et le lanceur système :
 ```bash
 ./installer-raccourci.sh
 ```
 
-#### Mode C : Lancer en Mode Serveur d'Équipe (Multi-PC / Réseau local)
+---
+
+### 2. Modes Serveur Réseau (Multi-PC) & Headless
+#### 🔹 Serveur Réseau d'Équipe (partage local 0.0.0.0)
+Pour permettre à vos collaborateurs sur le même réseau Wi-Fi/LAN d'accéder à votre instance :
 ```bash
 ./lancer-serveur-equipe.sh
 # ou personnaliser l'adresse et le port :
 python3 server.py --host 0.0.0.0 --port 4848
 ```
 
+#### 🔹 Serveur Local Headless (accès via navigateur classique)
+```bash
+python3 server.py --port 4848
+# Puis ouvrez http://localhost:4848 dans Chrome, Firefox ou Safari
+```
+
 ---
 
-## 🌿 Organisation des branches Git
-
-Le dépôt est structuré en deux branches principales selon vos besoins :
-
-- **`main` (Branche par défaut)** : Version **100% mono-utilisateur**, épurée, performante et sans friction. Elle se concentre sur l'organisation personnelle avec dossiers thématiques, personnalisation visuelle avancée, suivi par progression, Pause Café et sauvegardes locales SQLite.
-- **`partage-salons`** : Version **multi-salons & collaborative** complète. Elle intègre la séparation des tâches par espaces/salons partagés, les invitations par code Discord et l'export/import ciblé de fichiers `.tdl`.
-
-Pour basculer sur la version avec partage de salons :
+### 3. Mise à jour de l'application via le terminal
+Télécharge les dernières mises à jour, applique les migrations SQLite et met à jour vos raccourcis (avec sauvegarde préventive automatique de votre base de données) :
 ```bash
+./update.sh
+# ou manuellement :
+git pull && ./installer-raccourci.sh
+```
+
+---
+
+### 4. Tests unitaires, d'intégration & de sécurité
+Exécute la suite complète de 56 tests automatisés :
+```bash
+python3 -m unittest discover tests -v
+```
+
+---
+
+### 5. Lancer le Bot Discord interactif
+Démarre le bot autonome pour créer et suivre vos tâches directement depuis Discord :
+```bash
+python3 discord_bot.py --token "VOTRE_TOKEN_BOT_DISCORD"
+```
+
+---
+
+### 6. Basculer entre les branches Git (Mono-utilisateur vs Salons partagés)
+Le dépôt est organisé en deux branches principales selon vos besoins :
+```bash
+# Version 100% mono-utilisateur (par défaut sur main) :
+git checkout main
+
+# Version multi-salons & collaborative (espaces partagés, codes d'invitation Discord, fichiers .tdl) :
 git checkout partage-salons
 ```
 
@@ -393,102 +452,6 @@ App-ToDoList/
 | **Gestionnaires de fenêtres Tiling** | i3, Sway, Hyprland, bspwm | ✅ **Supporté** | S'ouvre comme une fenêtre client Wayland/X11 standard |
 | **Windows 10 / 11 (via WSL2 + WSLg)** | Fenêtre native graphique | ✅ **Supporté** | Fonctionne nativement avec l'affichage graphique WSLg |
 | **Windows / macOS (hors WSL)** | Mode Serveur Web Local ou Distant | 🌐 **Supporté** | Exécution avec `python3 server.py` dans Chrome/Firefox/Safari/Edge |
-
----
-
-## 🚀 Guide d'installation et de démarrage rapide
-
-### Étape 1 : Cloner le dépôt
-
-```bash
-git clone git@github.com:HugoBirard/App-ToDoList.git
-cd App-ToDoList
-```
-
----
-
-### Étape 2 : Installer les bibliothèques d'affichage recommandées (selon votre distribution)
-
-L'application ne requiert **aucun paquet tiers Python** (`pip`). Pour profiter de la fenêtre native GTK4 dédiée de haute qualité :
-
-#### 🔹 Ubuntu, Debian, Linux Mint, Pop!_OS
-```bash
-sudo apt update
-sudo apt install -y python3 python3-gi gir1.2-gtk-4.0 gir1.2-webkit-6.0
-```
-
-#### 🔹 Fedora
-```bash
-sudo dnf install -y python3 python3-gobject gtk4 webkitgtk6.0
-```
-
-#### 🔹 Arch Linux, Manjaro
-```bash
-sudo pacman -S --needed python python-gobject gtk4 webkit2gtk-6.0
-```
-
-> [!TIP]
-> **Vous n'avez pas les droits `sudo` ?**  
-> L'application bascule automatiquement sur GNOME Web (`epiphany`), Chrome/Chromium (`--app`), ou le mode serveur local sans aucune intervention de votre part.
-
----
-
-### Étape 3 : Installer le raccourci système (1 clic)
-
-Exécutez le script d'installation automatique :
-```bash
-./installer-raccourci.sh
-```
-
-Ce script configure l'icône vectorielle, rend tous les lanceurs exécutables et installe le raccourci dans vos applications GNOME et sur votre Bureau.
-
----
-
-### Étape 4 : Lancer l'application
-
-Vous disposez de 3 modes selon votre usage :
-
-#### Mode A : Application de Bureau native (Recommandé)
-```bash
-./start.sh
-```
-*(Ou tapez `ToDoList` dans le lanceur d'applications de votre système).*
-
-> **Personnalisation de la barre de titre système (GTK4 / Wayland) :**
-> Vous pouvez prévisualiser ou forcer le style de la barre supérieure directement au lancement ou dans l'onglet **Options ⚙️ > Apparence** :
-> ```bash
-> # Nouveaux Univers Artistiques & Subcultures
-> ./start.sh --titlebar street       # Streetwear Acid Volt (Jaune fluo découpé & bold)
-> ./start.sh --titlebar cyberpunk    # Neo-Tokyo Cyberpunk (Bordure néon magenta & lueur cyan)
-> ./start.sh --titlebar lava         # Lampe à Lave Magma (Lueur incandescente orange & ambre)
-> ./start.sh --titlebar techno       # Berlin Techno Laser (Ligne blanche ultra-fine & boutons carrés)
-> ./start.sh --titlebar y2k          # Chrome & Y2K Iridescent (Métal liquide lilas & reflets)
-> ./start.sh --titlebar arcade       # 80s Retro Synthwave (Coucher de soleil magenta & arcade)
-> ./start.sh --titlebar luxury       # Midnight Gold Executive (Or brossé champagne & onyx)
-> ./start.sh --titlebar zen          # Nordic Zen Mist (Vert matcha doux & brume)
->
-> # Essentiels Pro & Épurés
-> ./start.sh --titlebar transparent  # Transparente & intégrée (Style Spotify / Discord)
-> ./start.sh --titlebar match-bg     # Même couleur sombre que le fond actif de l'application
-> ./start.sh --titlebar glass        # Verre fumé translucide avec reflets (Glassmorphism)
-> ./start.sh --titlebar neon         # Liseré cyber indigo lumineux avec halo néon
-> ./start.sh --titlebar minimal      # Barre compacte (28px) sans titre pour un écran 100% utile
-> ./start.sh --titlebar classic      # Thème système standard GNOME Adwaita
-> ```
-
-#### Mode B : Serveur d'Équipe partagé sur le réseau local
-Pour permettre à vos camarades de projet de se connecter à votre ToDoList :
-```bash
-./lancer-serveur-equipe.sh
-# ou : python3 server.py --share
-```
-L'écran affiche vos adresses IP réseau (ex : `http://192.168.1.35:4848`).
-
-#### Mode C : Mode Serveur Local Headless
-```bash
-python3 server.py --port 4848
-```
-Puis accédez à `http://localhost:4848` dans votre navigateur.
 
 ---
 
