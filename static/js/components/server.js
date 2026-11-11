@@ -157,27 +157,28 @@ async function loadLanAddresses() {
       netInfo.network_urls.forEach(url => {
         const item = document.createElement('div');
         item.className = 'server-lan-item';
-        item.innerHTML = `
-          <span>${url}</span>
-          <button type="button" class="btn btn-sm btn-secondary copy-url-btn" data-url="${url}">Copier</button>
-        `;
-        container.appendChild(item);
-      });
 
-      container.querySelectorAll('.copy-url-btn').forEach(btn => {
+        const span = document.createElement('span');
+        span.textContent = url;
+        item.appendChild(span);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm btn-secondary copy-url-btn';
+        btn.textContent = 'Copier';
         btn.onclick = async () => {
-          const u = btn.getAttribute('data-url');
-          if (u) {
-            try {
-              await navigator.clipboard.writeText(u);
-              const prev = btn.textContent;
-              btn.textContent = 'Copié !';
-              setTimeout(() => btn.textContent = prev, 2000);
-            } catch (err) {
-              console.warn('Clipboard write failed:', err);
-            }
+          try {
+            await navigator.clipboard.writeText(url);
+            const prev = btn.textContent;
+            btn.textContent = 'Copié !';
+            setTimeout(() => btn.textContent = prev, 2000);
+          } catch (err) {
+            console.warn('Clipboard write failed:', err);
           }
         };
+        item.appendChild(btn);
+
+        container.appendChild(item);
       });
     } else {
       const textElem = document.getElementById('server-detected-lan-url');
