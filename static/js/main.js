@@ -33,6 +33,7 @@ import {
 } from './components/discord.js';
 import { initServerUI, updateServerStatusUI } from './components/server.js';
 import { initUpdateUI } from './components/updater.js';
+import { initCoffeeFeature } from './components/coffee.js';
 import { initSalonUI, renderSalons } from './components/salons.js';
 import { 
   openAddFolderModal, 
@@ -73,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initCustomBackgroundUpload();
   initFolderBackgroundUpload();
   initUpdateUI();
+  initCoffeeFeature();
   setupEventListeners();
 });
 

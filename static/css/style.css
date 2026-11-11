@@ -3917,3 +3917,169 @@ select option, optgroup {
   margin-top: 4px;
   display: block;
 }
+
+/* ==============================================================================
+   Feature Bullshit : Pause Café & Anti-Procrastination
+   ============================================================================== */
+
+.coffee-break-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.coffee-break-btn:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.6);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+.coffee-break-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.coffee-emoji {
+  font-size: 1rem;
+  display: inline-block;
+  animation: wiggleCoffee 3s infinite ease-in-out;
+}
+
+@keyframes wiggleCoffee {
+  0%, 80%, 100% { transform: rotate(0deg); }
+  85% { transform: rotate(-10deg) scale(1.15); }
+  90% { transform: rotate(10deg) scale(1.15); }
+  95% { transform: rotate(-6deg); }
+}
+
+.coffee-dialog {
+  max-width: 480px;
+  width: 90%;
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15);
+}
+
+.coffee-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coffee-modal-icon {
+  font-size: 1.6rem;
+}
+
+.coffee-modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.coffee-quote-card {
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 4px solid #f59e0b;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 16px;
+}
+
+.coffee-quote-text {
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.coffee-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.coffee-stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coffee-stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.coffee-stat-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.coffee-disclaimer-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+.coffee-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* Pluie d'émojis */
+.emoji-shower-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
+  overflow: hidden;
+}
+
+.falling-emoji {
+  position: absolute;
+  top: -60px;
+  user-select: none;
+  animation: fallAnimation ease-in forwards;
+}
+
+@keyframes fallAnimation {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(10vh) rotate(45deg) scale(1.1);
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(105vh) rotate(360deg) scale(0.9);
+    opacity: 0;
+  }
+}
+

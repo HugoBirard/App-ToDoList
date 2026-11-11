@@ -189,6 +189,11 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
             Réinitialiser la semaine
           </button>
+          <!-- Bouton Pause Café (Bullshit Feature) -->
+          <button id="coffee-break-btn" class="coffee-break-btn" type="button" title="Pause Café &amp; Anti-Procrastination (Cliquez pour tester !)">
+            <span class="coffee-emoji">☕</span>
+            <span class="coffee-label">Pause Café</span>
+          </button>
           <!-- Recherche rapide -->
           <div class="search-box">
             <span class="search-icon">
@@ -1721,6 +1726,39 @@
           </p>
           <button type="button" id="salon-delete-btn" class="btn btn-danger">Supprimer ce salon</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pause Café & Anti-Procrastination (Bullshit Feature) -->
+  <div class="modal-backdrop hidden" id="coffee-modal">
+    <div class="modal coffee-dialog">
+      <div class="modal-header">
+        <div class="coffee-header-title">
+          <span class="coffee-modal-icon">☕</span>
+          <h3>Pause Café Officielle</h3>
+        </div>
+        <button type="button" class="close-modal-btn" id="coffee-modal-close-btn" title="Fermer">✕</button>
+      </div>
+      <div class="coffee-modal-body">
+        <div class="coffee-quote-card">
+          <p id="coffee-quote-text" class="coffee-quote-text">« Procrastiner, c'est l'art de garder pour demain ce qu'on peut très bien ne pas faire du tout. »</p>
+        </div>
+        <div class="coffee-stats-grid">
+          <div class="coffee-stat-card">
+            <span class="coffee-stat-label">Cafés virtuels consommés</span>
+            <span class="coffee-stat-value" id="coffee-count-display">1 tasse</span>
+          </div>
+          <div class="coffee-stat-card">
+            <span class="coffee-stat-label">Titre honorifique</span>
+            <span class="coffee-stat-value" id="coffee-rank-display">Débutant de la flemme 🥱</span>
+          </div>
+        </div>
+        <p class="coffee-disclaimer-text">💡 <em>Cette fonctionnalité indispensable prouve que la mise à jour en 1 clic fonctionne parfaitement sur votre machine !</em></p>
+      </div>
+      <div class="modal-actions coffee-actions">
+        <button type="button" class="btn btn-secondary" id="coffee-another-btn">☕ Reprendre un café</button>
+        <button type="button" class="btn btn-primary" id="coffee-back-to-work-btn">🚀 Retourner bosser (faux)</button>
       </div>
     </div>
   </div>
