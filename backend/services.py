@@ -15,7 +15,11 @@ from .discord import notify_task_created, notify_task_status_changed, notify_tas
 logger = logging.getLogger("todolist.services")
 
 _HEX_COLOR = re.compile(r"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
-_VALID_BG_TYPES = {"default", "solid", "gradient"}
+_VALID_BG_TYPES = {"default", "solid", "gradient", "preset", "image", "custom"}
+_VALID_PRESET_KEYS = {
+    "pro-dark", "carbon", "midnight", "slate", "emerald", "violet",
+    "street", "techno", "cyberpunk", "y2k", "arcade", "luxury", "zen", "lava"
+}
 SENSITIVE_SETTINGS_KEYS = {"discord_webhook_url"}
 
 
@@ -29,6 +33,21 @@ def _safe_bg_type(value, default="default"):
     """Valide le type de fond selon une liste blanche stricte."""
     v = str(value or "").strip().lower()
     return v if v in _VALID_BG_TYPES else default
+
+
+def _safe_bg_value(val, bg_type):
+    """Valide la valeur de fond du dossier selon le type sélectionné."""
+    v = str(val or "").strip()
+    if not v:
+        return ""
+    if bg_type == "preset":
+        return v if v in _VALID_PRESET_KEYS else "pro-dark"
+    elif bg_type in ("image", "custom"):
+        if len(v) <= 500 and (v.startswith("/assets/") or v.startswith("url(") or v.startswith("data:image/")):
+            return v.replace("<", "").replace(">", "").replace(";", "")
+        return ""
+    else:
+        return _safe_color(v, default="") if v else ""
 
 
 def _safe_int(val, default=0, min_val=None, max_val=None):
@@ -165,7 +184,7 @@ class TodoService:
         color = _safe_color(data.get("color"), default="#4f46e5")
         auto_reset_weekly = 1 if data.get("auto_reset_weekly") else 0
         bg_type = _safe_bg_type(data.get("bg_type"), default="default")
-        bg_color1 = _safe_color(data.get("bg_color1"), default="") if data.get("bg_color1") else ""
+        bg_color1 = _safe_bg_value(data.get("bg_color1"), bg_type)
         bg_color2 = _safe_color(data.get("bg_color2"), default="") if data.get("bg_color2") else ""
         bg_angle = _safe_int(data.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
@@ -217,12 +236,13 @@ class TodoService:
         if "auto_reset_weekly" in data:
             fields.append("auto_reset_weekly = ?")
             values.append(1 if data["auto_reset_weekly"] else 0)
+        target_bg_type = _safe_bg_type(data["bg_type"], default="default") if "bg_type" in data else None
         if "bg_type" in data:
             fields.append("bg_type = ?")
-            values.append(_safe_bg_type(data["bg_type"], default="default"))
+            values.append(target_bg_type)
         if "bg_color1" in data:
             fields.append("bg_color1 = ?")
-            values.append(_safe_color(data["bg_color1"], default="") if data["bg_color1"] else "")
+            values.append(_safe_bg_value(data["bg_color1"], target_bg_type or "default"))
         if "bg_color2" in data:
             fields.append("bg_color2 = ?")
             values.append(_safe_color(data["bg_color2"], default="") if data["bg_color2"] else "")
@@ -596,7 +616,7 @@ class TodoService:
             color = _safe_color(f.get("color"), default="#4f46e5")
             auto_reset_weekly = 1 if f.get("auto_reset_weekly") else 0
             bg_type = _safe_bg_type(f.get("bg_type"), default="default")
-            bg_color1 = _safe_color(f.get("bg_color1"), default="") if f.get("bg_color1") else ""
+            bg_color1 = _safe_bg_value(f.get("bg_color1"), bg_type)
             bg_color2 = _safe_color(f.get("bg_color2"), default="") if f.get("bg_color2") else ""
             bg_angle = _safe_int(f.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 

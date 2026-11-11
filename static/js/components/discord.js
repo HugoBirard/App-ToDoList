@@ -60,7 +60,7 @@ export function initDiscordUI() {
   if (enabledToggle && badge) {
     enabledToggle.addEventListener('change', () => {
       if (enabledToggle.checked) {
-        badge.textContent = 'Prêt à activer';
+        badge.textContent = 'Actif (Connecté)';
         badge.className = 'sync-badge shared';
       } else {
         badge.textContent = 'Inactif';
@@ -69,18 +69,17 @@ export function initDiscordUI() {
     });
   }
 
-  // Détection intelligente à la saisie de l'URL
+  // Activer automatiquement le toggle dès que l'utilisateur commence à taper ou colle son URL
   if (urlInput) {
     urlInput.addEventListener('input', () => {
-      let val = urlInput.value.trim();
-      // Si l'utilisateur colle un webhook Discord valide, cocher automatiquement l'activation
-      if (val && !val.startsWith('••••') && (val.includes('discord.com/api/webhooks') || val.includes('discordapp.com/api/webhooks'))) {
-        if (enabledToggle && !enabledToggle.checked) {
+      const val = urlInput.value.trim();
+      if (val && !val.startsWith('••••')) {
+        if (enabledToggle) {
           enabledToggle.checked = true;
-          if (badge) {
-            badge.textContent = 'Prêt à activer';
-            badge.className = 'sync-badge shared';
-          }
+        }
+        if (badge) {
+          badge.textContent = 'Prêt à connecter';
+          badge.className = 'sync-badge shared';
         }
       }
     });
@@ -102,14 +101,15 @@ export function initDiscordUI() {
       }
 
       // Normalisation automatique si l'utilisateur a omis https://
-      if (webhookUrl.startsWith('discord.com/') || webhookUrl.startsWith('discordapp.com/')) {
+      if (webhookUrl && !isMasked && !webhookUrl.startsWith('http://') && !webhookUrl.startsWith('https://')) {
         webhookUrl = 'https://' + webhookUrl;
         if (urlInput) urlInput.value = webhookUrl;
       }
 
       if (!isMasked && webhookUrl) {
-        if (!webhookUrl.includes('/api/webhooks/')) {
-          showFeedback('L\'URL doit être un webhook Discord valide (ex : https://discord.com/api/webhooks/ID/TOKEN).', 'error');
+        const lower = webhookUrl.toLowerCase();
+        if (!lower.includes('discord.com/api/webhooks/') && !lower.includes('discordapp.com/api/webhooks/')) {
+          showFeedback('L\'URL doit provenir de Discord (ex : https://discord.com/api/webhooks/ID/TOKEN).', 'error');
           return;
         }
       }
@@ -131,14 +131,16 @@ export function initDiscordUI() {
         const res = await api('/api/discord/test', 'POST', payload);
 
         if (res && res.success) {
-          showFeedback('✅ Message test envoyé avec succès sur votre salon Discord !', 'success');
-          // Cocher automatiquement l'activation si elle ne l'était pas
-          if (enabledToggle && !enabledToggle.checked) {
-            enabledToggle.checked = true;
-            if (badge) {
-              badge.textContent = 'Prêt à activer';
-              badge.className = 'sync-badge shared';
-            }
+          showFeedback('✅ Test réussi ! Le message a bien été reçu sur votre salon Discord.', 'success');
+          // Mettre à jour l'UI locale
+          if (enabledToggle) enabledToggle.checked = true;
+          if (badge) {
+            badge.textContent = 'Actif (Connecté)';
+            badge.className = 'sync-badge shared';
+          }
+          if (state.settings) {
+            state.settings.discord_enabled = '1';
+            state.settings.discord_webhook_configured = true;
           }
         } else {
           showFeedback(`❌ Échec de l'envoi : ${res?.message || 'Erreur réseau ou URL invalide'}`, 'error');
@@ -185,7 +187,11 @@ export function initDiscordUI() {
 
       // Si l'utilisateur n'a pas ré-écrit l'URL masquée, ne pas écraser le secret côté serveur
       if (!isMasked && rawWebhookUrl) {
-        payload.discord_webhook_url = rawWebhookUrl;
+        let clean = rawWebhookUrl.replace(/^["']|["']$/g, '').trim();
+        if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
+          clean = 'https://' + clean;
+        }
+        payload.discord_webhook_url = clean;
       }
 
       const res = await api('/api/settings', 'PUT', payload);

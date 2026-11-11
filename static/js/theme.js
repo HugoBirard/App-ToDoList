@@ -2,12 +2,27 @@
  * Gestionnaire du moteur visuel : Thèmes Sombre/Clair et Arrière-plans dynamiques (fondu/couleur).
  */
 
-import { state, DEFAULT_PRO_BG, DEFAULT_LIGHT_BG, PRESETS } from './state.js';
+import { state, DEFAULT_PRO_BG, DEFAULT_LIGHT_BG, PRESETS, THEME_PROFILES } from './state.js';
 import { api } from './api.js';
 import { renderIcon } from './icons.js';
 
 let currentActiveBg = null;
 let currentActiveLayer = 1;
+
+export function applyThemeStyle(styleId, accentColor = null) {
+  const cleanStyle = styleId || 'pro';
+  if (cleanStyle === 'pro') {
+    document.documentElement.removeAttribute('data-theme-style');
+  } else {
+    document.documentElement.setAttribute('data-theme-style', cleanStyle);
+  }
+  if (accentColor) {
+    document.documentElement.style.setProperty('--accent', accentColor);
+  } else {
+    document.documentElement.style.removeProperty('--accent');
+  }
+  localStorage.setItem('todolist_theme_style', cleanStyle);
+}
 
 export function applyActiveBackground(immediate = false) {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -20,13 +35,35 @@ export function applyActiveBackground(immediate = false) {
     if (folder && folder.bg_type && folder.bg_type !== 'default') {
       if (folder.bg_type === 'solid' && folder.bg_color1) {
         targetBg = folder.bg_color1;
+        applyThemeStyle('pro');
       } else if (folder.bg_type === 'gradient') {
         const c1 = folder.bg_color1 || '#161a24';
         const c2 = folder.bg_color2 || '#2d3345';
         const angle = folder.bg_angle || 135;
         targetBg = `linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`;
+        applyThemeStyle('pro');
+      } else if (folder.bg_type === 'preset' && folder.bg_color1) {
+        const presetKey = folder.bg_color1;
+        targetBg = PRESETS[presetKey] || DEFAULT_PRO_BG;
+        const profile = THEME_PROFILES[presetKey];
+        if (profile) {
+          applyThemeStyle(profile.styleId, profile.accent);
+        }
+      } else if ((folder.bg_type === 'image' || folder.bg_type === 'custom') && folder.bg_color1) {
+        targetBg = folder.bg_color1.startsWith('url(') ? folder.bg_color1 : `url('${folder.bg_color1}') center / cover no-repeat fixed #08090c`;
+        applyThemeStyle('pro');
       }
+    } else if (folder && folder.bg_type === 'default') {
+      // Restaurer le style du thème principal actif
+      const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+      const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+      applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
     }
+  } else {
+    // Vues générales ('all', 'pending', 'completed')
+    const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+    const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+    applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
   }
 
   // 2. Si on est en mode clair
@@ -42,21 +79,42 @@ export function applyActiveBackground(immediate = false) {
   if (targetBg === currentActiveBg) return;
   currentActiveBg = targetBg;
 
+  const applyBgToElement = (el, bg) => {
+    if (!el) return;
+    if (bg && bg.includes('url(')) {
+      const match = bg.match(/url\((['"]?)(.*?)\1\)/);
+      const imgUrl = match ? match[2] : bg;
+      el.style.backgroundImage = `url("${imgUrl}")`;
+      el.style.backgroundPosition = 'center center';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundAttachment = 'fixed';
+      el.style.backgroundColor = '#08090c';
+    } else {
+      el.style.backgroundImage = 'none';
+      el.style.backgroundPosition = '';
+      el.style.backgroundSize = '';
+      el.style.backgroundRepeat = '';
+      el.style.backgroundAttachment = '';
+      el.style.backgroundColor = '';
+      el.style.background = bg;
+    }
+  };
+
   // Définir la variable CSS sur la racine et sur le body
   document.documentElement.style.setProperty('--active-bg', targetBg);
-  document.body.style.background = targetBg;
+  applyBgToElement(document.body, targetBg);
 
   const layer1 = document.getElementById('bg-layer-1');
   const layer2 = document.getElementById('bg-layer-2');
 
   // Si les couches n'existent pas encore (fallback)
   if (!layer1 || !layer2) {
-    document.body.style.background = targetBg;
     return;
   }
 
   if (immediate) {
-    layer1.style.background = targetBg;
+    applyBgToElement(layer1, targetBg);
     layer1.className = 'app-bg-layer active-layer';
     layer2.className = 'app-bg-layer hidden-layer';
     currentActiveLayer = 1;
@@ -67,7 +125,7 @@ export function applyActiveBackground(immediate = false) {
   const nextLayer = currentActiveLayer === 1 ? layer2 : layer1;
   const prevLayer = currentActiveLayer === 1 ? layer1 : layer2;
 
-  nextLayer.style.background = targetBg;
+  applyBgToElement(nextLayer, targetBg);
   nextLayer.className = 'app-bg-layer active-layer';
   prevLayer.className = 'app-bg-layer hidden-layer';
 
@@ -77,6 +135,10 @@ export function applyActiveBackground(immediate = false) {
 export function initTheme() {
   const saved = localStorage.getItem('todolist_theme') || 'dark';
   applyTheme(saved);
+
+  const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+  const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+  applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
 }
 
 export function applyTheme(theme) {
@@ -103,11 +165,19 @@ export function toggleTheme() {
 
 export async function setMainBackground(bgValue) {
   state.mainBg = bgValue;
-  localStorage.setItem('todolist_main_bg', bgValue);
+  try {
+    localStorage.setItem('todolist_main_bg', bgValue);
+  } catch (e) {
+    console.warn('localStorage setItem failed:', e);
+  }
   if (document.documentElement.getAttribute('data-theme') === 'light') {
     applyTheme('dark');
   } else {
     applyActiveBackground();
   }
-  await api('/api/settings', 'PUT', { main_background: bgValue });
+  try {
+    await api('/api/settings', 'PUT', { main_background: bgValue });
+  } catch (e) {
+    console.warn('API update main_background failed:', e);
+  }
 }

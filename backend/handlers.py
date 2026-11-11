@@ -3,11 +3,13 @@ Gestionnaire HTTP et répartiteur d'API REST.
 Lie les requêtes HTTP entrantes aux méthodes du TodoService de façon robuste et sécurisée.
 """
 
+import base64
 import hmac
 import json
 import logging
 import os
 import subprocess
+import time
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler
 from .config import STATIC_DIR, DEFAULT_PORT, get_lan_ips
@@ -350,6 +352,16 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     author_name = self.service.get_raw_setting("discord_author_name") or "Utilisateur ToDoList"
 
                 ok, msg = send_test_message(webhook_url, author_name=author_name)
+                if ok and not webhook_url.startswith("••••"):
+                    # Enregistrer immédiatement en base si le test est concluant
+                    try:
+                        self.service.update_settings({
+                            "discord_webhook_url": webhook_url,
+                            "discord_enabled": "1",
+                            "discord_author_name": author_name
+                        })
+                    except Exception:
+                        pass
                 self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
                 return
 
@@ -357,6 +369,66 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             if path == "/api/system/apply-update":
                 res = apply_update(db_path=self.db_path)
                 self.send_json(res, status=200 if res.get("success") else 500)
+                return
+
+            # POST /api/upload/background (Upload d'image personnalisée de fond)
+            if path == "/api/upload/background":
+                raw_image = payload.get("image") or ""
+                if not raw_image:
+                    self.send_json({"error": "Aucune image fournie"}, status=400)
+                    return
+
+                # Découper le préfixe data URL
+                # Ex: data:image/jpeg;base64,...
+                ext = "jpg"
+                if "," in raw_image:
+                    header, base64_data = raw_image.split(",", 1)
+                    if "image/png" in header:
+                        ext = "png"
+                    elif "image/webp" in header:
+                        ext = "webp"
+                else:
+                    base64_data = raw_image
+
+                try:
+                    img_bytes = base64.b64decode(base64_data)
+                except Exception:
+                    self.send_json({"error": "Format d'encodage base64 invalide"}, status=400)
+                    return
+
+                if len(img_bytes) > 5 * 1024 * 1024:
+                    self.send_json({"error": "L'image dépasse la limite de 5 Mo"}, status=413)
+                    return
+
+                # Sauvegarder dans static/assets/
+                is_folder_scope = payload.get("scope") == "folder"
+                folder_id = payload.get("folder_id")
+                timestamp = int(time.time() * 1000)
+
+                if is_folder_scope and folder_id:
+                    target_filename = f"folder-bg-{folder_id}.{ext}"
+                elif is_folder_scope:
+                    target_filename = f"folder-bg-{timestamp}.{ext}"
+                else:
+                    target_filename = f"custom-background.{ext}"
+
+                target_path = os.path.join(STATIC_DIR, "assets", target_filename)
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                with open(target_path, "wb") as f:
+                    f.write(img_bytes)
+
+                relative_url = f"/assets/{target_filename}?t={timestamp}"
+                bg_value = f"url('{relative_url}') center / cover no-repeat fixed #08090c"
+
+                if not is_folder_scope:
+                    # Mettre à jour les settings en base uniquement si c'est pour le thème global
+                    self.service.update_settings({"main_background": bg_value})
+
+                self.send_json({
+                    "success": True,
+                    "url": relative_url,
+                    "bg_value": bg_value
+                })
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)

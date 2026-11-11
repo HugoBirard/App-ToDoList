@@ -74,6 +74,7 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
                 },
                 method="POST"
             )
+            # Contexte SSL standard sécurisé
             ssl_ctx = ssl.create_default_context()
             try:
                 import certifi

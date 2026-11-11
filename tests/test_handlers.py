@@ -38,6 +38,15 @@ class HandlersTestCase(unittest.TestCase):
         cls.httpd.shutdown()
         cls.httpd.server_close()
         cls.temp_dir.cleanup()
+        from backend.config import STATIC_DIR
+        for ext in ("png", "jpg", "jpeg", "webp"):
+            for prefix in ("custom-background", "folder-bg-42"):
+                p = os.path.join(STATIC_DIR, "assets", f"{prefix}.{ext}")
+                if os.path.exists(p):
+                    try:
+                        os.remove(p)
+                    except Exception:
+                        pass
 
     def _request(self, method, path, data=None):
         url = f"{self.base_url}{path}"
@@ -209,6 +218,39 @@ class HandlersTestCase(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertTrue(res_post.get("success"))
 
+    def test_upload_background_endpoint(self):
+        # 1x1 transparent PNG en base64
+        tiny_png_b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        status, res = self._request("POST", "/api/upload/background", {"image": tiny_png_b64})
+        self.assertEqual(status, 200)
+        self.assertTrue(res.get("success"))
+        self.assertIn("/assets/custom-background.png", res.get("url"))
+        self.assertIn("custom-background.png", res.get("bg_value"))
+
+        # Vérifier que le réglage a été mis à jour en base
+        status, data = self._request("GET", "/api/data")
+        self.assertEqual(status, 200)
+        self.assertIn("custom-background.png", data["settings"]["main_background"])
+
+    def test_upload_folder_background_endpoint(self):
+        tiny_png_b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        # Upload d'image avec scope 'folder'
+        status, res = self._request("POST", "/api/upload/background", {
+            "image": tiny_png_b64,
+            "scope": "folder",
+            "folder_id": 42
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(res.get("success"))
+        self.assertIn("folder-bg-42", res.get("url"))
+        self.assertIn("folder-bg-42", res.get("bg_value"))
+
+        # Vérifier que le réglage global main_background n'a PAS été écrasé
+        status, data = self._request("GET", "/api/data")
+        self.assertEqual(status, 200)
+        main_bg = data["settings"].get("main_background", "")
+        self.assertNotIn("folder-bg-42", main_bg)
+
     def test_discord_test_endpoint(self):
         from unittest.mock import patch
 
@@ -245,8 +287,7 @@ class HandlersTestCase(unittest.TestCase):
             })
             self.assertEqual(status, 200)
             self.assertTrue(res.get("success"))
-            mock_send.assert_called_with(valid_webhook, author_name="Utilisateur ToDoList")
-
+            mock_send.assert_called_with(valid_webhook, author_name="Hugo")
 
 if __name__ == "__main__":
     unittest.main()
