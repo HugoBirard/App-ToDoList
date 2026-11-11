@@ -31,11 +31,9 @@ import {
   initDiscordUI, 
   updateDiscordUIFromState 
 } from './components/discord.js';
-import { 
-  initServerUI, 
-  updateServerStatusUI 
-} from './components/server.js';
+import { initServerUI, updateServerStatusUI } from './components/server.js';
 import { initUpdateUI } from './components/updater.js';
+import { initSalonUI, renderSalons } from './components/salons.js';
 import { 
   openAddFolderModal, 
   closeFolderModal, 
@@ -66,6 +64,7 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadData();
+  initSalonUI(loadData);
   initSyncUI(loadData);
   initAutoSyncWatcher(loadData);
   initServerUI(loadData);
@@ -80,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadData() {
   const data = await fetchInitialData();
   if (data) {
+    state.salons = data.salons || [];
     state.folders = data.folders || [];
     state.tasks = data.tasks || [];
     state.settings = data.settings || {};
@@ -92,6 +92,7 @@ async function loadData() {
     }
 
     applyActiveBackground(true);
+    renderSalons();
     renderFolders();
     updateFolderDropdown();
     renderTasks();
@@ -355,11 +356,11 @@ function setupEventListeners() {
     });
   });
 
-  document.querySelectorAll('.icon-opt').forEach(btn => {
+  document.querySelectorAll('#folder-modal .icon-opt').forEach(btn => {
     btn.addEventListener('click', () => selectIcon(btn.dataset.icon));
   });
 
-  document.querySelectorAll('.color-opt').forEach(btn => {
+  document.querySelectorAll('#folder-modal .color-opt').forEach(btn => {
     btn.addEventListener('click', () => selectColor(btn.dataset.color));
   });
 

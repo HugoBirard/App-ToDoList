@@ -194,6 +194,47 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 self.send_json(data)
                 return
 
+            # GET /api/salons
+            if path == "/api/salons":
+                self.send_json(self.service.get_salons())
+                return
+
+            parts_get = path.strip("/").split("/")
+
+            # GET /api/salons/<id>/export
+            if len(parts_get) == 4 and parts_get[0] == "api" and parts_get[1] == "salons" and parts_get[3] == "export":
+                salon_id = self.parse_id(parts_get[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                exp = self.service.export_salon(salon_id)
+                if exp:
+                    self.send_json(exp)
+                else:
+                    self.send_json({"error": "Salon introuvable"}, status=404)
+                return
+
+            # GET /api/salons/active-counts
+            if path == "/api/salons/active-counts":
+                self.send_json({
+                    "counts": self.service.get_all_salons_active_counts(),
+                    "global_version": self.service._global_version
+                })
+                return
+
+            # GET /api/salons/<id>
+            if len(parts_get) == 3 and parts_get[0] == "api" and parts_get[1] == "salons":
+                salon_id = self.parse_id(parts_get[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                s = self.service.get_salon(salon_id)
+                if s:
+                    self.send_json(s)
+                else:
+                    self.send_json({"error": "Salon introuvable"}, status=404)
+                return
+
             # GET /api/sync/status
             if path == "/api/sync/status":
                 self.send_json(self.service.get_storage_info())
@@ -248,6 +289,102 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
 
             parts = path.strip("/").split("/")
             payload = self.parse_body()
+
+            # POST /api/salons
+            if path == "/api/salons":
+                name = (payload.get("name") or "").strip()
+                if not name:
+                    self.send_json({"error": "Le nom du salon est requis"}, status=400)
+                    return
+                salon = self.service.create_salon(payload)
+                self.send_json(salon, status=201)
+                return
+
+            # POST /api/salons/import
+            if path == "/api/salons/import":
+                res = self.service.import_salon(payload)
+                if res:
+                    self.send_json(res, status=201)
+                else:
+                    self.send_json({"error": "Format de salon importé invalide"}, status=400)
+                return
+
+            # POST /api/salons/<id>/import
+            if len(parts) == 4 and parts[0] == "api" and parts[1] == "salons" and parts[3] == "import":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                res = self.service.import_salon(payload, target_salon_id=salon_id)
+                if res:
+                    self.send_json(res, status=200)
+                else:
+                    self.send_json({"error": "Format d'import invalide"}, status=400)
+                return
+
+            # POST /api/salons/<id>/heartbeat
+            if len(parts) == 4 and parts[0] == "api" and parts[1] == "salons" and parts[3] == "heartbeat":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                client_id = str(payload.get("client_id") or "").strip()
+                if not client_id:
+                    client_id = self.client_address[0]
+                client_name = str(payload.get("client_name") or "Membre").strip()
+                client_version = payload.get("version")
+
+                self.service.record_presence(salon_id, client_id, client_name)
+                current_version = self.service.get_salon_version(salon_id)
+                active_count = self.service.get_active_member_count(salon_id)
+                all_counts = self.service.get_all_salons_active_counts()
+
+                needs_refresh = False
+                if client_version is not None and client_version != current_version:
+                    needs_refresh = True
+
+                self.send_json({
+                    "salon_id": salon_id,
+                    "version": current_version,
+                    "needs_refresh": needs_refresh,
+                    "active_members_count": active_count,
+                    "all_salons_counts": all_counts
+                })
+                return
+
+            # POST /api/salons/<id>/discord/test
+            if len(parts) == 5 and parts[0] == "api" and parts[1] == "salons" and parts[3] == "discord" and parts[4] == "test":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                webhook_url = (payload.get("webhook_url") or "").strip()
+                if not webhook_url or webhook_url.startswith("••••") or payload.get("use_saved"):
+                    webhook_url = self.service.get_raw_salon_setting(salon_id, "discord_webhook_url") or ""
+
+                if not webhook_url:
+                    self.send_json({
+                        "success": False,
+                        "message": "Aucune URL de webhook configurée pour ce salon. Veuillez saisir l'URL Discord de votre salon."
+                    }, status=400)
+                    return
+
+                author_name = (payload.get("author_name") or "").strip()
+                if not author_name:
+                    author_name = self.service.get_raw_salon_setting(salon_id, "discord_author_name") or "Utilisateur ToDoList"
+
+                ok, msg = send_test_message(webhook_url, author_name=author_name)
+                if ok and not webhook_url.startswith("••••"):
+                    try:
+                        self.service.update_salon(salon_id, {
+                            "discord_webhook_url": webhook_url,
+                            "discord_enabled": 1,
+                            "discord_author_name": author_name
+                        })
+                    except Exception:
+                        pass
+                self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
+                return
 
             # POST /api/folders/<id>/reset
             if len(parts) == 4 and parts[0] == "api" and parts[1] == "folders" and parts[3] == "reset":
@@ -462,6 +599,19 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 self.send_json(settings)
                 return
 
+            # PUT /api/salons/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "salons":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                updated = self.service.update_salon(salon_id, payload)
+                if updated:
+                    self.send_json(updated)
+                else:
+                    self.send_json({"error": "Salon introuvable"}, status=404)
+                return
+
             # PUT /api/folders/reorder
             if path == "/api/folders/reorder":
                 folder_ids = payload.get("folder_ids") or payload.get("order") or []
@@ -518,6 +668,19 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     return
 
             parts = path.strip("/").split("/")
+
+            # DELETE /api/salons/<id>
+            if len(parts) == 3 and parts[0] == "api" and parts[1] == "salons":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                ok, msg = self.service.delete_salon(salon_id)
+                if ok:
+                    self.send_json({"success": True, "message": msg})
+                else:
+                    self.send_json({"error": msg}, status=400)
+                return
 
             # DELETE /api/folders/<id>
             if len(parts) == 3 and parts[0] == "api" and parts[1] == "folders":

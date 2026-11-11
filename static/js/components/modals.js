@@ -114,6 +114,19 @@ export function showNotificationDialog(optionsOrTitle = "Information", messageAr
 // MODAL DOSSIER
 // ==========================================
 
+function populateFolderSalonSelect(selectedSalonId) {
+  const select = document.getElementById('folder-salon-select');
+  if (!select) return;
+  select.innerHTML = '';
+  (state.salons || []).forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    if (s.id === selectedSalonId) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
 export function openAddFolderModal() {
   const modal = document.getElementById('folder-modal');
   const title = document.getElementById('folder-modal-title');
@@ -125,6 +138,7 @@ export function openAddFolderModal() {
   idInput.value = '';
   nameInput.value = '';
   weeklyInput.checked = false;
+  populateFolderSalonSelect(state.currentSalonId);
   const submitBtn = document.getElementById('folder-submit-btn');
   if (submitBtn) submitBtn.textContent = "Créer le dossier";
 
@@ -164,6 +178,7 @@ export function openEditFolderModal(folderId) {
   idInput.value = folder.id;
   nameInput.value = folder.name;
   weeklyInput.checked = Boolean(folder.auto_reset_weekly);
+  populateFolderSalonSelect(folder.salon_id || state.currentSalonId);
   const submitBtn = document.getElementById('folder-submit-btn');
   if (submitBtn) submitBtn.textContent = "Enregistrer les modifications";
 
@@ -390,8 +405,12 @@ export async function handleFolderSubmit(e) {
 
   if (!name) return;
 
+  const salonSelect = document.getElementById('folder-salon-select');
+  const salonId = salonSelect ? (parseInt(salonSelect.value, 10) || state.currentSalonId) : state.currentSalonId;
+
   const folderData = { 
     name, 
+    salon_id: salonId,
     icon, 
     color, 
     auto_reset_weekly: autoResetWeekly,

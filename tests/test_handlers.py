@@ -289,5 +289,68 @@ class HandlersTestCase(unittest.TestCase):
             self.assertTrue(res.get("success"))
             mock_send.assert_called_with(valid_webhook, author_name="Hugo")
 
+    def test_salon_endpoints(self):
+        # 1. GET /api/salons
+        status, salons = self._request("GET", "/api/salons")
+        self.assertEqual(status, 200)
+        self.assertGreaterEqual(len(salons), 1)
+
+        # 2. POST /api/salons
+        status, new_salon = self._request("POST", "/api/salons", {
+            "name": "Equipe Dev",
+            "icon": "terminal",
+            "color": "#3b82f6"
+        })
+        self.assertEqual(status, 201)
+        salon_id = new_salon["id"]
+
+        # 3. PUT /api/salons/<id>
+        status, updated = self._request("PUT", f"/api/salons/{salon_id}", {
+            "name": "Equipe Dev Core"
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(updated["name"], "Equipe Dev Core")
+
+        # 4. POST /api/salons/<id>/heartbeat
+        status, hb1 = self._request("POST", f"/api/salons/{salon_id}/heartbeat", {
+            "client_id": "client_alpha",
+            "version": 1
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(hb1["salon_id"], salon_id)
+        self.assertEqual(hb1["active_members_count"], 1)
+
+        # Deuxième membre sur le même salon
+        status, hb2 = self._request("POST", f"/api/salons/{salon_id}/heartbeat", {
+            "client_id": "client_beta",
+            "version": 1
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(hb2["active_members_count"], 2)
+
+        # GET /api/salons/active-counts
+        status, counts_res = self._request("GET", "/api/salons/active-counts")
+        self.assertEqual(status, 200)
+        self.assertIn("counts", counts_res)
+        self.assertEqual(counts_res["counts"].get(str(salon_id)), 2)
+
+        # 5. GET /api/salons/<id>/export
+        status, exp = self._request("GET", f"/api/salons/{salon_id}/export")
+        self.assertEqual(status, 200)
+        self.assertEqual(exp["scope"], "salon")
+
+        # 6. POST /api/salons/import
+        status, imp = self._request("POST", "/api/salons/import", exp)
+        self.assertEqual(status, 201)
+        self.assertEqual(imp["name"], "Equipe Dev Core")
+
+        # 7. DELETE /api/salons/<id>
+        status, del_res = self._request("DELETE", f"/api/salons/{salon_id}")
+        self.assertEqual(status, 200)
+        self.assertTrue(del_res["success"])
+
+        status, del_imp = self._request("DELETE", f"/api/salons/{imp['id']}")
+        self.assertEqual(status, 200)
+
 if __name__ == "__main__":
     unittest.main()

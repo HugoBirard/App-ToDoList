@@ -77,6 +77,45 @@ class TestDiscordIntegration(unittest.TestCase):
         payload = mock_send.call_args[0][1]
         self.assertEqual(payload["embeds"][0]["title"], "📁 Nouveau dossier de projet")
 
+    def test_salon_specific_discord_notification_routing(self):
+        from backend.database import init_db
+        from backend.services import TodoService
+        import tempfile, shutil
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            db_path = f"{tmpdir}/test_salon_discord.db"
+            init_db(db_path=db_path)
+            service = TodoService(db_path=db_path)
+
+            # Créer un salon spécifique avec son propre webhook
+            salon_hook = "https://discord.com/api/webhooks/9999/salonSpecificToken"
+            s = service.create_salon({
+                "name": "Equipe Alpha",
+                "discord_webhook_url": salon_hook,
+                "discord_enabled": 1,
+                "discord_author_name": "Alice"
+            })
+
+            # Créer un dossier rattaché à ce salon
+            f = service.create_folder({
+                "name": "Dossier Alpha",
+                "salon_id": s["id"]
+            })
+
+            with patch("backend.services.notify_task_created") as mock_notify:
+                service.create_task({
+                    "title": "Tâche pour Alpha",
+                    "folder_id": f["id"],
+                    "author": "Alice"
+                })
+                self.assertTrue(mock_notify.called)
+                called_webhook = mock_notify.call_args[0][0]
+                self.assertEqual(called_webhook, salon_hook)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+
 
 if __name__ == "__main__":
     unittest.main()

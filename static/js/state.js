@@ -43,6 +43,8 @@ export const THEME_PROFILES = {
 };
 
 export const state = {
+  salons: [],
+  currentSalonId: 1,     // ID du salon/espace actif
   folders: [],
   tasks: [],
   settings: {},
@@ -52,15 +54,29 @@ export const state = {
   searchQuery: '',
 };
 
+export function getActiveSalon() {
+  if (!state.salons || state.salons.length === 0) return null;
+  return state.salons.find(s => s.id === state.currentSalonId) || state.salons[0];
+}
+
+export function getActiveSalonFolderIds() {
+  const active = getActiveSalon();
+  if (!active) return state.folders.map(f => f.id);
+  return state.folders.filter(f => !f.salon_id || f.salon_id === active.id).map(f => f.id);
+}
+
 export function getCurrentViewTasks() {
+  const activeFolderIds = new Set(getActiveSalonFolderIds());
+  const salonTasks = state.tasks.filter(t => !t.folder_id || activeFolderIds.has(t.folder_id));
+
   if (state.currentView === 'pending') {
-    return state.tasks.filter(t => !t.completed);
+    return salonTasks.filter(t => !t.completed);
   } else if (state.currentView === 'completed') {
-    return state.tasks.filter(t => t.completed);
+    return salonTasks.filter(t => t.completed);
   } else if (typeof state.currentView === 'number') {
-    return state.tasks.filter(t => t.folder_id === state.currentView);
+    return salonTasks.filter(t => t.folder_id === state.currentView);
   }
-  return state.tasks;
+  return salonTasks;
 }
 
 export function escapeHtml(text) {
