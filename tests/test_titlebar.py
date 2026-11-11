@@ -62,7 +62,10 @@ class TestTitlebarCustomization(unittest.TestCase):
             import gi
             gi.require_version("Gtk", "4.0")
             from gi.repository import Gtk
+        except (ImportError, ValueError, Exception) as e:
+            raise unittest.SkipTest(f"GTK4 / PyGObject non disponible dans cet environnement: {e}")
 
+        try:
             provider = Gtk.CssProvider()
             for style in TITLEBAR_STYLES:
                 css = generate_css(style, "#090a0d")
