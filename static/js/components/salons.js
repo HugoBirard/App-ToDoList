@@ -259,7 +259,10 @@ export function renderSalons() {
   const presenceCountEl = document.getElementById('salon-presence-count');
 
   if (current) {
-    if (nameEl) nameEl.textContent = current.name;
+    if (nameEl) {
+      nameEl.textContent = current.name;
+      nameEl.setAttribute('title', current.name);
+    }
     if (colorEl) colorEl.style.backgroundColor = current.color || '#4f46e5';
     if (presenceCountEl) {
       const pCount = Math.max(current.active_members_count || 1, 1);
@@ -293,13 +296,13 @@ export function renderSalons() {
       ? `<span class="salon-mini-discord-badge" title="Discord lié">${renderIcon('message-square')}</span>`
       : '';
 
-    const presenceBadge = `<span class="salon-item-presence ${membersCount > 0 ? 'online' : ''}" title="${membersCount} membre(s) connecté(s)"><span class="presence-mini-dot"></span> ${membersCount} en ligne</span>`;
+    const presenceBadge = `<span class="salon-item-presence ${membersCount > 0 ? 'online' : ''}" title="${membersCount} membre(s) en ligne"><span class="presence-mini-dot"></span> ${membersCount}</span>`;
 
     item.innerHTML = `
       <div class="salon-item-left">
         <span class="salon-item-color-dot" style="background-color: ${s.color || '#4f46e5'};"></span>
         <span class="salon-item-icon">${renderIcon(s.icon || 'folder')}</span>
-        <span class="salon-item-name">${escapeHtml(s.name)}</span>
+        <span class="salon-item-name" title="${escapeHtml(s.name)}">${escapeHtml(s.name)}</span>
         ${discordBadge}
       </div>
       <div class="salon-item-right">
