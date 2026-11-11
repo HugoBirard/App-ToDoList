@@ -390,19 +390,30 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json({"error": "L'image dépasse la limite de 5 Mo"}, status=413)
                     return
 
-                # Sauvegarder dans static/assets/custom-background.<ext>
-                target_filename = f"custom-background.{ext}"
+                # Sauvegarder dans static/assets/
+                is_folder_scope = payload.get("scope") == "folder"
+                folder_id = payload.get("folder_id")
+                timestamp = int(time.time() * 1000)
+
+                if is_folder_scope and folder_id:
+                    target_filename = f"folder-bg-{folder_id}.{ext}"
+                elif is_folder_scope:
+                    target_filename = f"folder-bg-{timestamp}.{ext}"
+                else:
+                    target_filename = f"custom-background.{ext}"
+
                 target_path = os.path.join(STATIC_DIR, "assets", target_filename)
                 os.makedirs(os.path.dirname(target_path), exist_ok=True)
                 with open(target_path, "wb") as f:
                     f.write(img_bytes)
 
-                timestamp = int(time.time())
                 relative_url = f"/assets/{target_filename}?t={timestamp}"
                 bg_value = f"url('{relative_url}') center / cover no-repeat fixed #08090c"
 
-                # Mettre à jour les settings en base
-                self.service.update_settings({"main_background": bg_value})
+                if not is_folder_scope:
+                    # Mettre à jour les settings en base uniquement si c'est pour le thème global
+                    self.service.update_settings({"main_background": bg_value})
+
                 self.send_json({
                     "success": True,
                     "url": relative_url,

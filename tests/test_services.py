@@ -121,6 +121,55 @@ class ServicesTestCase(unittest.TestCase):
         updates = self.service.check_updates()
         self.assertGreater(updates["last_modified"], 0)
 
+    def test_folder_background_options(self):
+        # Preset background
+        f_preset = self.service.create_folder({
+            "name": "Dossier Cyberpunk",
+            "bg_type": "preset",
+            "bg_color1": "cyberpunk"
+        })
+        self.assertEqual(f_preset["bg_type"], "preset")
+        self.assertEqual(f_preset["bg_color1"], "cyberpunk")
+
+        # Mise à jour avec un autre preset
+        f_preset_up = self.service.update_folder(f_preset["id"], {
+            "bg_type": "preset",
+            "bg_color1": "street"
+        })
+        self.assertEqual(f_preset_up["bg_type"], "preset")
+        self.assertEqual(f_preset_up["bg_color1"], "street")
+
+        # Custom image background
+        f_img = self.service.create_folder({
+            "name": "Dossier Photo",
+            "bg_type": "image",
+            "bg_color1": "/assets/folder-bg-123.jpg"
+        })
+        self.assertEqual(f_img["bg_type"], "image")
+        self.assertEqual(f_img["bg_color1"], "/assets/folder-bg-123.jpg")
+
+        # Solid background
+        f_solid = self.service.create_folder({
+            "name": "Dossier Uni",
+            "bg_type": "solid",
+            "bg_color1": "#090A0D"
+        })
+        self.assertEqual(f_solid["bg_type"], "solid")
+        self.assertEqual(f_solid["bg_color1"], "#090A0D")
+
+        # Gradient background
+        f_grad = self.service.create_folder({
+            "name": "Dossier Dégradé",
+            "bg_type": "gradient",
+            "bg_color1": "#112233",
+            "bg_color2": "#445566",
+            "bg_angle": 90
+        })
+        self.assertEqual(f_grad["bg_type"], "gradient")
+        self.assertEqual(f_grad["bg_color1"], "#112233")
+        self.assertEqual(f_grad["bg_color2"], "#445566")
+        self.assertEqual(f_grad["bg_angle"], 90)
+
 
 if __name__ == "__main__":
     unittest.main()

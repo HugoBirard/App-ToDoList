@@ -435,12 +435,16 @@
         <div class="form-group folder-bg-section">
           <label style="display: inline-flex; align-items: center; gap: 6px;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 16px; height: 16px;"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-            Fond personnalisé pour ce dossier
+            Fond & Thème pour ce dossier
           </label>
           <div class="bg-type-selector">
             <label class="radio-label">
               <input type="radio" name="folder-bg-type" value="default" checked>
               <span>Thème principal</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="folder-bg-type" value="preset">
+              <span>Univers &amp; Thème</span>
             </label>
             <label class="radio-label">
               <input type="radio" name="folder-bg-type" value="solid">
@@ -450,9 +454,105 @@
               <input type="radio" name="folder-bg-type" value="gradient">
               <span>Fondu / Dégradé</span>
             </label>
+            <label class="radio-label">
+              <input type="radio" name="folder-bg-type" value="image">
+              <span>Photo perso</span>
+            </label>
           </div>
 
-          <!-- Contrôles couleur dossier (masqués par défaut) -->
+          <!-- Section 1 : Presets Univers & Thèmes pour le dossier -->
+          <div id="folder-preset-section" class="folder-bg-subsection hidden" style="margin-top: 12px;">
+            <span class="sub-label">Choisissez une ambiance visuelle dédiée à ce dossier :</span>
+            <div class="preset-theme-grid" id="folder-preset-grid" style="margin-top: 8px;">
+              <button type="button" class="preset-btn folder-preset-btn active" data-preset="street">
+                <span class="preset-swatch" style="background: url('/assets/themes/street-brick-graffiti.svg') center/cover, #0b0c10; border: 1px solid #ccff00;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Streetwear &amp; Acid Volt</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="cyberpunk">
+                <span class="preset-swatch" style="background: url('/assets/themes/cyberpunk-netrunner-hack.svg') center/cover, #05010a; border: 1px solid #00f5d4;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Neo-Tokyo Cyberpunk</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="lava">
+                <span class="preset-swatch" style="background: url('/assets/themes/lava-lamp-magma.svg') center/cover, #18020a; border: 1px solid #ff5500;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Lampe à Lave Magma</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="techno">
+                <span class="preset-swatch" style="background: url('/assets/themes/techno-concrete-laser.svg') center/cover, #030304; border: 1px solid #ffffff;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Berlin Techno Warehouse</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="y2k">
+                <span class="preset-swatch" style="background: url('/assets/themes/y2k-liquid-chrome.svg') center/cover, #131525; border: 1px solid #e879f9;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Chrome &amp; Y2K</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="arcade">
+                <span class="preset-swatch" style="background: url('/assets/themes/arcade-synthwave-grid.svg') center/cover, #180524; border: 1px solid #f43f5e;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">80s Retro Synthwave</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="luxury">
+                <span class="preset-swatch" style="background: url('/assets/themes/luxury-black-gold-marble.svg') center/cover, #0b0a0c; border: 1px solid #f59e0b;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Midnight Gold Executive</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="zen">
+                <span class="preset-swatch" style="background: url('/assets/themes/zen-mist-bamboo.svg') center/cover, #05130f; border: 1px solid #34d399;"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Brume &amp; Bambou Zen</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="pro-dark">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Noir &amp; Gris Pro</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="carbon">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #050505 0%, #1c1c1c 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Carbone Pur</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="midnight">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #070c18 0%, #131c33 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Nébuleuse Nuit</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="slate">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Ardoise Bleutée</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="emerald">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #05140e 0%, #102d21 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Émeraude Sombre</span>
+                </div>
+              </button>
+              <button type="button" class="preset-btn folder-preset-btn" data-preset="violet">
+                <span class="preset-swatch" style="background: linear-gradient(135deg, #11081c 0%, #221235 100%);"></span>
+                <div class="preset-info">
+                  <span class="preset-title">Violet Sombre</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="folder-bg-preset-val" value="street">
+          </div>
+
+          <!-- Section 2 : Couleur unie & Dégradé -->
           <div id="folder-bg-controls" class="bg-controls hidden">
             <!-- Nuances solides cliquables pour couleur unie (1 clic direct, 100% fiable) -->
             <div id="folder-solid-palette" class="solid-palette-section hidden">
@@ -515,10 +615,32 @@
               </div>
               <input type="hidden" id="folder-bg-angle" value="135">
             </div>
-
-            <!-- Aperçu -->
-            <div class="bg-preview-box" id="folder-bg-preview" style="background: #161a24; margin-top: 12px;">Aperçu du dossier</div>
           </div>
+
+          <!-- Section 3 : Image personnalisée pour ce dossier -->
+          <div id="folder-image-section" class="folder-bg-subsection hidden" style="margin-top: 12px;">
+            <span class="sub-label">Importez une photo ou illustration personnelle pour ce dossier :</span>
+            <div class="custom-bg-card" style="margin-top: 8px;">
+              <div class="custom-bg-actions">
+                <input type="file" id="folder-user-bg-file" accept="image/*" style="display: none;">
+                <button type="button" class="btn btn-secondary" id="folder-user-bg-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Choisir une image pour ce dossier...
+                </button>
+                <button type="button" class="btn btn-danger hidden" id="folder-user-bg-remove-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  Retirer l'image
+                </button>
+              </div>
+              <div id="folder-user-bg-preview-wrap" class="custom-bg-thumb-wrap hidden" style="margin-top: 8px;">
+                <span class="custom-bg-thumb-overlay">Image active du dossier</span>
+              </div>
+            </div>
+            <input type="hidden" id="folder-bg-image-val" value="">
+          </div>
+
+          <!-- Aperçu en direct pour le dossier -->
+          <div class="bg-preview-box" id="folder-bg-preview" style="background: #161a24; margin-top: 12px;">Aperçu du dossier</div>
         </div>
 
         <div class="modal-actions">

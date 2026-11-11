@@ -58,6 +58,7 @@ import {
   setMainBgAngle,
   initTitlebarOptions,
   initCustomBackgroundUpload,
+  initFolderBackgroundUpload,
   markModalGeneratorSelected
 } from './components/modals.js';
 
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initDiscordUI();
   initTitlebarOptions();
   initCustomBackgroundUpload();
+  initFolderBackgroundUpload();
   setupEventListeners();
 });
 
@@ -277,8 +279,20 @@ function setupEventListeners() {
     });
   });
 
-  document.querySelectorAll('.preset-btn').forEach(btn => {
+  document.querySelectorAll('#theme-modal .preset-btn').forEach(btn => {
     btn.addEventListener('click', () => applyPresetTheme(btn.dataset.preset));
+  });
+
+  document.querySelectorAll('.folder-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.preset;
+      const hidden = document.getElementById('folder-bg-preset-val');
+      if (hidden) hidden.value = p;
+      document.querySelectorAll('.folder-preset-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.preset === p);
+      });
+      updateFolderBgPreview();
+    });
   });
 
   // Modal Dossier

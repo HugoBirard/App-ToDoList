@@ -35,13 +35,35 @@ export function applyActiveBackground(immediate = false) {
     if (folder && folder.bg_type && folder.bg_type !== 'default') {
       if (folder.bg_type === 'solid' && folder.bg_color1) {
         targetBg = folder.bg_color1;
+        applyThemeStyle('pro');
       } else if (folder.bg_type === 'gradient') {
         const c1 = folder.bg_color1 || '#161a24';
         const c2 = folder.bg_color2 || '#2d3345';
         const angle = folder.bg_angle || 135;
         targetBg = `linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`;
+        applyThemeStyle('pro');
+      } else if (folder.bg_type === 'preset' && folder.bg_color1) {
+        const presetKey = folder.bg_color1;
+        targetBg = PRESETS[presetKey] || DEFAULT_PRO_BG;
+        const profile = THEME_PROFILES[presetKey];
+        if (profile) {
+          applyThemeStyle(profile.styleId, profile.accent);
+        }
+      } else if ((folder.bg_type === 'image' || folder.bg_type === 'custom') && folder.bg_color1) {
+        targetBg = folder.bg_color1.startsWith('url(') ? folder.bg_color1 : `url('${folder.bg_color1}') center / cover no-repeat fixed #08090c`;
+        applyThemeStyle('pro');
       }
+    } else if (folder && folder.bg_type === 'default') {
+      // Restaurer le style du thème principal actif
+      const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+      const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+      applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
     }
+  } else {
+    // Vues générales ('all', 'pending', 'completed')
+    const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+    const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+    applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
   }
 
   // 2. Si on est en mode clair

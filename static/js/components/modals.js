@@ -121,6 +121,14 @@ export function openAddFolderModal() {
   const defaultRadio = document.querySelector('input[name="folder-bg-type"][value="default"]');
   if (defaultRadio) defaultRadio.checked = true;
 
+  const presetHidden = document.getElementById('folder-bg-preset-val');
+  if (presetHidden) presetHidden.value = 'street';
+  document.querySelectorAll('.folder-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === 'street');
+  });
+
+  updateFolderImageUI('');
+
   setFolderBgColor1('#161a24');
   setFolderBgColor2('#2d3345');
   setFolderBgAngle(135);
@@ -152,6 +160,16 @@ export function openEditFolderModal(folderId) {
   const bgType = folder.bg_type || 'default';
   const radio = document.querySelector(`input[name="folder-bg-type"][value="${bgType}"]`);
   if (radio) radio.checked = true;
+
+  const presetVal = (bgType === 'preset' && folder.bg_color1) ? folder.bg_color1 : 'street';
+  const presetHidden = document.getElementById('folder-bg-preset-val');
+  if (presetHidden) presetHidden.value = presetVal;
+  document.querySelectorAll('.folder-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === presetVal);
+  });
+
+  const imageVal = ((bgType === 'image' || bgType === 'custom') && folder.bg_color1) ? folder.bg_color1 : '';
+  updateFolderImageUI(imageVal);
 
   setFolderBgColor1(folder.bg_color1 || '#161a24');
   setFolderBgColor2(folder.bg_color2 || '#2d3345');
@@ -218,31 +236,76 @@ function setFolderBgAngle(angle) {
   });
 }
 
+export function updateFolderImageUI(imageUrl) {
+  const previewWrap = document.getElementById('folder-user-bg-preview-wrap');
+  const removeBtn = document.getElementById('folder-user-bg-remove-btn');
+  const uploadBtn = document.getElementById('folder-user-bg-btn');
+  const hiddenVal = document.getElementById('folder-bg-image-val');
+
+  if (imageUrl) {
+    if (hiddenVal) hiddenVal.value = imageUrl;
+    if (previewWrap) {
+      previewWrap.classList.remove('hidden');
+      const match = imageUrl.match(/url\((['"]?)(.*?)\1\)/);
+      const url = match ? match[2] : imageUrl;
+      previewWrap.style.backgroundImage = `url("${url}")`;
+      previewWrap.style.backgroundSize = 'cover';
+      previewWrap.style.backgroundPosition = 'center';
+    }
+    if (removeBtn) removeBtn.classList.remove('hidden');
+    if (uploadBtn) {
+      uploadBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Changer l'image...
+      `;
+    }
+  } else {
+    if (hiddenVal) hiddenVal.value = '';
+    if (previewWrap) {
+      previewWrap.classList.add('hidden');
+      previewWrap.style.backgroundImage = '';
+    }
+    if (removeBtn) removeBtn.classList.add('hidden');
+    if (uploadBtn) {
+      uploadBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Choisir une image pour ce dossier...
+      `;
+    }
+  }
+}
+
 export function updateFolderBgControlsUI() {
   const checkedRadio = document.querySelector('input[name="folder-bg-type"]:checked');
   const selectedType = checkedRadio ? checkedRadio.value : 'default';
+  const presetSection = document.getElementById('folder-preset-section');
   const controls = document.getElementById('folder-bg-controls');
   const solidPalette = document.getElementById('folder-solid-palette');
   const c1Label = document.getElementById('folder-c1-label');
   const c2Wrap = document.getElementById('folder-c2-wrap');
   const angleWrap = document.getElementById('folder-angle-wrap');
+  const imageSection = document.getElementById('folder-image-section');
 
-  if (selectedType === 'default') {
-    if (controls) controls.classList.add('hidden');
-  } else {
+  if (presetSection) presetSection.classList.add('hidden');
+  if (controls) controls.classList.add('hidden');
+  if (imageSection) imageSection.classList.add('hidden');
+
+  if (selectedType === 'preset') {
+    if (presetSection) presetSection.classList.remove('hidden');
+  } else if (selectedType === 'image') {
+    if (imageSection) imageSection.classList.remove('hidden');
+  } else if (selectedType === 'solid') {
     if (controls) controls.classList.remove('hidden');
-    if (selectedType === 'solid') {
-      if (solidPalette) solidPalette.classList.remove('hidden');
-      if (c1Label) c1Label.textContent = "Couleur unie";
-      if (c2Wrap) c2Wrap.classList.add('hidden');
-      if (angleWrap) angleWrap.classList.add('hidden');
-    } else {
-      // Dégradé
-      if (solidPalette) solidPalette.classList.add('hidden');
-      if (c1Label) c1Label.textContent = "Couleur 1";
-      if (c2Wrap) c2Wrap.classList.remove('hidden');
-      if (angleWrap) angleWrap.classList.remove('hidden');
-    }
+    if (solidPalette) solidPalette.classList.remove('hidden');
+    if (c1Label) c1Label.textContent = "Couleur unie";
+    if (c2Wrap) c2Wrap.classList.add('hidden');
+    if (angleWrap) angleWrap.classList.add('hidden');
+  } else if (selectedType === 'gradient') {
+    if (controls) controls.classList.remove('hidden');
+    if (solidPalette) solidPalette.classList.add('hidden');
+    if (c1Label) c1Label.textContent = "Couleur 1";
+    if (c2Wrap) c2Wrap.classList.remove('hidden');
+    if (angleWrap) angleWrap.classList.remove('hidden');
   }
   updateFolderBgPreview();
 }
@@ -259,7 +322,22 @@ export function updateFolderBgPreview() {
 
   if (selectedType === 'default') {
     preview.style.background = state.mainBg || DEFAULT_PRO_BG;
-    preview.textContent = "Thème principal par défaut";
+    preview.textContent = "Thème principal de l'application";
+  } else if (selectedType === 'preset') {
+    const presetKey = document.getElementById('folder-bg-preset-val')?.value || 'street';
+    preview.style.background = PRESETS[presetKey] || DEFAULT_PRO_BG;
+    preview.textContent = `Univers : ${presetKey.toUpperCase()}`;
+  } else if (selectedType === 'image') {
+    const imgVal = document.getElementById('folder-bg-image-val')?.value || '';
+    if (imgVal) {
+      const match = imgVal.match(/url\((['"]?)(.*?)\1\)/);
+      const url = match ? match[2] : imgVal;
+      preview.style.background = `url("${url}") center/cover no-repeat`;
+      preview.textContent = "Photo perso active pour ce dossier";
+    } else {
+      preview.style.background = '#1a1d27';
+      preview.textContent = "Aucune image sélectionnée pour ce dossier";
+    }
   } else if (selectedType === 'solid') {
     preview.style.background = c1;
     preview.textContent = `Couleur unie : ${c1.toUpperCase()}`;
@@ -279,9 +357,26 @@ export async function handleFolderSubmit(e) {
 
   const bgTypeRadio = document.querySelector('input[name="folder-bg-type"]:checked');
   const bgType = bgTypeRadio ? bgTypeRadio.value : 'default';
-  const bgColor1 = document.getElementById('folder-bg-color1').value;
-  const bgColor2 = document.getElementById('folder-bg-color2').value;
-  const bgAngle = parseInt(document.getElementById('folder-bg-angle').value, 10) || 135;
+
+  let bgColor1 = '';
+  let bgColor2 = '';
+  let bgAngle = 135;
+
+  if (bgType === 'preset') {
+    bgColor1 = document.getElementById('folder-bg-preset-val')?.value || 'street';
+  } else if (bgType === 'image') {
+    bgColor1 = document.getElementById('folder-bg-image-val')?.value || '';
+    if (!bgColor1) {
+      alert("Veuillez sélectionner une image pour ce dossier ou choisir un autre style de fond.");
+      return;
+    }
+  } else if (bgType === 'solid') {
+    bgColor1 = document.getElementById('folder-bg-color1').value;
+  } else if (bgType === 'gradient') {
+    bgColor1 = document.getElementById('folder-bg-color1').value;
+    bgColor2 = document.getElementById('folder-bg-color2').value;
+    bgAngle = parseInt(document.getElementById('folder-bg-angle').value, 10) || 135;
+  }
 
   if (!name) return;
 
@@ -678,6 +773,107 @@ export function initCustomBackgroundUpload() {
       currentModalBgState = { type: 'preset', presetKey: 'pro-dark', value: PRESETS['pro-dark'] };
       await applyPresetTheme('pro-dark');
       updateCustomBgUI();
+    });
+  }
+}
+
+// ==========================================
+// IMAGE DE FOND PERSONNALISÉE POUR UN DOSSIER
+// ==========================================
+
+export function initFolderBackgroundUpload() {
+  const fileInput = document.getElementById('folder-user-bg-file');
+  const uploadBtn = document.getElementById('folder-user-bg-btn');
+  const removeBtn = document.getElementById('folder-user-bg-remove-btn');
+  const previewWrap = document.getElementById('folder-user-bg-preview-wrap');
+  const hiddenVal = document.getElementById('folder-bg-image-val');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      try {
+        const localBlobUrl = URL.createObjectURL(file);
+        if (previewWrap) {
+          previewWrap.classList.remove('hidden');
+          previewWrap.style.backgroundImage = `url("${localBlobUrl}")`;
+          previewWrap.style.backgroundSize = 'cover';
+          previewWrap.style.backgroundPosition = 'center';
+        }
+      } catch (err) {
+        console.warn('createObjectURL preview non disponible:', err);
+      }
+
+      const origBtnHtml = uploadBtn.innerHTML;
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Enregistrement en cours...';
+
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const rawData = loadEvt.target.result;
+        const img = new Image();
+        img.onload = async () => {
+          const maxDim = 1920;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          try {
+            const folderId = document.getElementById('folder-id')?.value || 0;
+            const res = await api('/api/upload/background', 'POST', {
+              image: optimizedDataUrl,
+              scope: 'folder',
+              folder_id: folderId
+            });
+            if (res && res.success && res.bg_value) {
+              if (hiddenVal) hiddenVal.value = res.bg_value;
+              updateFolderImageUI(res.bg_value);
+              updateFolderBgPreview();
+            } else {
+              alert(res?.error || 'Erreur lors de l\'enregistrement de l\'image.');
+              uploadBtn.innerHTML = origBtnHtml;
+            }
+          } catch (err) {
+            console.error('Erreur upload background dossier:', err);
+            alert('Impossible de téléverser l\'image : ' + (err.message || ''));
+            uploadBtn.innerHTML = origBtnHtml;
+          } finally {
+            uploadBtn.disabled = false;
+            fileInput.value = '';
+          }
+        };
+        img.src = rawData;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      updateFolderImageUI('');
+      updateFolderBgPreview();
     });
   }
 }
