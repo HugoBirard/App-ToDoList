@@ -369,10 +369,13 @@ class TodoService:
         cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM salons")
         next_pos = cursor.fetchone()[0]
 
+        import uuid
+        uid = str(data.get("uid") or f"sal_{uuid.uuid4().hex[:16]}")
+
         cursor.execute("""
-            INSERT INTO salons (name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, position)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, next_pos))
+            INSERT INTO salons (uid, name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, position)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (uid, name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, next_pos))
         conn.commit()
         new_id = cursor.lastrowid
         conn.close()
@@ -462,6 +465,8 @@ class TodoService:
         salon = dict(salon_row)
         # Ne JAMAIS exporter le webhook Discord secret du propriétaire
         salon.pop("discord_webhook_url", None)
+        salon_uid = str(salon.get("uid") or f"sal_{salon.get('id', 1)}")
+        salon["uid"] = salon_uid
 
         cursor.execute("SELECT * FROM folders WHERE salon_id = ? ORDER BY position ASC, id ASC", (salon_id,))
         folders = [dict(r) for r in cursor.fetchall()]
@@ -478,6 +483,8 @@ class TodoService:
         return {
             "version": 2,
             "scope": "salon",
+            "salon_uid": salon_uid,
+            "uid": salon_uid,
             "salon_name": salon_name,
             "name": salon_name,
             "exported_at": datetime.now().isoformat(),
@@ -593,19 +600,49 @@ class TodoService:
             if not cursor.fetchone():
                 salon_id = None
 
+        raw_name = (
+            incoming_salon.get("name")
+            or data.get("salon_name")
+            or data.get("name")
+            or (data.get("salon") if isinstance(data.get("salon"), str) else None)
+            or incoming_salon.get("title")
+            or data.get("title")
+            or "Salon Partagé"
+        )
+        name = str(raw_name).strip()[:100]
+        if not name:
+            name = "Salon Partagé"
+
+        incoming_uid = (
+            incoming_salon.get("uid")
+            or data.get("salon_uid")
+            or data.get("uid")
+        )
+        if incoming_uid:
+            incoming_uid = str(incoming_uid).strip()
+
+        # Si aucun salon cible n'a été spécifié (action Rejoindre / Importer un salon) :
+        # Empêcher de rejoindre plusieurs fois le même salon sur le même PC,
+        # sauf si l'utilisateur a précédemment quitté/supprimé ce salon.
         if not salon_id:
-            raw_name = (
-                incoming_salon.get("name")
-                or data.get("salon_name")
-                or data.get("name")
-                or (data.get("salon") if isinstance(data.get("salon"), str) else None)
-                or incoming_salon.get("title")
-                or data.get("title")
-                or "Salon Partagé"
-            )
-            name = str(raw_name).strip()[:100]
-            if not name:
-                name = "Salon Partagé"
+            existing_row = None
+            if incoming_uid:
+                cursor.execute("SELECT * FROM salons WHERE uid = ? AND uid != ''", (incoming_uid,))
+                existing_row = cursor.fetchone()
+
+            # Si non trouvé par UID, vérification stricte par nom (insensible à la casse)
+            if not existing_row and name:
+                cursor.execute("SELECT * FROM salons WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))", (name,))
+                existing_row = cursor.fetchone()
+
+            if existing_row:
+                existing_id = existing_row["id"]
+                conn.close()
+                existing_salon = self.get_salon(existing_id)
+                if existing_salon:
+                    existing_salon["already_joined"] = True
+                    existing_salon["message"] = f"Vous avez déjà rejoint le salon « {existing_salon['name']} »."
+                    return existing_salon
 
             icon = str(
                 incoming_salon.get("icon")
@@ -627,12 +664,15 @@ class TodoService:
             )
             desc = str(raw_desc).strip()[:300]
 
+            import uuid
+            new_uid = incoming_uid or f"sal_{uuid.uuid4().hex[:16]}"
+
             cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM salons")
             next_pos = cursor.fetchone()[0]
             cursor.execute("""
-                INSERT INTO salons (name, icon, color, description, position)
-                VALUES (?, ?, ?, ?, ?)
-            """, (name, icon, color, desc, next_pos))
+                INSERT INTO salons (uid, name, icon, color, description, position)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (new_uid, name, icon, color, desc, next_pos))
             conn.commit()
             salon_id = cursor.lastrowid
 

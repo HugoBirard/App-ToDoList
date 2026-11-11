@@ -657,7 +657,7 @@ function setupManageSalonModal() {
     };
   }
 
-  // Supprimer ce salon
+  // Supprimer / Quitter ce salon
   const deleteBtn = document.getElementById('salon-delete-btn');
   if (deleteBtn) {
     deleteBtn.onclick = async () => {
@@ -667,16 +667,23 @@ function setupManageSalonModal() {
       if (state.salons.length <= 1) {
         showNotificationDialog({
           title: "Action impossible",
-          message: "Vous ne pouvez pas supprimer le seul salon restant.",
+          message: "Vous ne pouvez pas retirer le seul salon restant.",
           icon: "alert"
         });
         return;
       }
 
+      const isPersonnel = Number(active.id) === 1;
+      const confirmTitle = isPersonnel ? "Supprimer le salon" : "Quitter ou supprimer le salon";
+      const confirmMsg = isPersonnel
+        ? `Supprimer définitivement le salon « ${active.name} » ainsi que TOUS ses dossiers et tâches ? Cette action est irréversible.`
+        : `Voulez-vous quitter et retirer le salon « ${active.name} » de cette application ? Ses dossiers et tâches locaux seront nettoyés de cet appareil. Vous pourrez toujours le rejoindre plus tard avec son code d'invitation ou son fichier .tdl.`;
+      const confirmBtnText = isPersonnel ? "Supprimer définitivement" : "Quitter ce salon";
+
       const confirmed = await showConfirmDialog({
-        title: "Supprimer le salon",
-        message: `Supprimer définitivement le salon « ${active.name} » ainsi que TOUS ses dossiers et tâches ? Cette action est irréversible.`,
-        confirmText: "Supprimer définitivement",
+        title: confirmTitle,
+        message: confirmMsg,
+        confirmText: confirmBtnText,
         cancelText: "Annuler",
         isDanger: true,
         icon: "trash"
@@ -686,14 +693,14 @@ function setupManageSalonModal() {
 
       const res = await api(`/api/salons/${active.id}`, 'DELETE');
       if (res && res.success) {
-        state.salons = state.salons.filter(s => s.id !== active.id);
-        // Basculer sur le premier salon
-        state.currentSalonId = state.salons[0].id;
+        state.salons = state.salons.filter(s => Number(s.id) !== Number(active.id));
+        state.currentSalonId = state.salons[0]?.id || 1;
         localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
         
         // Recharger les données
         const fresh = await api('/api/data', 'GET');
         if (fresh) {
+          state.salons = fresh.salons || [];
           state.folders = fresh.folders || [];
           state.tasks = fresh.tasks || [];
         }
@@ -704,8 +711,10 @@ function setupManageSalonModal() {
         selectQuickView('all');
 
         showNotificationDialog({
-          title: "Salon supprimé",
-          message: `Le salon « ${active.name} » a été supprimé.`,
+          title: isPersonnel ? "Salon supprimé" : "Salon quitté",
+          message: isPersonnel
+            ? `Le salon « ${active.name} » a été supprimé.`
+            : `Vous avez quitté le salon « ${active.name} ». Vous pouvez désormais le rejoindre à nouveau quand vous le souhaitez.`,
           icon: "check"
         });
       }
@@ -807,6 +816,21 @@ function setupImportSalonModal() {
 
   async function handleImportData(data) {
     const res = await api('/api/salons/import', 'POST', data);
+    if (res && res.already_joined) {
+      modal?.classList.add('hidden');
+      state.currentSalonId = res.id;
+      localStorage.setItem('todolist_active_salon_id', res.id);
+      renderSalons();
+      renderFolders();
+      selectQuickView('all');
+      sendSalonHeartbeat();
+      showNotificationDialog({
+        title: "Salon déjà rejoint",
+        message: `Vous êtes déjà membre du salon « ${res.name} » sur cet ordinateur !\n\nVous avez été basculé directement dessus. Si vous souhaitez le quitter ou le réinitialiser, ouvrez les paramètres du salon (« Gérer le salon »).`,
+        icon: "info"
+      });
+      return true;
+    }
     if (res && res.id) {
       modal?.classList.add('hidden');
       state.salons.push(res);

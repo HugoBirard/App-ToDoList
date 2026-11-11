@@ -350,22 +350,24 @@ class HandlersTestCase(unittest.TestCase):
             except Exception:
                 pass
 
-        # 6. POST /api/salons/import (via données JSON)
+        # 6. POST /api/salons/import (tentative d'import doublon du même salon)
         status, imp = self._request("POST", "/api/salons/import", exp)
         self.assertEqual(status, 201)
         self.assertEqual(imp["name"], "Equipe Dev Core")
+        self.assertTrue(imp.get("already_joined"))
 
-        # 6b. POST /api/salons/import (via code d'invitation Discord)
-        status, imp_code = self._request("POST", "/api/salons/import", {"code": exp_file["invite_code"]})
-        self.assertEqual(status, 201)
-        self.assertEqual(imp_code["name"], "Equipe Dev Core")
-
-        # 7. DELETE /api/salons/<id>
+        # 7. DELETE /api/salons/<id> (quitter le salon)
         status, del_res = self._request("DELETE", f"/api/salons/{salon_id}")
         self.assertEqual(status, 200)
         self.assertTrue(del_res["success"])
 
-        status, del_imp = self._request("DELETE", f"/api/salons/{imp['id']}")
+        # 8. POST /api/salons/import après avoir quitté le salon : autorisé et réimporté
+        status, imp_code = self._request("POST", "/api/salons/import", {"code": exp_file["invite_code"]})
+        self.assertEqual(status, 201)
+        self.assertEqual(imp_code["name"], "Equipe Dev Core")
+        self.assertFalse(imp_code.get("already_joined", False))
+
+        status, del_imp = self._request("DELETE", f"/api/salons/{imp_code['id']}")
         self.assertEqual(status, 200)
 
 if __name__ == "__main__":

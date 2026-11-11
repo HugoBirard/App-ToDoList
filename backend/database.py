@@ -31,6 +31,7 @@ def init_db(db_path=None):
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS salons (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            uid TEXT DEFAULT '',
             name TEXT NOT NULL,
             icon TEXT DEFAULT 'folder',
             color TEXT DEFAULT '#4f46e5',
@@ -113,6 +114,35 @@ def init_db(db_path=None):
                 )
         except Exception:
             pass
+
+    cursor.execute("PRAGMA table_info(salons)")
+    salon_cols = [r[1] for r in cursor.fetchall()]
+    if "uid" not in salon_cols:
+        cursor.execute("ALTER TABLE salons ADD COLUMN uid TEXT DEFAULT ''")
+    cursor.execute("SELECT id, uid FROM salons")
+    for s_row in cursor.fetchall():
+        if not s_row["uid"]:
+            import uuid
+            new_uid = f"sal_{s_row['id']}_{uuid.uuid4().hex[:12]}"
+            cursor.execute("UPDATE salons SET uid = ? WHERE id = ?", (new_uid, s_row["id"]))
+
+    # Nettoyage préventif des doublons éventuels de salons créés lors d'imports répétitifs antérieurs
+    cursor.execute("""
+        SELECT LOWER(TRIM(name)) as lower_name, MIN(id) as keep_id, COUNT(*) as cnt
+        FROM salons
+        GROUP BY LOWER(TRIM(name))
+        HAVING cnt > 1
+    """)
+    dup_groups = cursor.fetchall()
+    for d_row in dup_groups:
+        keep_id = d_row["keep_id"]
+        lower_name = d_row["lower_name"]
+        cursor.execute("SELECT id FROM salons WHERE LOWER(TRIM(name)) = ? AND id != ?", (lower_name, keep_id))
+        dup_ids = [r[0] for r in cursor.fetchall()]
+        for dup_id in dup_ids:
+            cursor.execute("DELETE FROM tasks WHERE folder_id IN (SELECT id FROM folders WHERE salon_id = ?)", (dup_id,))
+            cursor.execute("DELETE FROM folders WHERE salon_id = ?", (dup_id,))
+            cursor.execute("DELETE FROM salons WHERE id = ?", (dup_id,))
 
     cursor.execute("PRAGMA table_info(folders)")
     folder_cols = [r[1] for r in cursor.fetchall()]

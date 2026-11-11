@@ -192,10 +192,11 @@ class ServicesTestCase(unittest.TestCase):
         # Vérifier que le secret webhook n'a pas fuité dans l'export
         self.assertNotIn("discord_webhook_url", exp["salon"])
 
-        # 6. Importer ce salon comme nouveau salon
+        # 6. Tenter de rejoindre le même salon déjà présent sur ce PC : détection doublon
         imported = self.service.import_salon(exp)
         self.assertIsNotNone(imported)
-        self.assertNotEqual(imported["id"], created["id"])
+        self.assertEqual(imported["id"], created["id"])
+        self.assertTrue(imported.get("already_joined"))
         self.assertEqual(imported["name"], "Groupe Projet")
 
         # 6b. Exporter avec fichier et code d'invitation compressé
@@ -204,10 +205,23 @@ class ServicesTestCase(unittest.TestCase):
         self.assertIn("invite_code", exp_file)
         self.assertTrue(exp_file["invite_code"].startswith("TDL1_"))
 
-        # 6c. Importer via le code d'invitation Discord
+        # 6c. Tenter d'importer via le code d'invitation Discord pour le salon déjà présent
         imported_via_code = self.service.import_salon(exp_file["invite_code"])
         self.assertIsNotNone(imported_via_code)
+        self.assertEqual(imported_via_code["id"], created["id"])
+        self.assertTrue(imported_via_code.get("already_joined"))
         self.assertEqual(imported_via_code["name"], "Groupe Projet")
+
+        # 6d. Quitter / supprimer le salon
+        del_ok, _ = self.service.delete_salon(created["id"])
+        self.assertTrue(del_ok)
+        self.assertIsNone(self.service.get_salon(created["id"]))
+
+        # 6e. Rejoindre à nouveau le salon après l'avoir quitté : accepté et réimporté
+        reimported = self.service.import_salon(exp_file["invite_code"])
+        self.assertIsNotNone(reimported)
+        self.assertEqual(reimported["name"], "Groupe Projet")
+        self.assertFalse(reimported.get("already_joined", False))
 
         # 6d. Vérifier la préservation du nom exact pour tous les formats d'import
         imp_alt1 = self.service.import_salon({"salon_name": "Salon Alpha", "folders": []})
@@ -242,14 +256,14 @@ class ServicesTestCase(unittest.TestCase):
             except Exception:
                 pass
 
-        # 7. Mettre à jour le salon
-        up = self.service.update_salon(created["id"], {"name": "Groupe Projet V2"})
+        # 7. Mettre à jour le salon réimporté
+        up = self.service.update_salon(reimported["id"], {"name": "Groupe Projet V2"})
         self.assertEqual(up["name"], "Groupe Projet V2")
 
         # 8. Supprimer le salon
-        ok, _ = self.service.delete_salon(created["id"])
+        ok, _ = self.service.delete_salon(reimported["id"])
         self.assertTrue(ok)
-        self.assertIsNone(self.service.get_salon(created["id"]))
+        self.assertIsNone(self.service.get_salon(reimported["id"]))
 
         # Solid background
         f_solid = self.service.create_folder({
