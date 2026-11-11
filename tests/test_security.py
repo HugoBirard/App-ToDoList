@@ -145,7 +145,7 @@ class SecurityTestCase(unittest.TestCase):
     # ------------------------------------------------------------------------
 
     def test_admin_routes_blocked_for_remote_client_ip(self):
-        """Les routes sensibles (/api/storage/*, /api/sync/status) doivent refuser les IP distantes (403)."""
+        """Les routes sensibles (/api/storage/*, /api/sync/status, /api/system/*) doivent refuser les IP distantes (403)."""
         handler = TodoRequestHandler.__new__(TodoRequestHandler)
         handler.client_address = ("192.168.1.55", 54321)
         self.assertFalse(handler._is_local_client())
@@ -155,6 +155,10 @@ class SecurityTestCase(unittest.TestCase):
 
         handler.client_address = ("::1", 12345)
         self.assertTrue(handler._is_local_client())
+
+        # Vérifier que les nouvelles routes système sont protégées
+        self.assertIn("/api/system/update-status", TodoRequestHandler.LOCAL_ONLY_ROUTES)
+        self.assertIn("/api/system/apply-update", TodoRequestHandler.LOCAL_ONLY_ROUTES)
 
     # ------------------------------------------------------------------------
     # 🟠 FAILLE 4 : Masquage et protection des Webhooks Discord

@@ -203,6 +203,21 @@ class HandlersTestCase(unittest.TestCase):
         matching = [f["id"] for f in data["folders"] if f["id"] in (f1["id"], f2["id"])]
         self.assertEqual(matching, [f2["id"], f1["id"]])
 
+    def test_system_update_endpoints(self):
+        # GET /api/system/update-status
+        status, res = self._request("GET", "/api/system/update-status")
+        self.assertEqual(status, 200)
+        self.assertIn("is_git", res)
+        self.assertIn("update_available", res)
+
+        # POST /api/system/apply-update (mocked ou testé)
+        from unittest.mock import patch
+        with patch("backend.handlers.apply_update") as mock_apply:
+            mock_apply.return_value = {"success": True, "message": "OK", "new_commit": "1234567"}
+            status, res_post = self._request("POST", "/api/system/apply-update")
+            self.assertEqual(status, 200)
+            self.assertTrue(res_post.get("success"))
+
     def test_upload_background_endpoint(self):
         # 1x1 transparent PNG en base64
         tiny_png_b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -236,17 +251,43 @@ class HandlersTestCase(unittest.TestCase):
         main_bg = data["settings"].get("main_background", "")
         self.assertNotIn("folder-bg-42", main_bg)
 
-    def test_discord_test_endpoint_validation(self):
-        # Sans URL
+    def test_discord_test_endpoint(self):
+        from unittest.mock import patch
+
+        # 1. Sans URL et sans rien en base -> 400
         status, res = self._request("POST", "/api/discord/test", {"webhook_url": ""})
         self.assertEqual(status, 400)
         self.assertFalse(res.get("success"))
 
-        # URL non-discord
+        # 2. URL non-discord invalide -> 400
         status, res = self._request("POST", "/api/discord/test", {"webhook_url": "https://evil.com/webhook"})
         self.assertEqual(status, 400)
         self.assertFalse(res.get("success"))
 
+        # 3. Test avec URL valide mockée
+        valid_webhook = "https://discord.com/api/webhooks/1234567890/tokenABC"
+        with patch("backend.handlers.send_test_message") as mock_send:
+            mock_send.return_value = (True, "Message envoyé")
+            status, res = self._request("POST", "/api/discord/test", {
+                "webhook_url": valid_webhook,
+                "author_name": "Hugo"
+            })
+            self.assertEqual(status, 200)
+            self.assertTrue(res.get("success"))
+
+        # 4. Test avec webhook sauvegardé en base quand la requête envoie '••••'
+        status, _ = self._request("PUT", "/api/settings", {"discord_webhook_url": valid_webhook})
+        self.assertEqual(status, 200)
+
+        with patch("backend.handlers.send_test_message") as mock_send:
+            mock_send.return_value = (True, "Message envoyé")
+            status, res = self._request("POST", "/api/discord/test", {
+                "webhook_url": "••••ABC",
+                "use_saved": True
+            })
+            self.assertEqual(status, 200)
+            self.assertTrue(res.get("success"))
+            mock_send.assert_called_with(valid_webhook, author_name="Hugo")
 
 if __name__ == "__main__":
     unittest.main()

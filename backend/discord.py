@@ -23,14 +23,23 @@ DISCORD_RED = 0xEF4444
 DISCORD_PURPLE = 0x8B5CF6
 
 
+def clean_webhook_url(url: str) -> str:
+    """Nettoie et normalise une URL de webhook Discord."""
+    if not url or not isinstance(url, str):
+        return ""
+    u = url.strip().strip("'\"").strip()
+    if not u.startswith("https://") and not u.startswith("http://"):
+        if u.startswith("discord.com") or u.startswith("discordapp.com") or u.startswith("canary.discord.com") or u.startswith("ptb.discord.com"):
+            u = "https://" + u
+    return u
+
+
 def is_valid_discord_webhook(url: str) -> bool:
     """Vérifie que l'URL est une URL de Webhook Discord valide et sécurisée (anti-SSRF)."""
-    if not url or not isinstance(url, str):
+    clean_url = clean_webhook_url(url)
+    if not clean_url:
         return False
-    url = url.strip().strip("'\"")
-    if not url.startswith("https://") and (url.startswith("discord.com") or url.startswith("discordapp.com")):
-        url = "https://" + url
-    parsed = urllib.parse.urlparse(url)
+    parsed = urllib.parse.urlparse(clean_url)
     if parsed.scheme != "https":
         return False
     hostname = (parsed.hostname or "").lower()
@@ -48,12 +57,9 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
     Envoie une charge utile JSON vers un webhook Discord.
     Si async_mode est True, l'envoi s'exécute dans un thread détaché.
     """
-    clean_url = (webhook_url or "").strip().strip("'\"")
-    if not clean_url.startswith("https://") and (clean_url.startswith("discord.com") or clean_url.startswith("discordapp.com")):
-        clean_url = "https://" + clean_url
-
+    clean_url = clean_webhook_url(webhook_url)
     if not is_valid_discord_webhook(clean_url):
-        return False, "URL de webhook Discord non valide."
+        return False, "URL de webhook Discord non valide (ex: https://discord.com/api/webhooks/...)."
 
     data_bytes = json.dumps(payload).encode("utf-8")
 
@@ -83,9 +89,20 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
                 err_body = e.read().decode("utf-8")
             except Exception:
                 err_body = str(e)
+            logger.warning("Erreur HTTP Discord %d: %s", e.code, err_body)
+            if e.code == 404:
+                return False, "Erreur 404 : Ce webhook n'existe pas ou a été supprimé sur votre serveur Discord."
+            elif e.code == 401:
+                return False, "Erreur 401 : Le jeton de ce webhook Discord est invalide."
+            elif e.code == 429:
+                return False, "Erreur 429 : Trop de requêtes envoyées (Rate Limit). Veuillez réessayer dans un instant."
             return False, f"Erreur HTTP Discord {e.code} : {err_body}"
+        except urllib.error.URLError as e:
+            logger.warning("Erreur réseau Discord: %s", e)
+            return False, f"Impossible de joindre Discord : vérifiez votre connexion internet ({e.reason})"
         except Exception as e:
-            return False, f"Erreur réseau Discord : {str(e)}"
+            logger.warning("Erreur inattendue Discord: %s", e)
+            return False, f"Erreur technique : {str(e)}"
 
     if async_mode:
         t = threading.Thread(target=_do_send, daemon=True)

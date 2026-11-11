@@ -84,6 +84,28 @@
 
     <!-- Zone principale -->
     <main class="main-content">
+      <!-- Bannière de mise à jour automatique en 1 clic -->
+      <div id="update-notification-banner" class="update-banner hidden">
+        <div class="update-banner-content">
+          <div class="update-banner-left">
+            <span class="update-banner-icon">🚀</span>
+            <div class="update-banner-text">
+              <strong id="update-banner-title">Nouvelle version disponible !</strong>
+              <span id="update-banner-subtitle">Des nouveautés et améliorations sont prêtes à être installées.</span>
+            </div>
+          </div>
+          <div class="update-banner-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="update-banner-apply-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 13px; height: 13px;"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+              Mettre à jour en 1 clic
+            </button>
+            <button type="button" class="icon-btn-subtle" id="update-banner-dismiss-btn" title="Masquer la notification">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
       <header class="main-header">
         <div class="header-left">
           <button id="mobile-menu-btn" class="icon-btn mobile-only" title="Ouvrir le menu">
@@ -681,6 +703,11 @@
         <button type="button" class="modal-tab" id="modal-tab-btn-discord">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="feather-icon"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
           Discord & Équipe
+        </button>
+        <button type="button" class="modal-tab" id="modal-tab-btn-updates">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+          Mises à jour
+          <span id="tab-update-badge" class="tab-update-dot hidden" title="Mise à jour disponible !"></span>
         </button>
       </div>
       
@@ -1396,6 +1423,61 @@
               <li>Allez dans <strong>Intégrations</strong> &gt; <strong>Webhooks</strong> &gt; <strong>Nouveau Webhook</strong>.</li>
               <li>Cliquez sur <strong>Copier l'URL du Webhook</strong>, puis collez-la dans le champ ci-dessus et cliquez sur <em>Enregistrer</em> !</li>
             </ol>
+          </div>
+        </div>
+
+        <!-- ONGLET 5 : MISES À JOUR & VERSION -->
+        <div id="tab-pane-updates" class="tab-pane hidden">
+          <div class="sync-intro-banner">
+            <span class="sync-intro-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+            </span>
+            <div class="sync-intro-text">
+              <strong>Mise à jour automatique en 1 clic</strong> : Mettez à jour ToDoList en toute sérénité. Vos données, tâches et dossiers sont sauvegardés et conservés intacts à 100%.
+            </div>
+          </div>
+
+          <div class="sync-card update-card">
+            <div class="update-header-row">
+              <div class="update-status-header">
+                <span class="sub-label">État du logiciel</span>
+                <div id="update-status-msg" class="update-status-banner status-info">Recherche des informations de version...</div>
+              </div>
+              <div class="update-actions-top">
+                <button type="button" class="btn btn-secondary btn-sm" id="check-updates-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 13px; height: 13px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  Vérifier maintenant
+                </button>
+                <button type="button" class="btn btn-primary btn-sm hidden" id="apply-update-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 13px; height: 13px;"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Installer la mise à jour (1 clic)
+                </button>
+              </div>
+            </div>
+
+            <div class="sync-info-grid" style="margin-top: 14px;">
+              <div class="sync-info-item">
+                <span class="info-label">Version locale (Commit) :</span>
+                <span class="info-value" id="update-current-commit"><code class="commit-hash">Chargement...</code></span>
+              </div>
+              <div class="sync-info-item">
+                <span class="info-label">Branche active :</span>
+                <span class="info-value" id="update-current-branch">main</span>
+              </div>
+            </div>
+
+            <!-- Liste des nouveautés disponibles -->
+            <div id="update-commits-preview" class="update-commits-wrap hidden" style="margin-top: 14px;">
+              <span class="sub-label">Nouveautés prêtes à être installées :</span>
+              <ul id="update-commits-list" class="update-commits-list"></ul>
+            </div>
+          </div>
+
+          <div class="discord-tutorial-box" style="margin-top: 16px;">
+            <h4>🛡️ Sécurité &amp; Zéro perte de données</h4>
+            <p style="margin: 6px 0 0 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+              La mise à jour télécharge uniquement le nouveau code source. Votre base de données de tâches (<code>data/todolist.db</code>) n'est jamais écrasée. Une sauvegarde préventive est automatiquement créée avant chaque mise à jour.
+            </p>
           </div>
         </div>
       </div>

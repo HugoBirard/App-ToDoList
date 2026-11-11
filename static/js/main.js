@@ -35,6 +35,7 @@ import {
   initServerUI, 
   updateServerStatusUI 
 } from './components/server.js';
+import { initUpdateUI } from './components/updater.js';
 import { 
   openAddFolderModal, 
   closeFolderModal, 
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTitlebarOptions();
   initCustomBackgroundUpload();
   initFolderBackgroundUpload();
+  initUpdateUI();
   setupEventListeners();
 });
 

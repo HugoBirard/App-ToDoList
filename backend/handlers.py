@@ -15,6 +15,7 @@ from http.server import SimpleHTTPRequestHandler
 from .config import STATIC_DIR, DEFAULT_PORT, get_lan_ips
 from .services import TodoService
 from .discord import send_test_message
+from .updater import check_for_updates, apply_update
 
 logger = logging.getLogger("todolist.http")
 
@@ -35,6 +36,8 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         "/api/storage/import",
         "/api/storage/export",
         "/api/sync/status",
+        "/api/system/update-status",
+        "/api/system/apply-update",
     }
 
     def __init__(self, *args, **kwargs):
@@ -218,6 +221,11 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 })
                 return
 
+            # GET /api/system/update-status
+            if path == "/api/system/update-status":
+                self.send_json(check_for_updates())
+                return
+
             super().do_GET()
         except Exception:
             logger.exception("Erreur sur %s %s", self.command, self.path)
@@ -327,25 +335,21 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
 
             # POST /api/discord/test
             if path == "/api/discord/test":
-                webhook_url = (payload.get("webhook_url") or "").strip().strip("'\"")
-                author_name = (payload.get("author_name") or "Utilisateur ToDoList").strip()
-                
-                # Si l'URL n'est pas transmise ou masquée (••••), aller chercher l'URL réelle en base
-                if not webhook_url or webhook_url.startswith("••••"):
-                    try:
-                        conn = self.service._conn()
-                        cur = conn.cursor()
-                        cur.execute("SELECT value FROM settings WHERE key = 'discord_webhook_url'")
-                        row = cur.fetchone()
-                        conn.close()
-                        if row and row["value"]:
-                            webhook_url = str(row["value"]).strip()
-                    except Exception:
-                        pass
+                webhook_url = (payload.get("webhook_url") or "").strip()
+                # Si l'URL envoyée est vide ou masquée, utiliser l'URL stockée en base
+                if not webhook_url or webhook_url.startswith("••••") or payload.get("use_saved"):
+                    webhook_url = self.service.get_raw_setting("discord_webhook_url") or ""
 
                 if not webhook_url:
-                    self.send_json({"success": False, "message": "Aucune URL de webhook Discord n'a été trouvée."}, status=400)
+                    self.send_json({
+                        "success": False,
+                        "message": "Aucune URL de webhook configurée. Veuillez saisir l'URL de votre salon Discord."
+                    }, status=400)
                     return
+
+                author_name = (payload.get("author_name") or "").strip()
+                if not author_name:
+                    author_name = self.service.get_raw_setting("discord_author_name") or "Utilisateur ToDoList"
 
                 ok, msg = send_test_message(webhook_url, author_name=author_name)
                 if ok and not webhook_url.startswith("••••"):
@@ -359,6 +363,12 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     except Exception:
                         pass
                 self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
+                return
+
+            # POST /api/system/apply-update
+            if path == "/api/system/apply-update":
+                res = apply_update(db_path=self.db_path)
+                self.send_json(res, status=200 if res.get("success") else 500)
                 return
 
             # POST /api/upload/background (Upload d'image personnalisée de fond)

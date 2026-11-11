@@ -58,17 +58,19 @@ export function initSyncUI(loadDataCallback) {
   const tabSyncBtn = document.getElementById('modal-tab-btn-sync');
   const tabServerBtn = document.getElementById('modal-tab-btn-server');
   const tabDiscordBtn = document.getElementById('modal-tab-btn-discord');
+  const tabUpdatesBtn = document.getElementById('modal-tab-btn-updates');
 
   const paneAppearance = document.getElementById('tab-pane-appearance');
   const paneSync = document.getElementById('tab-pane-sync');
   const paneServer = document.getElementById('tab-pane-server');
   const paneDiscord = document.getElementById('tab-pane-discord');
+  const paneUpdates = document.getElementById('tab-pane-updates');
   const themeActions = document.getElementById('theme-modal-actions');
 
   // Gestion des onglets
   const switchTab = (activeTab) => {
-    [tabAppearanceBtn, tabSyncBtn, tabServerBtn, tabDiscordBtn].forEach(b => b?.classList.remove('active'));
-    [paneAppearance, paneSync, paneServer, paneDiscord].forEach(p => p?.classList.add('hidden'));
+    [tabAppearanceBtn, tabSyncBtn, tabServerBtn, tabDiscordBtn, tabUpdatesBtn].forEach(b => b?.classList.remove('active'));
+    [paneAppearance, paneSync, paneServer, paneDiscord, paneUpdates].forEach(p => p?.classList.add('hidden'));
 
     if (activeTab === 'appearance') {
       tabAppearanceBtn?.classList.add('active');
@@ -87,6 +89,10 @@ export function initSyncUI(loadDataCallback) {
       tabDiscordBtn?.classList.add('active');
       paneDiscord?.classList.remove('hidden');
       if (themeActions) themeActions.style.display = 'none';
+    } else if (activeTab === 'updates') {
+      tabUpdatesBtn?.classList.add('active');
+      paneUpdates?.classList.remove('hidden');
+      if (themeActions) themeActions.style.display = 'none';
     }
   };
 
@@ -94,6 +100,7 @@ export function initSyncUI(loadDataCallback) {
   if (tabSyncBtn) tabSyncBtn.onclick = () => switchTab('sync');
   if (tabServerBtn) tabServerBtn.onclick = () => switchTab('server');
   if (tabDiscordBtn) tabDiscordBtn.onclick = () => switchTab('discord');
+  if (tabUpdatesBtn) tabUpdatesBtn.onclick = () => switchTab('updates');
 
   // Copier le chemin actif
   const copyBtn = document.getElementById('sync-copy-path-btn');
