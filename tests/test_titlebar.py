@@ -15,8 +15,11 @@ from backend.window_gtk4 import (
 
 class TestTitlebarCustomization(unittest.TestCase):
     def test_all_styles_defined(self):
-        """Vérifie que les 6 styles principaux sont définis avec nom, description et css."""
-        expected_styles = ["transparent", "match-bg", "glass", "neon", "minimal", "classic"]
+        """Vérifie que les 14 styles (6 essentiels + 8 subcultures/artistiques dont lava) sont définis."""
+        expected_styles = [
+            "transparent", "match-bg", "glass", "neon", "minimal", "classic",
+            "street", "techno", "cyberpunk", "y2k", "arcade", "luxury", "zen", "lava"
+        ]
         for style in expected_styles:
             self.assertIn(style, TITLEBAR_STYLES)
             self.assertIn("name", TITLEBAR_STYLES[style])

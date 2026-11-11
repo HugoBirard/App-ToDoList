@@ -52,11 +52,24 @@ export function initDiscordUI() {
   if (enabledToggle && badge) {
     enabledToggle.addEventListener('change', () => {
       if (enabledToggle.checked) {
-        badge.textContent = 'Prêt à activer';
+        badge.textContent = 'Actif (Connecté)';
         badge.className = 'sync-badge shared';
       } else {
         badge.textContent = 'Inactif';
         badge.className = 'sync-badge local';
+      }
+    });
+  }
+
+  // Activer automatiquement le toggle dès que l'utilisateur commence à taper ou colle son URL
+  const urlInputEl = document.getElementById('discord-webhook-url');
+  if (urlInputEl && enabledToggle && badge) {
+    urlInputEl.addEventListener('input', () => {
+      const val = urlInputEl.value.trim();
+      if (val && !val.startsWith('••••')) {
+        enabledToggle.checked = true;
+        badge.textContent = 'Prêt à connecter';
+        badge.className = 'sync-badge shared';
       }
     });
   }
@@ -66,23 +79,30 @@ export function initDiscordUI() {
     testBtn.onclick = async () => {
       const urlInput = document.getElementById('discord-webhook-url');
       const authorInput = document.getElementById('discord-author-name');
-      const webhookUrl = (urlInput?.value || '').trim();
+      let webhookUrl = (urlInput?.value || '').trim().replace(/['"]/g, '');
       const authorName = (authorInput?.value || '').trim() || 'Équipe';
 
-      if (!webhookUrl) {
-        showFeedback('Veuillez renseigner une URL de Webhook Discord.', 'error');
+      // Si l'utilisateur n'a rien mis dans le champ, vérifier si une URL est déjà enregistrée en base
+      const hasConfigured = state.settings?.discord_webhook_configured || 
+        (state.settings?.discord_webhook_url && state.settings.discord_webhook_url.startsWith('••••'));
+
+      if (!webhookUrl && !hasConfigured) {
+        showFeedback('Veuillez coller l\'URL de Webhook de votre salon Discord.', 'error');
         return;
       }
 
-      if (webhookUrl.startsWith('••••')) {
-        showFeedback('Veuillez saisir l\'URL complète du Webhook pour effectuer le test.', 'error');
-        return;
+      // Si l'URL commence sans https://, l'ajouter
+      if (webhookUrl && !webhookUrl.startsWith('••••') && !webhookUrl.startsWith('http://') && !webhookUrl.startsWith('https://')) {
+        webhookUrl = 'https://' + webhookUrl;
+        if (urlInput) urlInput.value = webhookUrl;
       }
 
-      if (!webhookUrl.startsWith('https://discord.com/api/webhooks/') && 
-          !webhookUrl.startsWith('https://discordapp.com/api/webhooks/')) {
-        showFeedback('L\'URL doit commencer par https://discord.com/api/webhooks/...', 'error');
-        return;
+      if (webhookUrl && !webhookUrl.startsWith('••••')) {
+        const lower = webhookUrl.toLowerCase();
+        if (!lower.includes('discord.com/api/webhooks/') && !lower.includes('discordapp.com/api/webhooks/')) {
+          showFeedback('L\'URL doit provenir de Discord (ex : https://discord.com/api/webhooks/...)', 'error');
+          return;
+        }
       }
 
       const origText = testBtn.innerHTML;
@@ -96,7 +116,17 @@ export function initDiscordUI() {
         });
 
         if (res && res.success) {
-          showFeedback('✅ Message test envoyé avec succès sur votre salon Discord !', 'success');
+          showFeedback('✅ Test réussi ! Le message a bien été reçu sur votre salon Discord.', 'success');
+          // Mettre à jour l'UI locale
+          if (enabledToggle) enabledToggle.checked = true;
+          if (badge) {
+            badge.textContent = 'Actif (Connecté)';
+            badge.className = 'sync-badge shared';
+          }
+          if (state.settings) {
+            state.settings.discord_enabled = '1';
+            state.settings.discord_webhook_configured = true;
+          }
         } else {
           showFeedback(`❌ Échec de l'envoi : ${res?.message || 'Erreur réseau ou URL invalide'}`, 'error');
         }
@@ -133,7 +163,11 @@ export function initDiscordUI() {
 
       // Si l'utilisateur n'a pas ré-écrit l'URL masquée, ne pas écraser le secret côté serveur
       if (!rawWebhookUrl.startsWith('••••')) {
-        payload.discord_webhook_url = rawWebhookUrl;
+        let clean = rawWebhookUrl.replace(/['"]/g, '').trim();
+        if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
+          clean = 'https://' + clean;
+        }
+        payload.discord_webhook_url = clean;
       }
 
       const res = await api('/api/settings', 'PUT', payload);
@@ -141,7 +175,11 @@ export function initDiscordUI() {
         state.settings = { ...(state.settings || {}), ...res };
         updateDiscordUIFromState();
         showFeedback('💾 Configuration Discord enregistrée avec succès !', 'success');
-        showNotificationDialog('Intégration Discord', 'Vos réglages Discord ont été enregistrés avec succès. Les membres de votre groupe de projet recevront les notifications sur votre salon Discord.');
+        showNotificationDialog({
+          title: 'Intégration Discord',
+          message: 'Vos réglages Discord ont été enregistrés avec succès. Les membres de votre groupe de projet recevront les notifications sur votre salon Discord.',
+          icon: 'check-circle'
+        });
       } else {
         showFeedback('❌ Erreur lors de l\'enregistrement des réglages.', 'error');
       }

@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- Filtre grain et texture grunge urbain -->
+    <filter id="street-noise" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" result="noise"/>
+      <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 0.18 0"/>
+      <feBlend mode="multiply" in="SourceGraphic" in2="noise"/>
+    </filter>
+
+    <!-- Filtre de spray & drip -->
+    <filter id="spray-glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Motif de mur de briques sombres -->
+    <pattern id="brick-pattern" width="120" height="60" patternUnits="userSpaceOnUse">
+      <!-- Fond mortier sombre -->
+      <rect width="120" height="60" fill="#0d0e12"/>
+      
+      <!-- Rangée 1 : 2 briques -->
+      <rect x="2" y="2" width="116" height="26" rx="2" fill="#15171e" stroke="#0a0a0d" stroke-width="1.5"/>
+      <line x1="10" y1="8" x2="45" y2="8" stroke="#1d202a" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="60" y1="20" x2="110" y2="20" stroke="#101116" stroke-width="1.5"/>
+      
+      <!-- Rangée 2 : briques en quinconce -->
+      <rect x="-56" y="32" width="112" height="26" rx="2" fill="#14151b" stroke="#0a0a0d" stroke-width="1.5"/>
+      <rect x="62" y="32" width="112" height="26" rx="2" fill="#181a23" stroke="#0a0a0d" stroke-width="1.5"/>
+      <line x1="75" y1="38" x2="115" y2="38" stroke="#212431" stroke-width="1.5" stroke-linecap="round"/>
+      
+      <!-- Éclats et texture brique aléatoire -->
+      <circle cx="34" cy="18" r="1.5" fill="#252936" opacity="0.6"/>
+      <circle cx="92" cy="46" r="1" fill="#0a0b0e"/>
+      <circle cx="8" cy="44" r="1.8" fill="#262935" opacity="0.4"/>
+    </pattern>
+
+    <!-- Dégradé d'ambiance d'éclairage urbain nocturne -->
+    <radialGradient id="street-vignette" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1c1f2a" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#090a0d" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#040406" stop-opacity="0.98"/>
+    </radialGradient>
+
+    <!-- Dégradé volt fluo -->
+    <linearGradient id="volt-fade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ccff00"/>
+      <stop offset="100%" stop-color="#a3e635"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base mur de briques complet -->
+  <rect width="1920" height="1080" fill="url(#brick-pattern)" />
+
+  <!-- Éclairage dramatique et ombres portées -->
+  <rect width="1920" height="1080" fill="url(#street-vignette)" />
+
+  <!-- GRAFFITIS & TAGS STREET CULTURE EN ARRIÈRE-PLAN -->
+
+  <!-- 1. Grand Tag Graff "DO IT NOW // GRIND" en haut à droite -->
+  <g transform="translate(1180, 80) rotate(-4)" opacity="0.32" filter="url(#spray-glow)">
+    <!-- Ombre de spray noir -->
+    <text x="5" y="115" font-family="'Impact', 'Arial Black', sans-serif" font-size="110" font-weight="900" fill="#000000" letter-spacing="4">NO DAYS OFF</text>
+    <!-- Lettrage jaune volt fluo brut avec drips -->
+    <text x="0" y="110" font-family="'Impact', 'Arial Black', sans-serif" font-size="110" font-weight="900" fill="#ccff00" letter-spacing="4">NO DAYS OFF</text>
+    <path d="M 50 120 Q 52 170 50 210 Q 51 225 50 230" stroke="#ccff00" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <circle cx="50" cy="235" r="3" fill="#ccff00"/>
+    <path d="M 280 120 Q 282 160 279 195" stroke="#ccff00" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="279" cy="200" r="2.5" fill="#ccff00"/>
+    <path d="M 490 120 Q 488 180 491 240 Q 492 250 491 255" stroke="#ccff00" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+    <circle cx="491" cy="260" r="3.5" fill="#ccff00"/>
+    <!-- Couronne streetwear / basquiat dessus -->
+    <path d="M 30 10 L 45 40 L 70 15 L 95 40 L 110 10 L 110 50 L 30 50 Z" fill="none" stroke="#ccff00" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 2. Tag au marqueur sauvage "TODOLIST" en bas à gauche -->
+  <g transform="translate(120, 780) rotate(8)" opacity="0.35">
+    <!-- Traits de spray d'arrière plan -->
+    <path d="M -30 60 Q 250 -40 520 40" stroke="#ff0055" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <text x="0" y="60" font-family="'Impact', sans-serif" font-size="95" font-style="italic" font-weight="900" fill="#f8fafc" letter-spacing="3">GET IT DONE.</text>
+    <line x1="-10" y1="85" x2="480" y2="85" stroke="#ccff00" stroke-width="6" stroke-linecap="round"/>
+    <line x1="20" y1="98" x2="380" y2="98" stroke="#ccff00" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 3. Pochoir urbain Stencil Skull / Action au centre gauche -->
+  <g transform="translate(80, 220)" opacity="0.25">
+    <!-- Cadre de stencil pochoir découpé -->
+    <rect x="0" y="0" width="220" height="280" fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="16, 8" opacity="0.4"/>
+    <!-- Logo pochoir éclair / volt -->
+    <polygon points="120,30 60,140 110,140 90,250 170,120 120,120" fill="#ccff00" />
+    <text x="25" y="270" font-family="monospace" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="4">RAW URBAN SPEC</text>
+  </g>
+
+  <!-- 4. Éclaboussures de peinture (Paint Splatters) -->
+  <g fill="#ccff00" opacity="0.35">
+    <circle cx="850" cy="180" r="14"/>
+    <circle cx="875" cy="165" r="5"/>
+    <circle cx="830" cy="195" r="4"/>
+    <circle cx="865" cy="210" r="6"/>
+    <circle cx="890" cy="225" r="3"/>
+    <circle cx="840" cy="150" r="3.5"/>
+    <path d="M 850 185 Q 854 230 852 270 Q 853 285 851 295" stroke="#ccff00" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="851" cy="300" r="2.5"/>
+  </g>
+
+  <g fill="#ff0055" opacity="0.28">
+    <circle cx="1520" cy="720" r="12"/>
+    <circle cx="1540" cy="705" r="4"/>
+    <circle cx="1505" cy="735" r="5"/>
+    <circle cx="1535" cy="745" r="3"/>
+    <path d="M 1520 725 Q 1522 765 1519 805" stroke="#ff0055" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <circle cx="1519" cy="810" r="2"/>
+  </g>
+
+  <!-- 5. Sticker Street collé en bas à droite -->
+  <g transform="translate(1620, 840) rotate(-12)" opacity="0.45">
+    <!-- Papier adhésif usé -->
+    <polygon points="0,0 220,15 210,130 -10,115" fill="#facc15" stroke="#ca8a04" stroke-width="2"/>
+    <rect x="15" y="20" width="180" height="85" fill="#000000"/>
+    <text x="30" y="55" font-family="'Impact', sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="2">PRIORITY</text>
+    <text x="30" y="85" font-family="'Impact', sans-serif" font-size="32" font-weight="900" fill="#ccff00" letter-spacing="3">#01 HEAVY</text>
+    <!-- Coins de scotch déchiré -->
+    <polygon points="-15,-5 25,-8 20,15 -18,12" fill="#ffffff" opacity="0.5"/>
+    <polygon points="190,110 230,115 225,135 185,130" fill="#ffffff" opacity="0.5"/>
+  </g>
+</svg>
