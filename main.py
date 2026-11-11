@@ -57,33 +57,46 @@ def start_server_thread(port):
 
 
 def main():
-    # 1. Enregistrer le raccourci dans l'environnement de bureau
-    install_desktop_shortcuts()
+    try:
+        # 1. Enregistrer le raccourci dans l'environnement de bureau
+        install_desktop_shortcuts()
+    except Exception as e:
+        logger.warning("Avertissement raccourci: %s", e)
 
     # 2. Gestion du serveur local
     app_url = f"http://127.0.0.1:{DEFAULT_PORT}"
     server_instance = None
 
-    if is_server_ready(app_url):
-        print(f"Serveur ToDoList déjà actif sur {app_url}.")
-    else:
-        port = find_free_port(DEFAULT_PORT)
-        app_url = f"http://127.0.0.1:{port}"
-        print(f"Démarrage du serveur local sur {app_url}...")
-        server_instance = start_server_thread(port)
-
-        for _ in range(30):
-            if is_server_ready(app_url):
-                break
-            time.sleep(0.1)
-
-    # 3. Ouvrir la fenêtre autonome et attendre sa fermeture
     try:
+        if is_server_ready(app_url):
+            print(f"Serveur ToDoList déjà actif sur {app_url}.")
+        else:
+            port = find_free_port(DEFAULT_PORT)
+            app_url = f"http://127.0.0.1:{port}"
+            print(f"Démarrage du serveur local sur {app_url}...")
+            server_instance = start_server_thread(port)
+
+            for _ in range(30):
+                if is_server_ready(app_url):
+                    break
+                time.sleep(0.1)
+
+        # 3. Ouvrir la fenêtre autonome et attendre sa fermeture
         launch_app_window(app_url, sys.argv[1:])
+    except Exception as e:
+        import traceback
+        err_details = traceback.format_exc()
+        logger.error("Erreur critique au démarrage: %s", err_details)
+        from backend.window import log
+        log(f"Erreur critique au démarrage: {err_details}")
+        sys.stderr.write(f"Erreur ToDoList: {e}\n")
     finally:
         if server_instance:
             print("Fermeture de l'application et arrêt du serveur...")
-            server_instance.shutdown()
+            try:
+                server_instance.shutdown()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
