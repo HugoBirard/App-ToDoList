@@ -502,6 +502,506 @@ TITLEBAR_STYLES = {
                 border-top-right-radius: 0;
             }
         """
+    },
+    "street": {
+        "name": "Streetwear Acid Volt",
+        "description": "Asphalte brut texturé avec liseré jaune volt fluo électrique (#ccff00)",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #101114;
+                background-color: #101114;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: #121318;
+                background-color: #121318;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #ccff00;
+                box-shadow: 0 3px 18px rgba(204, 255, 0, 0.35);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #ccff00;
+                font-weight: 800;
+                font-size: 13px;
+                letter-spacing: 1.2px;
+                text-shadow: 0 0 10px rgba(204, 255, 0, 0.4);
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(204, 255, 0, 0.08);
+                color: #ccff00;
+                border: 1px solid rgba(204, 255, 0, 0.25);
+                border-radius: 4px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: #ccff00;
+                color: #000000;
+                border-color: #ccff00;
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+                border-color: #ef4444;
+            }
+        """
+    },
+    "techno": {
+        "name": "Berlin Techno Monochrome",
+        "description": "Noir rave profond avec ligne laser argent brossé et boutons carrés minimalistes",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #050505;
+                background-color: #050505;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: #08080a;
+                background-color: #08080a;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+                box-shadow: 0 2px 14px rgba(255, 255, 255, 0.12);
+                min-height: 40px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #ffffff;
+                font-weight: 700;
+                font-size: 12px;
+                letter-spacing: 2.2px;
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: transparent;
+                color: #cbd5e1;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+                min-width: 26px;
+                min-height: 26px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: #ffffff;
+                color: #000000;
+                border-color: #ffffff;
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+                border-color: #ef4444;
+            }
+        """
+    },
+    "cyberpunk": {
+        "name": "Cyberpunk Neo-Tokyo",
+        "description": "Double halo néon magenta (#ff007f) et cyan électrique (#00f5d4)",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #090214;
+                background-color: #090214;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(90deg, #110322 0%, #080a1c 100%);
+                background-color: #0d0418;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #ff007f;
+                box-shadow: 0 4px 20px rgba(255, 0, 127, 0.45);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #00f5d4;
+                font-weight: 800;
+                font-size: 13px;
+                letter-spacing: 1.4px;
+                text-shadow: 0 0 10px rgba(0, 245, 212, 0.6);
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(255, 0, 127, 0.12);
+                color: #ff007f;
+                border: 1px solid rgba(255, 0, 127, 0.35);
+                border-radius: 6px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: #ff007f;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(255, 0, 127, 0.8);
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #00f5d4;
+                color: #000000;
+                border-color: #00f5d4;
+                box-shadow: 0 0 10px rgba(0, 245, 212, 0.8);
+            }
+        """
+    },
+    "y2k": {
+        "name": "Y2K Chrome Iridescent",
+        "description": "Reflet métal liquide et lilas holographique aux touches argentées",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #13141f;
+                background-color: #13141f;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(180deg, rgba(38, 42, 66, 0.95) 0%, rgba(18, 19, 32, 0.95) 100%);
+                background-color: #161726;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #d946ef;
+                box-shadow: 0 3px 18px rgba(217, 70, 239, 0.35);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #e0e7ff;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 0.8px;
+                text-shadow: 0 0 8px rgba(217, 70, 239, 0.4);
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(217, 70, 239, 0.12);
+                color: #e0e7ff;
+                border: 1px solid rgba(217, 70, 239, 0.28);
+                border-radius: 8px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: rgba(217, 70, 239, 0.32);
+                border-color: #d946ef;
+                color: #ffffff;
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+            }
+        """
+    },
+    "arcade": {
+        "name": "80s Retro Synthwave",
+        "description": "Ambiance arcade vintage avec halo rose rétro et orange coucher de soleil",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #140320;
+                background-color: #140320;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(90deg, #1f0430 0%, #2b082e 100%);
+                background-color: #1a0426;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #f43f5e;
+                box-shadow: 0 3px 18px rgba(244, 63, 94, 0.4);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #fb7185;
+                font-weight: 800;
+                font-size: 13px;
+                letter-spacing: 1.2px;
+                text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(244, 63, 94, 0.12);
+                color: #fecdd3;
+                border: 1px solid rgba(244, 63, 94, 0.3);
+                border-radius: 6px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: #f43f5e;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #fb923c;
+                color: #ffffff;
+                border-color: #fb923c;
+            }
+        """
+    },
+    "luxury": {
+        "name": "Midnight Gold Executive",
+        "description": "Noir onyx satiné rehaussé d'un fin liseré or champagne brossé (#f59e0b)",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #09090b;
+                background-color: #09090b;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(180deg, #141318 0%, #0d0d10 100%);
+                background-color: #100f14;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 1px solid #d97706;
+                box-shadow: 0 2px 16px rgba(217, 119, 6, 0.32);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #fef3c7;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 1.5px;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(245, 158, 11, 0.08);
+                color: #fde68a;
+                border: 1px solid rgba(245, 158, 11, 0.22);
+                border-radius: 6px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: rgba(245, 158, 11, 0.25);
+                border-color: #f59e0b;
+                color: #ffffff;
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+            }
+        """
+    },
+    "zen": {
+        "name": "Nordic Zen Forest",
+        "description": "Vert sauge scandinave profond avec doux liseré thé matcha apaisant (#34d399)",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #06110e;
+                background-color: #06110e;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(180deg, #0f221c 0%, #0a1713 100%);
+                background-color: #0b1915;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #34d399;
+                box-shadow: 0 3px 16px rgba(52, 211, 153, 0.28);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #a7f3d0;
+                font-weight: 600;
+                font-size: 13px;
+                letter-spacing: 0.8px;
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(52, 211, 153, 0.08);
+                color: #d1fae5;
+                border: 1px solid rgba(52, 211, 153, 0.2);
+                border-radius: 6px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: rgba(52, 211, 153, 0.25);
+                border-color: #34d399;
+                color: #ffffff;
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+            }
+        """
     }
 }
 

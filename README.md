@@ -68,13 +68,28 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
 - Le backend calcule la différence de temps depuis la dernière réinitialisation (`last_reset_at + 7 jours`). Dès que le délai est atteint, les tâches du dossier repassent automatiquement à 0% et non cochées.
 - Bouton de **réinitialisation manuelle instantanée** disponible à tout moment pour relancer une routine sans attendre les 7 jours.
 
-### 5. 🎨 Thèmes, Arrière-plans & Ergonomie Centrée
-- **Thème Sombre Pro** par défaut, aux finitions soignées (glassmorphism, bordures semi-transparentes).
-- Personnalisation complète de l'arrière-plan principal ou par dossier :
+### 5. 🎨 Univers Visuels, Subcultures & Barres Système GTK4
+- **13 Thèmes & Ambiances complètes** au choix (avec accents, animations et styles de fenêtres assortis) :
+  - **Univers Artistiques & Subcultures** :
+    - ⚡ **Streetwear & Acid Volt** (`street`) : Béton brut, jaune fluo acide #ccff00 découpé, vibe brutaliste underground.
+    - 🎛️ **Berlin Techno Warehouse** (`techno`) : Minimalisme laser monochrome #ffffff, noir profond clubbing industriel.
+    - 🌆 **Neo-Tokyo Cyberpunk** (`cyberpunk`) : Néon magenta vibrant #ff007f, cyan électrique, halo lumineux style HUD 2077.
+    - 💿 **Chrome & Y2K Iridescent** (`y2k`) : Reflets métal liquide, lilas chrome #e879f9 et bleu futuriste an 2000.
+    - 🕹️ **80s Retro Synthwave** (`arcade`) : Coucher de soleil synthwave #f43f5e, chaleur néon et bornes d'arcade.
+    - 👑 **Midnight Gold Executive** (`luxury`) : Or pur brossé champagne #f59e0b sur noir onyx feutré haut de gamme.
+    - 🌲 **Nordic Zen Mist** (`zen`) : Thé matcha apaisant #34d399, sérénité des forêts et brumes scandinaves.
+  - **Essentiels Pro & Épurés** :
+    - 🖤 **Noir & Gris Pro** (`pro-dark`, défaut) : Glassmorphism équilibré et finitions soignées.
+    - ⬛ **Carbone Pur** (`carbon`) : Noir mat profond et teintes titane.
+    - 🌌 **Nébuleuse Nuit** (`midnight`) : Dégradé bleu nuit cosmique.
+    - 🪨 **Ardoise Bleutée** (`slate`) : Nuance bleu acier élégante.
+    - 🌿 **Émeraude Sombre** (`emerald`) : Teintes végétales profondes.
+    - 🔮 **Améthyste Sombre** (`violet`) : Nuances pourpres nocturnes.
+- **Personnalisation sur mesure** :
   - **Dégradé personnalisé** avec 2 couleurs et sélection de l'angle (45°, 90°, 135°, 180°).
   - **Couleur unie** avec nuancier direct.
-  - Presets prêts à l'emploi (Noir & Gris Pro, Carbone, Bleu Nuit, Ardoise, Émeraude, Améthyste).
-- **Interface harmonieuse & centrée** : Les sélecteurs de choix, boutons d'angles, onglets et boutons d'action sont centrés pour un confort visuel optimal sans risque de déborder de l'écran.
+  - **Fond individuel par dossier** pour distinguer immédiatement chaque projet.
+- **Barres de titre système GTK4 CSD natives** : 13 styles de barres supérieures interchangeables en 1 clic dans l'application ou en argument CLI (`--titlebar street`, `techno`, `cyberpunk`, `y2k`, `arcade`, `luxury`, `zen`, `transparent`, `match-bg`, `glass`, `neon`, `minimal`, `classic`).
 
 ### 6. 🌐 Synchronisation Multi-PC & Partage Cloud
 - **Partagez facilement vos listes entre plusieurs PC** en sélectionnant un dossier synchronisé (Nextcloud, Dropbox, Syncthing, Google Drive ou partage réseau SMB/NFS).
@@ -327,12 +342,22 @@ Vous disposez de 3 modes selon votre usage :
 > **Personnalisation de la barre de titre système (GTK4 / Wayland) :**
 > Vous pouvez prévisualiser ou forcer le style de la barre supérieure directement au lancement ou dans l'onglet **Options ⚙️ > Apparence** :
 > ```bash
-> ./start.sh --titlebar transparent   # Transparente & intégrée (Style Spotify / Discord / VS Code)
-> ./start.sh --titlebar match-bg      # Même couleur sombre que le fond actif de l'application
-> ./start.sh --titlebar glass         # Verre fumé translucide avec reflets (Glassmorphism)
-> ./start.sh --titlebar neon          # Liseré cyber indigo lumineux avec halo néon
-> ./start.sh --titlebar minimal       # Barre compacte (28px) sans titre pour un écran 100% utile
-> ./start.sh --titlebar classic       # Thème système standard GNOME Adwaita
+> # Nouveaux Univers Artistiques & Subcultures
+> ./start.sh --titlebar street       # Streetwear Acid Volt (Jaune fluo découpé & bold)
+> ./start.sh --titlebar techno       # Berlin Techno Laser (Ligne blanche ultra-fine & boutons carrés)
+> ./start.sh --titlebar cyberpunk    # Neo-Tokyo Cyberpunk (Bordure néon magenta & lueur cyan)
+> ./start.sh --titlebar y2k          # Chrome & Y2K Iridescent (Métal liquide lilas & reflets)
+> ./start.sh --titlebar arcade       # 80s Retro Synthwave (Coucher de soleil magenta & arcade)
+> ./start.sh --titlebar luxury       # Midnight Gold Executive (Or brossé champagne & onyx)
+> ./start.sh --titlebar zen          # Nordic Zen Mist (Vert matcha doux & brume)
+>
+> # Essentiels Pro & Épurés
+> ./start.sh --titlebar transparent  # Transparente & intégrée (Style Spotify / Discord)
+> ./start.sh --titlebar match-bg     # Même couleur sombre que le fond actif de l'application
+> ./start.sh --titlebar glass        # Verre fumé translucide avec reflets (Glassmorphism)
+> ./start.sh --titlebar neon         # Liseré cyber indigo lumineux avec halo néon
+> ./start.sh --titlebar minimal      # Barre compacte (28px) sans titre pour un écran 100% utile
+> ./start.sh --titlebar classic      # Thème système standard GNOME Adwaita
 > ```
 
 #### Mode B : Serveur d'Équipe partagé sur le réseau local

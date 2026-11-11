@@ -2,9 +2,9 @@
  * Composant de gestion des fenêtres modales (Dossier, Thèmes & Dialogues de confirmation).
  */
 
-import { state, DEFAULT_PRO_BG, PRESETS } from '../state.js';
+import { state, DEFAULT_PRO_BG, PRESETS, THEME_PROFILES } from '../state.js';
 import { api } from '../api.js';
-import { applyActiveBackground, setMainBackground } from '../theme.js';
+import { applyActiveBackground, setMainBackground, applyThemeStyle } from '../theme.js';
 import { renderFolders, selectFolderView } from './folders.js';
 import { EMOJI_MAP, renderIcon } from '../icons.js';
 
@@ -410,6 +410,13 @@ export function updateMainBgPreview() {
 
 export async function applyPresetTheme(presetKey) {
   const bg = PRESETS[presetKey] || DEFAULT_PRO_BG;
+  const profile = THEME_PROFILES[presetKey];
+  if (profile) {
+    applyThemeStyle(profile.styleId, profile.accent);
+    if (profile.titlebar) {
+      await applyTitlebarStyle(profile.titlebar);
+    }
+  }
   await setMainBackground(bg);
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === presetKey);

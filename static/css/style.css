@@ -1641,10 +1641,27 @@ select option, optgroup {
   flex-shrink: 0;
 }
 
+.preset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .preset-title {
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.preset-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
 }
 
 .separator {
@@ -1820,6 +1837,14 @@ select option, optgroup {
 .pdot.yellow { background: #eab308; }
 .pdot.green { background: #10b981; }
 .pdot.gray { background: rgba(255, 255, 255, 0.35); }
+.pdot.volt { background: #ccff00; }
+.pdot.white-sq { background: #ffffff; border-radius: 1px; }
+.pdot.magenta { background: #ff007f; }
+.pdot.cyan { background: #00f5d4; }
+.pdot.lilac { background: #e879f9; }
+.pdot.sunset { background: #f43f5e; }
+.pdot.gold { background: #f59e0b; }
+.pdot.sage { background: #34d399; }
 
 .preview-title {
   font-size: 0.70rem;
@@ -1869,6 +1894,67 @@ select option, optgroup {
   background: #242424;
   border: 1px solid #383838;
   color: #d1d5db;
+}
+
+.street-preview {
+  background: #0e0f14;
+  border: 1px solid #232530;
+  border-bottom: 2px solid #ccff00;
+  box-shadow: 0 2px 8px rgba(204, 255, 0, 0.25);
+  color: #ccff00;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+
+.techno-preview {
+  background: #000000;
+  border: 1px solid #1c1c1e;
+  border-bottom: 2px solid #ffffff;
+  color: #ffffff;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+.cyberpunk-preview {
+  background: #0d021c;
+  border: 1px solid rgba(0, 245, 212, 0.3);
+  border-bottom: 2px solid #ff007f;
+  box-shadow: 0 2px 12px rgba(255, 0, 127, 0.35);
+  color: #ff007f;
+  font-weight: 700;
+}
+
+.y2k-preview {
+  background: linear-gradient(135deg, rgba(30, 27, 54, 0.9) 0%, rgba(20, 22, 40, 0.95) 100%);
+  border: 1px solid rgba(232, 121, 249, 0.35);
+  border-bottom: 2px solid #e879f9;
+  box-shadow: 0 2px 8px rgba(232, 121, 249, 0.3);
+  color: #f5d0fe;
+}
+
+.arcade-preview {
+  background: #190525;
+  border: 1px solid #3d1445;
+  border-bottom: 2px solid #f43f5e;
+  box-shadow: 0 2px 10px rgba(244, 63, 94, 0.35);
+  color: #f43f5e;
+  font-weight: 700;
+}
+
+.luxury-preview {
+  background: #0d0c0e;
+  border: 1px solid #29241f;
+  border-bottom: 2px solid #f59e0b;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+.zen-preview {
+  background: #081410;
+  border: 1px solid #142821;
+  border-bottom: 2px solid #34d399;
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+  color: #6ee7b7;
 }
 
 .titlebar-option-content {
@@ -2827,4 +2913,157 @@ select option, optgroup {
 
 .pill-disconnect-btn:hover {
   color: #ef4444;
+}
+
+/* ==========================================================================
+   UNIVERS ARTISTIQUES & SUBCULTURES (DESIGN THÉMATIQUE AVANCÉ)
+   ========================================================================== */
+
+/* 1. STREETWEAR & ACID VOLT */
+[data-theme-style="street"] {
+  --accent: #ccff00;
+  --accent-hover: #b3e600;
+  --accent-light: rgba(204, 255, 0, 0.16);
+  --border: rgba(204, 255, 0, 0.22);
+}
+[data-theme-style="street"] .btn-primary {
+  background: #ccff00;
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(204, 255, 0, 0.35);
+}
+[data-theme-style="street"] .btn-primary:hover {
+  background: #b3e600;
+  box-shadow: 0 0 22px rgba(204, 255, 0, 0.5);
+}
+[data-theme-style="street"] .task-card.task-card-active,
+[data-theme-style="street"] .folder-item.active {
+  border-left: 3px solid #ccff00;
+}
+[data-theme-style="street"] .progress-fill {
+  background: linear-gradient(90deg, #a3e635 0%, #ccff00 100%) !important;
+  box-shadow: 0 0 10px rgba(204, 255, 0, 0.4);
+}
+
+/* 2. BERLIN TECHNO WAREHOUSE (MONOCHROME LASER) */
+[data-theme-style="techno"] {
+  --accent: #ffffff;
+  --accent-hover: #e2e8f0;
+  --accent-light: rgba(255, 255, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.20);
+}
+[data-theme-style="techno"] .btn-primary {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 700;
+  border-radius: 3px;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+}
+[data-theme-style="techno"] .btn-primary:hover {
+  background: #f1f5f9;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+[data-theme-style="techno"] .folder-item.active {
+  border-left: 3px solid #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+[data-theme-style="techno"] .progress-fill {
+  background: linear-gradient(90deg, #94a3b8 0%, #ffffff 100%) !important;
+}
+
+/* 3. NEO-TOKYO CYBERPUNK (MAGENTA & CYAN HUD) */
+[data-theme-style="cyberpunk"] {
+  --accent: #ff007f;
+  --accent-hover: #e60073;
+  --accent-light: rgba(255, 0, 127, 0.20);
+  --border: rgba(255, 0, 127, 0.28);
+}
+[data-theme-style="cyberpunk"] .btn-primary {
+  background: linear-gradient(135deg, #ff007f 0%, #d90468 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(255, 0, 127, 0.45);
+}
+[data-theme-style="cyberpunk"] .btn-primary:hover {
+  box-shadow: 0 0 26px rgba(255, 0, 127, 0.7);
+}
+[data-theme-style="cyberpunk"] .folder-item.active {
+  border-left: 3px solid #00f5d4;
+  box-shadow: inset 0 0 14px rgba(255, 0, 127, 0.15);
+}
+[data-theme-style="cyberpunk"] .progress-fill {
+  background: linear-gradient(90deg, #00f5d4 0%, #ff007f 100%) !important;
+  box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+}
+
+/* 4. CHROME & Y2K IRIDESCENT (LIQUID METAL) */
+[data-theme-style="y2k"] {
+  --accent: #e879f9;
+  --accent-hover: #d946ef;
+  --accent-light: rgba(232, 121, 249, 0.20);
+  --border: rgba(232, 121, 249, 0.25);
+}
+[data-theme-style="y2k"] .btn-primary {
+  background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #38bdf8 100%);
+  color: #0f172a;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(232, 121, 249, 0.35);
+}
+[data-theme-style="y2k"] .progress-fill {
+  background: linear-gradient(90deg, #38bdf8 0%, #e879f9 100%) !important;
+  box-shadow: 0 0 10px rgba(232, 121, 249, 0.4);
+}
+
+/* 5. 80s RETRO SYNTHWAVE (ARCADE SUNSET) */
+[data-theme-style="arcade"] {
+  --accent: #f43f5e;
+  --accent-hover: #e11d48;
+  --accent-light: rgba(244, 63, 94, 0.20);
+  --border: rgba(244, 63, 94, 0.25);
+}
+[data-theme-style="arcade"] .btn-primary {
+  background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+}
+[data-theme-style="arcade"] .progress-fill {
+  background: linear-gradient(90deg, #fb923c 0%, #f43f5e 100%) !important;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+}
+
+/* 6. MIDNIGHT GOLD EXECUTIVE (OR BROSSÉ & ONYX) */
+[data-theme-style="luxury"] {
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-light: rgba(245, 158, 11, 0.18);
+  --border: rgba(245, 158, 11, 0.24);
+}
+[data-theme-style="luxury"] .btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0f0f11;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
+}
+[data-theme-style="luxury"] .progress-fill {
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+}
+
+/* 7. NORDIC ZEN MIST (THÉ MATCHA & SÉRÉNITÉ) */
+[data-theme-style="zen"] {
+  --accent: #34d399;
+  --accent-hover: #10b981;
+  --accent-light: rgba(52, 211, 153, 0.16);
+  --border: rgba(52, 211, 153, 0.22);
+}
+[data-theme-style="zen"] .btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: #052219;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+}
+[data-theme-style="zen"] .progress-fill {
+  background: linear-gradient(90deg, #059669 0%, #34d399 100%) !important;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.25);
 }

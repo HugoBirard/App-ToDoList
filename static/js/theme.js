@@ -2,12 +2,27 @@
  * Gestionnaire du moteur visuel : Thèmes Sombre/Clair et Arrière-plans dynamiques (fondu/couleur).
  */
 
-import { state, DEFAULT_PRO_BG, DEFAULT_LIGHT_BG, PRESETS } from './state.js';
+import { state, DEFAULT_PRO_BG, DEFAULT_LIGHT_BG, PRESETS, THEME_PROFILES } from './state.js';
 import { api } from './api.js';
 import { renderIcon } from './icons.js';
 
 let currentActiveBg = null;
 let currentActiveLayer = 1;
+
+export function applyThemeStyle(styleId, accentColor = null) {
+  const cleanStyle = styleId || 'pro';
+  if (cleanStyle === 'pro') {
+    document.documentElement.removeAttribute('data-theme-style');
+  } else {
+    document.documentElement.setAttribute('data-theme-style', cleanStyle);
+  }
+  if (accentColor) {
+    document.documentElement.style.setProperty('--accent', accentColor);
+  } else {
+    document.documentElement.style.removeProperty('--accent');
+  }
+  localStorage.setItem('todolist_theme_style', cleanStyle);
+}
 
 export function applyActiveBackground(immediate = false) {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -77,6 +92,10 @@ export function applyActiveBackground(immediate = false) {
 export function initTheme() {
   const saved = localStorage.getItem('todolist_theme') || 'dark';
   applyTheme(saved);
+
+  const savedStyle = localStorage.getItem('todolist_theme_style') || 'pro';
+  const matchingEntry = Object.values(THEME_PROFILES).find(p => p.styleId === savedStyle);
+  applyThemeStyle(savedStyle, matchingEntry ? matchingEntry.accent : null);
 }
 
 export function applyTheme(theme) {

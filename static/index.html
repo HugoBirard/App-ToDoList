@@ -565,13 +565,73 @@
       <div class="theme-modal-body">
         <!-- ONGLET 1 : APPARENCE & FOND -->
         <div id="tab-pane-appearance" class="tab-pane active">
-        <!-- Thèmes Pro Prédéfinis -->
+        <!-- Nouveaux Univers Artistiques & Subcultures -->
         <div class="form-group">
-          <label>Styles professionnels recommandés</label>
-          <div class="preset-theme-grid">
+          <label>Univers Artistiques &amp; Subcultures (Design Créatif)</label>
+          <span class="sub-label">Des identités visuelles complètes inspirées des mouvements underground, streetwear, cyberpunk et rétro-futuristes :</span>
+          <div class="preset-theme-grid" style="margin-top: 8px;">
+            <button type="button" class="preset-btn" data-preset="street">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #0b0c10 0%, #171922 50%, #0d0e14 100%); border: 1px solid #ccff00;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Streetwear &amp; Acid Volt</span>
+                <span class="preset-tag" style="color: #ccff00; background: rgba(204,255,0,0.12);">Underground Brutaliste</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="techno">
+              <span class="preset-swatch" style="background: linear-gradient(180deg, #030304 0%, #0c0d10 50%, #060708 100%); border: 1px solid #ffffff;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Berlin Techno Warehouse</span>
+                <span class="preset-tag" style="color: #ffffff; background: rgba(255,255,255,0.12);">Monochrome Laser</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="cyberpunk">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #0c0317 0%, #1c0836 50%, #061928 100%); border: 1px solid #ff007f;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Neo-Tokyo Cyberpunk</span>
+                <span class="preset-tag" style="color: #ff007f; background: rgba(255,0,127,0.12);">Neon Magenta &amp; Cyan</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="y2k">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #131525 0%, #20243e 50%, #1a162a 100%); border: 1px solid #e879f9;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Chrome &amp; Y2K Iridescent</span>
+                <span class="preset-tag" style="color: #e879f9; background: rgba(232,121,249,0.12);">Liquid Metal</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="arcade">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #180524 0%, #2a0b36 50%, #350f28 100%); border: 1px solid #f43f5e;"></span>
+              <div class="preset-info">
+                <span class="preset-title">80s Retro Synthwave</span>
+                <span class="preset-tag" style="color: #f43f5e; background: rgba(244,63,94,0.12);">Arcade Sunset</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="luxury">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #0b0a0c 0%, #151318 50%, #1a1610 100%); border: 1px solid #f59e0b;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Midnight Gold Executive</span>
+                <span class="preset-tag" style="color: #f59e0b; background: rgba(245,158,11,0.12);">Or Brossé &amp; Onyx</span>
+              </div>
+            </button>
+            <button type="button" class="preset-btn" data-preset="zen">
+              <span class="preset-swatch" style="background: linear-gradient(135deg, #05130f 0%, #0b1c17 50%, #10241e 100%); border: 1px solid #34d399;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Nordic Zen Mist</span>
+                <span class="preset-tag" style="color: #34d399; background: rgba(52,211,153,0.12);">Thé Matcha &amp; Sérénité</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- Thèmes Pro Prédéfinis (Classiques conservés) -->
+        <div class="form-group">
+          <label>Essentiels Pro &amp; Épurés</label>
+          <span class="sub-label">Nuances professionnelles sobres et polyvalentes :</span>
+          <div class="preset-theme-grid" style="margin-top: 8px;">
             <button type="button" class="preset-btn active" data-preset="pro-dark">
               <span class="preset-swatch" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%);"></span>
-              <span class="preset-title">Noir & Gris Pro (Défaut)</span>
+              <span class="preset-title">Noir &amp; Gris Pro (Défaut)</span>
             </button>
             <button type="button" class="preset-btn" data-preset="carbon">
               <span class="preset-swatch" style="background: linear-gradient(135deg, #050505 0%, #1c1c1c 100%);"></span>
@@ -774,6 +834,112 @@
               <div class="titlebar-option-content">
                 <span class="titlebar-name">Système GNOME Standard</span>
                 <span class="titlebar-desc">Décorations natives du gestionnaire de fenêtres de votre OS (Adwaita)</span>
+              </div>
+            </button>
+
+            <!-- Nouvelles Ambiances Subcultures & Haute Finition -->
+            <button type="button" class="titlebar-option-btn" data-titlebar="street">
+              <div class="titlebar-preview street-preview">
+                <div class="preview-dots">
+                  <span class="pdot volt"></span>
+                  <span class="pdot volt"></span>
+                  <span class="pdot volt"></span>
+                </div>
+                <span class="preview-title">TODOLIST // ACID</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Streetwear Acid Volt</span>
+                <span class="titlebar-desc">Bordure jaune fluo brute découpée avec typographie percutante</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="techno">
+              <div class="titlebar-preview techno-preview">
+                <div class="preview-dots">
+                  <span class="pdot white-sq"></span>
+                  <span class="pdot white-sq"></span>
+                  <span class="pdot white-sq"></span>
+                </div>
+                <span class="preview-title">TODOLIST.RAW</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Berlin Techno Laser</span>
+                <span class="titlebar-desc">Ligne blanche laser ultra-fine et boutons géométriques industriels</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="cyberpunk">
+              <div class="titlebar-preview cyberpunk-preview">
+                <div class="preview-dots">
+                  <span class="pdot magenta"></span>
+                  <span class="pdot cyan"></span>
+                  <span class="pdot yellow"></span>
+                </div>
+                <span class="preview-title">CYBER::TODO</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Neo-Tokyo Cyberpunk</span>
+                <span class="titlebar-desc">Néon magenta vibrant avec halo lumineux et contrastes cyan HUD</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="y2k">
+              <div class="titlebar-preview y2k-preview">
+                <div class="preview-dots">
+                  <span class="pdot lilac"></span>
+                  <span class="pdot lilac"></span>
+                  <span class="pdot lilac"></span>
+                </div>
+                <span class="preview-title">TODOLIST 2000</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Chrome &amp; Y2K Iridescent</span>
+                <span class="titlebar-desc">Reflets métal liquide chrome, lilas et bleu ciel futuristes</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="arcade">
+              <div class="titlebar-preview arcade-preview">
+                <div class="preview-dots">
+                  <span class="pdot sunset"></span>
+                  <span class="pdot sunset"></span>
+                  <span class="pdot sunset"></span>
+                </div>
+                <span class="preview-title">ARCADE 80s</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">80s Retro Synthwave</span>
+                <span class="titlebar-desc">Coucher de soleil néon magenta et ambiance bornes d'arcade</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="luxury">
+              <div class="titlebar-preview luxury-preview">
+                <div class="preview-dots">
+                  <span class="pdot gold"></span>
+                  <span class="pdot gold"></span>
+                  <span class="pdot gold"></span>
+                </div>
+                <span class="preview-title">ToDoList Executive</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Midnight Gold Executive</span>
+                <span class="titlebar-desc">Bordure or brossé champagne et halo ambré feutré haut de gamme</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="zen">
+              <div class="titlebar-preview zen-preview">
+                <div class="preview-dots">
+                  <span class="pdot sage"></span>
+                  <span class="pdot sage"></span>
+                  <span class="pdot sage"></span>
+                </div>
+                <span class="preview-title">Nordic Zen</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Nordic Zen Mist</span>
+                <span class="titlebar-desc">Vert matcha doux et apaisant inspiré des forêts et brumes du Nord</span>
               </div>
             </button>
           </div>
