@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
-  <img src="https://img.shields.io/badge/Tests-48%2F48%20Passed-success?style=flat" alt="Tests 48/48 Passed">
+  <img src="https://img.shields.io/badge/Tests-56%2F56%20Passed-success?style=flat" alt="Tests 56/56 Passed">
   <img src="https://img.shields.io/badge/Security-Hardened%20%26%20Audited-brightgreen?style=flat&logo=shield" alt="Security Hardened">
   <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
@@ -107,6 +107,20 @@ python3 server.py --host 0.0.0.0 --port 4848
 
 ---
 
+## 🌿 Organisation des branches Git
+
+Le dépôt est structuré en deux branches principales selon vos besoins :
+
+- **`main` (Branche par défaut)** : Version **100% mono-utilisateur**, épurée, performante et sans friction. Elle se concentre sur l'organisation personnelle avec dossiers thématiques, personnalisation visuelle avancée, suivi par progression, Pause Café et sauvegardes locales SQLite.
+- **`partage-salons`** : Version **multi-salons & collaborative** complète. Elle intègre la séparation des tâches par espaces/salons partagés, les invitations par code Discord et l'export/import ciblé de fichiers `.tdl`.
+
+Pour basculer sur la version avec partage de salons :
+```bash
+git checkout partage-salons
+```
+
+---
+
 ## 📌 Présentation du projet
 
 **ToDoList** est une application de bureau conçue pour les utilisateurs et équipes de projet recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale**, une **confidentialité absolue** et des capacités puissantes de **travail collaboratif** :
@@ -180,7 +194,14 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
   - **Fond individuel par dossier** pour distinguer immédiatement chaque projet.
 - **Barres de titre système GTK4 CSD natives** : 14 styles de barres supérieures interchangeables en 1 clic dans l'application ou en argument CLI (`--titlebar street`, `cyberpunk`, `lava`, `techno`, `y2k`, `arcade`, `luxury`, `zen`, `transparent`, `match-bg`, `glass`, `neon`, `minimal`, `classic`).
 
-### 6. 🌐 Synchronisation Multi-PC & Partage Cloud
+### 6. ☕ Bouton Pause Café & Anti-Procrastination
+- Bouton interactif dédié dans la barre supérieure de l'application.
+- Déclenche un **carillon audio harmonieux** synthétisé nativement via l'API Web Audio (aucun fichier son externe lourd requis).
+- Génère une **pluie animée d'émojis flottants** (☕, 🥐, ✨, 🍪, 🍩, 🍫) sur tout l'écran.
+- Affiche une modale contenant une **punchline aléatoire humoristique** et un compteur de tasses dégustées.
+- Fonctionnalité testée et validée pour prouver le bon fonctionnement du système de mise à jour en 1 clic.
+
+### 7. 🌐 Synchronisation Multi-PC & Partage Cloud
 - **Partagez facilement vos listes entre plusieurs PC** en sélectionnant un dossier synchronisé (Nextcloud, Dropbox, Syncthing, Google Drive ou partage réseau SMB/NFS).
 - Configuration dans **Options & Paramètres > Liaison PC & Synchro** :
   - **Connecter** une base partagée existante (pour le second PC).
@@ -188,22 +209,22 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
   - **Surveillance automatique en direct** : Toute modification apportée sur un autre PC est détectée et rafraîchie à l'écran automatiquement.
   - **Sauvegardes manuelles** : Export et Import / Restauration de fichiers de sauvegarde JSON.
 
-### 7. 🚀 Mode Serveur Réseau (Partage d'équipe en direct)
+### 8. 🚀 Mode Serveur Réseau (Partage d'équipe en direct)
 - **Hébergez votre ToDoList en local ou sur votre réseau** : Un membre de l'équipe lance le serveur via `./lancer-serveur-equipe.sh`.
 - **Connexion client distante** : Dans l'onglet **Serveur Réseau**, entrez l'adresse de l'hôte (ex : `http://192.168.1.35:4848`) et profitez d'une synchronisation en temps réel avec pastille de statut active.
 - **Accès navigateur sans installation** : Tout collègue sur le réseau peut également ouvrir l'adresse directement dans son navigateur web (Chrome, Firefox, Safari).
 
-### 8. 🎮 Intégration Discord (Webhooks & Bot interactif)
+### 9. 🎮 Intégration Discord (Webhooks & Bot interactif)
 - **Notifications Webhook en direct** : Connectez votre salon Discord de projet (`#taches-projet`) pour recevoir des embeds stylisés à chaque création, validation ou suppression de tâche.
 - **Bot Discord interactif (`discord_bot.py`)** : Permet à l'équipe de consulter, ajouter et terminer des tâches directement avec les commandes `!todo`, `!todo add <titre>` et `!todo done <id>`.
 
-### 9. 💾 Persistance robuste SQLite ACID
+### 10. 💾 Persistance robuste SQLite ACID
 - Base relationnelle locale stockée dans `data/todolist.db`.
 - Activation explicite des clés étrangères (`PRAGMA foreign_keys = ON`) avec suppression en cascade.
 - **Système de migrations automatiques non destructives** au démarrage de l'application.
 - **Mode WAL (*Write-Ahead Logging*)** : Concurrence multi-processus fluide sans blocage de base.
 
-### 10. 🛡️ Sécurité & Confidentialité durcies (Audit Complet)
+### 11. 🛡️ Sécurité & Confidentialité durcies (Audit Complet)
 L'application intègre une architecture de sécurité rigoureuse couvrant le backend et le frontend :
 - **Authentification HMAC par Jeton Bearer** : Accès au mode serveur réseau protégé par jeton secret vérifié en temps constant (`hmac.compare_digest`).
 - **CORS strict & Protection Anti-CSRF** : Aucun wildcard `*` ; validation d'origine stricte et rejet immédiat (`403 Forbidden`) des requêtes de mutation forgées depuis des sites tiers.
@@ -299,6 +320,7 @@ App-ToDoList/
 │   ├── discord.py                 # Module d'envoi asynchrone des Rich Embeds Discord (Webhooks)
 │   ├── handlers.py                # Dispatcher d'API REST HTTP & serveur de fichiers statiques
 │   ├── services.py                # Logique métier pure (CRUD, progression 100%, reset hebdo)
+│   ├── updater.py                 # Système de mise à jour Git et sauvegardes préventives SQLite
 │   ├── window.py                  # Gestionnaire et fallbacks de fenêtres natives autonomes
 │   ├── window_gtk3.py             # Lanceur dédié GTK3 + WebKit2 (Fallback)
 │   └── window_gtk4.py             # Lanceur dédié GTK4 + WebKit6 (HeaderBar CSD & CSS Provider dynamique)
@@ -314,6 +336,7 @@ App-ToDoList/
 │   │   ├── theme.js               # Moteur de génération des dégradés et couleurs
 │   │   ├── main.js                # Point d'entrée frontend et liaisons d'événements
 │   │   └── components/
+│   │       ├── coffee.js          # Pause Café anti-procrastination (pluie d'émojis, carillon Web Audio)
 │   │       ├── colorpicker.js     # Sélecteur de couleur intégré popover
 │   │       ├── discord.js         # Interface et configuration des notifications Discord
 │   │       ├── dropdowns.js       # Composant de listes déroulantes stylisées
@@ -321,19 +344,21 @@ App-ToDoList/
 │   │       ├── modals.js          # Fenêtres modales (Création dossier, Thèmes & Styles de barre de titre)
 │   │       ├── server.js          # Gestion du client serveur distant et affichage des IP LAN
 │   │       ├── sync.js            # Gestion de la synchronisation Multi-PC & onglets
-│   │       └── tasks.js           # Rendu des tâches, barres de progression, inline edit
+│   │       ├── tasks.js           # Rendu des tâches, barres de progression, inline edit
+│   │       └── updater.js         # Gestionnaire de mise à jour in-app en 1 clic
 │   └── assets/
 │       ├── icon.png               # Icône PNG 256x256 pour le système
 │       └── icon.svg               # Icône vectorielle SVG
 │
-├── tests/                         # Suite de tests unitaires, d'intégration et de sécurité (42/42)
+├── tests/                         # Suite de tests unitaires, d'intégration et de sécurité (56/56)
 │   ├── __init__.py                # Package tests
 │   ├── test_database.py           # Validation du schéma SQLite et des migrations
 │   ├── test_services.py           # Validation des règles métier (100% = fait, reset hebdo, reorder)
 │   ├── test_handlers.py           # Validation des routes API REST et détection réseau
 │   ├── test_discord.py            # Validation anti-SSRF, format des embeds et déclencheurs
 │   ├── test_titlebar.py           # Validation des styles de HeaderBar, parsing CLI et CSS GTK4
-│   └── test_security.py           # 17 tests de sécurité (Auth HMAC, CORS, Admin IP, XSS, DoS 413)
+│   ├── test_security.py           # 17 tests de sécurité (Auth HMAC, CORS, Admin IP, XSS, DoS 413)
+│   └── test_updater.py            # Validation des mises à jour 1 clic et sauvegardes préventives SQLite
 │
 ├── data/                          # Données applicatives persistantes
 │   ├── .gitkeep                   # Maintien du dossier dans git
@@ -534,7 +559,7 @@ Le projet intègre une suite complète de tests unitaires et de sécurité valid
 python3 -m unittest discover tests -v
 ```
 
-### Périmètre des tests automatisés (48/48 tests passés)
+### Périmètre des tests automatisés (56/56 tests passés)
 | Fichier de test | Domaine testé | Statut |
 | :--- | :--- | :---: |
 | `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations et initialisation des exemples (case à cocher + progression) | ✅ Passé |
