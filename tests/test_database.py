@@ -42,6 +42,32 @@ class DatabaseTestCase(unittest.TestCase):
 
         conn.close()
 
+    def test_seed_default_data_illustrates_checkbox_and_progress_modes(self):
+        """Vérifie que les données d'exemple initiales intègrent bien le mode case à cocher et la barre d'avancement."""
+        init_db(self.db_path)
+        conn = get_connection(self.db_path)
+        cursor = conn.cursor()
+
+        # Dossier d'exemples présent
+        cursor.execute("SELECT * FROM folders WHERE name LIKE '%Exemple%'")
+        demo_folder = cursor.fetchone()
+        self.assertIsNotNone(demo_folder, "Le dossier d'exemples doit être initialisé.")
+
+        # Tâches associées
+        cursor.execute("SELECT * FROM tasks WHERE folder_id = ?", (demo_folder["id"],))
+        tasks = [dict(row) for row in cursor.fetchall()]
+        self.assertGreaterEqual(len(tasks), 3, "Le dossier d'exemples doit comporter plusieurs tâches de démonstration.")
+
+        # Vérifier la présence d'au moins une tâche simple avec case à cocher (has_progress = 0)
+        checkbox_tasks = [t for t in tasks if not t["has_progress"]]
+        self.assertTrue(len(checkbox_tasks) > 0, "Doit comporter au moins une tâche avec case à cocher standard.")
+
+        # Vérifier la présence d'au moins une tâche avec barre d'avancement interactive (has_progress = 1)
+        progress_tasks = [t for t in tasks if t["has_progress"]]
+        self.assertTrue(len(progress_tasks) > 0, "Doit comporter au moins une tâche avec barre d'avancement.")
+
+        conn.close()
+
 
 if __name__ == "__main__":
     unittest.main()

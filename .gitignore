@@ -28,6 +28,8 @@ share/python-wheels/
 # Persistent user data (databases & logs)
 data/*.db
 data/*.db-journal
+data/*.db-wal
+data/*.db-shm
 data/*.log
 data/app.log
 data/epiphany_profile/

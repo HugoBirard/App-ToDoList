@@ -126,30 +126,38 @@ def init_db(db_path=None):
 
 
 def _seed_default_data(cursor):
-    """Insère quelques exemples de démarrage soignés."""
+    """Insère quelques exemples de démarrage soignés mettant en valeur la case à cocher et la barre d'avancement."""
     cursor.execute(
         "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 0)",
-        ("Général", "clipboard", "#6366f1")
+        ("Exemples & Découverte", "clipboard", "#6366f1")
     )
     cursor.execute(
         "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 0)",
-        ("Travail", "briefcase", "#3b82f6")
+        ("Travail & Projets", "briefcase", "#3b82f6")
     )
     cursor.execute(
         "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 1)",
         ("Habitudes Hebdo", "leaf", "#10b981")
     )
 
-    general_id = 1
+    demo_folder_id = 1
+    # 1. Tâche standard avec Case à cocher simple
     cursor.execute(
-        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress) VALUES (?, ?, ?, ?, ?)",
-        (general_id, "Bienvenue dans votre ToDoList !", 0, 0, 0)
+        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority) VALUES (?, ?, ?, ?, ?, ?)",
+        (demo_folder_id, "☑️ Exemple Case à cocher : Cliquez sur la case à gauche pour la marquer comme faite", 0, 0, 0, "normal")
     )
+    # 2. Tâche avec Barre d'avancement interactive (slider 0-100%, boutons +25%)
     cursor.execute(
-        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress) VALUES (?, ?, ?, ?, ?)",
-        (general_id, "Exemple de tâche avec progression (glisser jusqu'à 100%)", 0, 1, 40)
+        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority) VALUES (?, ?, ?, ?, ?, ?)",
+        (demo_folder_id, "📊 Exemple Barre d'avancement : Glissez le curseur ou cliquez sur +25% (progression à 50%)", 0, 1, 50, "high")
     )
+    # 3. Tâche terminée avec barre d'avancement à 100%
     cursor.execute(
-        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress) VALUES (?, ?, ?, ?, ?)",
-        (general_id, "Cocher cette tâche pour la marquer comme faite", 1, 0, 100)
+        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority) VALUES (?, ?, ?, ?, ?, ?)",
+        (demo_folder_id, "✅ Exemple Avancement 100% : Atteindre 100% coche et termine automatiquement la tâche", 1, 1, 100, "normal")
+    )
+    # 4. Tâche simple terminée (aspect barré)
+    cursor.execute(
+        "INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority) VALUES (?, ?, ?, ?, ?, ?)",
+        (demo_folder_id, "🎯 Tâche simple accomplie : Les tâches cochées s'affichent grisées et barrées", 1, 0, 0, "low")
     )
