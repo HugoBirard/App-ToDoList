@@ -198,6 +198,24 @@ class ServicesTestCase(unittest.TestCase):
         self.assertNotEqual(imported["id"], created["id"])
         self.assertEqual(imported["name"], "Groupe Projet")
 
+        # 6b. Exporter avec fichier et code d'invitation compressé
+        exp_file = self.service.export_salon_to_file(created["id"])
+        self.assertTrue(exp_file["success"])
+        self.assertIn("invite_code", exp_file)
+        self.assertTrue(exp_file["invite_code"].startswith("TDL1_"))
+
+        # 6c. Importer via le code d'invitation Discord
+        imported_via_code = self.service.import_salon(exp_file["invite_code"])
+        self.assertIsNotNone(imported_via_code)
+        self.assertEqual(imported_via_code["name"], "Groupe Projet")
+
+        # Nettoyer le fichier créé si sauvegardé
+        if exp_file.get("filepath") and os.path.exists(exp_file["filepath"]):
+            try:
+                os.remove(exp_file["filepath"])
+            except Exception:
+                pass
+
         # 7. Mettre à jour le salon
         up = self.service.update_salon(created["id"], {"name": "Groupe Projet V2"})
         self.assertEqual(up["name"], "Groupe Projet V2")

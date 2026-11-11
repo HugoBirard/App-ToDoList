@@ -86,73 +86,12 @@ export function initSalonUI(loadDataCallback = null) {
     };
   }
 
-  // Bouton Importer un salon
-  const importBtn = document.getElementById('btn-import-salon');
-  const importInput = document.getElementById('salon-import-file-input');
-  if (importBtn && importInput) {
-    importBtn.onclick = () => {
-      if (menu) menu.classList.add('hidden');
-      importInput.click();
-    };
-
-    importInput.onchange = async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const data = JSON.parse(text);
-        if (data.scope !== 'salon' && !data.salon) {
-          showNotificationDialog({
-            title: "Fichier invalide",
-            message: "Le fichier sélectionné n'est pas un fichier de salon ToDoList valide (.tdl).",
-            icon: "alert"
-          });
-          return;
-        }
-
-        const res = await api('/api/salons/import', 'POST', data);
-        if (res && res.id) {
-          state.salons.push(res);
-          // Recharger les données complètes
-          if (globalLoadDataCallback) {
-            await globalLoadDataCallback(true);
-          } else {
-            const freshData = await api('/api/data', 'GET');
-            if (freshData) {
-              state.salons = freshData.salons || [];
-              state.folders = freshData.folders || [];
-              state.tasks = freshData.tasks || [];
-            }
-          }
-          state.currentSalonId = res.id;
-          localStorage.setItem('todolist_active_salon_id', res.id);
-          renderSalons();
-          renderFolders();
-          selectQuickView('all');
-          sendSalonHeartbeat();
-          showNotificationDialog({
-            title: "Salon importé !",
-            message: `Le salon « ${res.name} » a été importé avec succès avec tous ses dossiers et tâches.`,
-            icon: "check"
-          });
-        }
-      } catch (err) {
-        showNotificationDialog({
-          title: "Erreur d'import",
-          message: "Impossible de lire le fichier de salon : " + err.message,
-          icon: "alert"
-        });
-      } finally {
-        importInput.value = '';
-      }
-    };
-  }
-
   // Fermeture des modales salon via bouton fermer
-  document.querySelectorAll('#add-salon-modal .close-modal-btn, #manage-salon-modal .close-modal-btn').forEach(btn => {
+  document.querySelectorAll('#add-salon-modal .close-modal-btn, #manage-salon-modal .close-modal-btn, #import-salon-modal .close-modal-btn').forEach(btn => {
     btn.onclick = () => {
       document.getElementById('add-salon-modal')?.classList.add('hidden');
       document.getElementById('manage-salon-modal')?.classList.add('hidden');
+      document.getElementById('import-salon-modal')?.classList.add('hidden');
     };
   });
 
@@ -169,9 +108,16 @@ export function initSalonUI(loadDataCallback = null) {
       if (e.target === manageModal) manageModal.classList.add('hidden');
     });
   }
+  const importModal = document.getElementById('import-salon-modal');
+  if (importModal) {
+    importModal.addEventListener('click', (e) => {
+      if (e.target === importModal) importModal.classList.add('hidden');
+    });
+  }
 
   setupAddSalonForm();
   setupManageSalonModal();
+  setupImportSalonModal();
   renderSalons();
 
   // Démarrer la boucle de synchronisation en direct et battement de cœur (heartbeat)
@@ -604,27 +550,55 @@ function setupManageSalonModal() {
     };
   }
 
-  // Exporter uniquement ce salon
+  // Exporter uniquement ce salon (Téléchargement direct dans Téléchargements + confirmation)
   const exportBtn = document.getElementById('salon-export-btn');
   if (exportBtn) {
     exportBtn.onclick = async () => {
       const active = getActiveSalon();
       if (!active) return;
 
+      const origText = exportBtn.innerHTML;
+      exportBtn.disabled = true;
+      exportBtn.innerHTML = 'Export en cours...';
+
       try {
-        const data = await api(`/api/salons/${active.id}/export`, 'GET');
-        if (data) {
-          const jsonStr = JSON.stringify(data, null, 2);
-          const blob = new Blob([jsonStr], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          const cleanName = (active.name || 'salon').toLowerCase().replace(/[^a-z0-9_-]/g, '-');
-          a.href = url;
-          a.download = `todolist-salon-${cleanName}.tdl`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+        const res = await api(`/api/salons/${active.id}/export-file`, 'POST');
+        if (res && res.success) {
+          // Téléchargement navigateur de secours
+          if (res.data) {
+            try {
+              const jsonStr = JSON.stringify(res.data, null, 2);
+              const blob = new Blob([jsonStr], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = res.filename || `todolist-salon-${(active.name || 'salon').toLowerCase()}.tdl`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            } catch (e) {
+              // Ignorer si non supporté
+            }
+          }
+
+          let msg = `Le salon « ${active.name} » (${res.folder_count} dossier(s), ${res.task_count} tâche(s)) a été exporté avec succès !`;
+          if (res.file_saved && res.filepath) {
+            msg += `\n\n📁 Fichier enregistré dans votre dossier :\n${res.filepath}`;
+          }
+          msg += `\n\nVous pouvez désormais déposer ce fichier .tdl sur Discord ou par e-mail à vos collaborateurs.`;
+
+          showNotificationDialog({
+            title: "🎉 Salon exporté avec succès !",
+            message: msg,
+            icon: "check"
+          });
+        } else {
+          showNotificationDialog({
+            title: "Erreur d'export",
+            message: "Impossible d'exporter le salon.",
+            icon: "alert"
+          });
         }
       } catch (err) {
         showNotificationDialog({
@@ -632,6 +606,53 @@ function setupManageSalonModal() {
           message: "Impossible d'exporter le salon : " + err.message,
           icon: "alert"
         });
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = origText;
+      }
+    };
+  }
+
+  // Copier le code d'invitation Discord instantané
+  const copyCodeBtn = document.getElementById('salon-copy-code-btn');
+  if (copyCodeBtn) {
+    copyCodeBtn.onclick = async () => {
+      const active = getActiveSalon();
+      if (!active) return;
+
+      const origText = copyCodeBtn.innerHTML;
+      copyCodeBtn.disabled = true;
+      copyCodeBtn.innerHTML = 'Génération du code...';
+
+      try {
+        const res = await api(`/api/salons/${active.id}/export-file`, 'POST');
+        if (res && res.invite_code) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(res.invite_code);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = res.invite_code;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+
+          showNotificationDialog({
+            title: "📋 Code d'invitation copié !",
+            message: `Le code d'invitation pour « ${active.name} » a été copié dans votre presse-papier !\n\nCollez-le simplement dans votre salon Discord.\nVos amis pourront cliquer sur « Importer un salon » dans leur ToDoList et coller ce code pour rejoindre instantanément ce salon sans fichier !`,
+            icon: "check"
+          });
+        }
+      } catch (err) {
+        showNotificationDialog({
+          title: "Erreur",
+          message: "Impossible de générer le code d'invitation : " + err.message,
+          icon: "alert"
+        });
+      } finally {
+        copyCodeBtn.disabled = false;
+        copyCodeBtn.innerHTML = origText;
       }
     };
   }
@@ -743,4 +764,123 @@ export function openManageSalonModal(salonId) {
   document.getElementById('salon-pane-info')?.classList.remove('hidden');
 
   modal.classList.remove('hidden');
+}
+
+/**
+ * Configure la modale élégante pour Rejoindre ou Importer un salon
+ * (par code d'invitation Discord ou par fichier .tdl).
+ */
+function setupImportSalonModal() {
+  const modal = document.getElementById('import-salon-modal');
+  const openBtn = document.getElementById('btn-import-salon');
+  const closeBtn = document.getElementById('import-salon-modal-close');
+  const fileTriggerBtn = document.getElementById('import-salon-file-trigger-btn');
+  const fileInput = document.getElementById('salon-import-file-input');
+  const codeInput = document.getElementById('import-salon-code-input');
+  const codeBtn = document.getElementById('import-salon-code-btn');
+  const feedback = document.getElementById('import-salon-feedback');
+
+  function showImportFeedback(msg, type = 'error') {
+    if (!feedback) return;
+    feedback.className = `discord-feedback status-${type}`;
+    feedback.textContent = msg;
+    feedback.classList.remove('hidden');
+  }
+
+  if (openBtn) {
+    openBtn.onclick = (e) => {
+      e.stopPropagation();
+      document.getElementById('salon-dropdown-menu')?.classList.add('hidden');
+      if (codeInput) codeInput.value = '';
+      if (feedback) feedback.classList.add('hidden');
+      modal?.classList.remove('hidden');
+    };
+  }
+
+  if (closeBtn) {
+    closeBtn.onclick = () => modal?.classList.add('hidden');
+  }
+
+  if (fileTriggerBtn && fileInput) {
+    fileTriggerBtn.onclick = () => fileInput.click();
+  }
+
+  async function handleImportData(data) {
+    const res = await api('/api/salons/import', 'POST', data);
+    if (res && res.id) {
+      modal?.classList.add('hidden');
+      state.salons.push(res);
+      if (globalLoadDataCallback) {
+        await globalLoadDataCallback(true);
+      } else {
+        const fresh = await api('/api/data', 'GET');
+        if (fresh) {
+          state.salons = fresh.salons || [];
+          state.folders = fresh.folders || [];
+          state.tasks = fresh.tasks || [];
+        }
+      }
+      state.currentSalonId = res.id;
+      localStorage.setItem('todolist_active_salon_id', res.id);
+      renderSalons();
+      renderFolders();
+      selectQuickView('all');
+      sendSalonHeartbeat();
+      showNotificationDialog({
+        title: "🎉 Salon rejoint avec succès !",
+        message: `Le salon « ${res.name} » a été ajouté à votre ToDoList avec tous ses dossiers et tâches.`,
+        icon: "check"
+      });
+      return true;
+    }
+    return false;
+  }
+
+  if (codeBtn && codeInput) {
+    codeBtn.onclick = async () => {
+      const code = codeInput.value.trim();
+      if (!code) {
+        showImportFeedback("Veuillez coller un code d'invitation (commence par TDL1_...).", "warning");
+        return;
+      }
+      codeBtn.disabled = true;
+      codeBtn.textContent = "Importation en cours...";
+      try {
+        const ok = await handleImportData({ code });
+        if (!ok) {
+          showImportFeedback("Code d'invitation invalide ou corrompu.", "error");
+        }
+      } catch (err) {
+        showImportFeedback("Erreur lors de l'import : " + err.message, "error");
+      } finally {
+        codeBtn.disabled = false;
+        codeBtn.textContent = "🚀 Rejoindre ce salon";
+      }
+    };
+  }
+
+  if (fileInput) {
+    fileInput.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text.trim();
+        }
+        if (typeof data === 'object' && data.scope !== 'salon' && !data.salon) {
+          showImportFeedback("Le fichier sélectionné n'est pas un fichier .tdl de salon valide.", "error");
+          return;
+        }
+        await handleImportData(data);
+      } catch (err) {
+        showImportFeedback("Impossible de lire le fichier : " + err.message, "error");
+      } finally {
+        fileInput.value = '';
+      }
+    };
+  }
 }

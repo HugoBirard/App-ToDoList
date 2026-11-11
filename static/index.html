@@ -1708,15 +1708,22 @@
       <!-- Onglet Partage & Actions -->
       <div class="salon-tab-pane hidden" id="salon-pane-share">
         <div class="sync-card" style="margin-top: 14px;">
-          <h4 style="margin: 0 0 6px 0; color: var(--text-primary);">📤 Exporter uniquement ce salon</h4>
+          <h4 style="margin: 0 0 6px 0; color: var(--text-primary);">📤 Partager ce salon</h4>
           <p id="salon-export-stats" style="margin: 0 0 12px 0; font-size: 0.85rem; color: var(--text-secondary);"></p>
           <p style="margin: 0 0 12px 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
-            Générez un fichier <code>.tdl</code> contenant uniquement les dossiers et tâches de ce salon. Vous pouvez envoyer ce fichier à vos camarades sans divulguer vos autres salons personnels.
+            Partagez uniquement les dossiers et tâches de ce salon avec vos collaborateurs sans divulguer vos autres salons personnels.
           </p>
-          <button type="button" id="salon-export-btn" class="btn btn-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Télécharger le fichier du salon (.tdl)
-          </button>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+            <button type="button" id="salon-copy-code-btn" class="btn btn-primary" style="justify-content: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              📋 Copier le code d'invitation Discord
+            </button>
+            <button type="button" id="salon-export-btn" class="btn btn-secondary" style="justify-content: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Télécharger le fichier du salon (.tdl)
+            </button>
+          </div>
+          <div id="salon-share-feedback" class="discord-feedback hidden" style="margin-top: 10px;"></div>
         </div>
 
         <div class="sync-card" style="margin-top: 16px; border-color: rgba(239, 68, 68, 0.3);">
@@ -1726,6 +1733,54 @@
           </p>
           <button type="button" id="salon-delete-btn" class="btn btn-danger">Supprimer ce salon</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Rejoindre ou Importer un Salon -->
+  <div class="modal-backdrop hidden" id="import-salon-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.4rem;">📥</span>
+          <h3>Rejoindre ou importer un salon</h3>
+        </div>
+        <button type="button" class="close-modal-btn" id="import-salon-modal-close" title="Fermer">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+        <!-- Option 1 : Code d'invitation Discord -->
+        <div class="sync-card" style="margin: 0; background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.3);">
+          <h4 style="margin: 0 0 6px 0; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <span>💬</span> Option 1 : Rejoindre via un code Discord
+          </h4>
+          <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: var(--text-muted);">
+            Collez le code d'invitation (commençant par <code>TDL1_</code>) reçu sur Discord ou par message :
+          </p>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <textarea id="import-salon-code-input" rows="3" placeholder="Collez le code d'invitation ici (TDL1_...)" style="width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.8rem; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); resize: vertical;"></textarea>
+          </div>
+          <button type="button" class="btn btn-primary" id="import-salon-code-btn" style="width: 100%; justify-content: center;">
+            🚀 Rejoindre ce salon
+          </button>
+        </div>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">— OU —</div>
+
+        <!-- Option 2 : Fichier .tdl -->
+        <div class="sync-card" style="margin: 0;">
+          <h4 style="margin: 0 0 6px 0; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            <span>📁</span> Option 2 : Fichier de salon (.tdl)
+          </h4>
+          <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: var(--text-muted);">
+            Sélectionnez un fichier <code>.tdl</code> exporté par un autre utilisateur :
+          </p>
+          <button type="button" class="btn btn-secondary" id="import-salon-file-trigger-btn" style="width: 100%; justify-content: center;">
+            Choisir un fichier .tdl sur l'ordinateur
+          </button>
+        </div>
+
+        <div id="import-salon-feedback" class="discord-feedback hidden"></div>
       </div>
     </div>
   </div>

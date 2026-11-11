@@ -483,8 +483,85 @@ class TodoService:
             "tasks": tasks
         }
 
+    def export_salon_to_file(self, salon_id):
+        """Exporte un salon sous forme de fichier .tdl sauvegardé dans le dossier Téléchargements/Downloads."""
+        import base64
+        import zlib
+        import json
+
+        data = self.export_salon(salon_id)
+        if not data:
+            return None
+
+        salon_name = data.get("salon", {}).get("name", "salon")
+        clean_name = re.sub(r"[^a-zA-Z0-9_\-]", "-", salon_name).strip("-") or "salon"
+        filename = f"todolist-salon-{clean_name.lower()}.tdl"
+
+        # Chercher le répertoire de téléchargements de l'utilisateur
+        target_dir = os.path.expanduser("~/Téléchargements")
+        if not os.path.isdir(target_dir):
+            target_dir = os.path.expanduser("~/Downloads")
+        if not os.path.isdir(target_dir):
+            target_dir = os.path.expanduser("~/Bureau")
+        if not os.path.isdir(target_dir):
+            target_dir = os.path.expanduser("~")
+
+        filepath = os.path.join(target_dir, filename)
+        base, ext = os.path.splitext(filepath)
+        counter = 1
+        while os.path.exists(filepath):
+            filepath = f"{base}_{counter}{ext}"
+            filename = os.path.basename(filepath)
+            counter += 1
+
+        file_saved = False
+        try:
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            file_saved = True
+        except Exception as e:
+            logger.warning("Erreur écriture fichier export: %s", e)
+            filepath = ""
+
+        # Générer un code d'invitation compressé en base64 pour partage instantané sur Discord
+        json_bytes = json.dumps(data, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        compressed = zlib.compress(json_bytes, level=9)
+        invite_code = "TDL1_" + base64.urlsafe_b64encode(compressed).decode("ascii")
+
+        return {
+            "success": True,
+            "filename": filename,
+            "filepath": filepath,
+            "file_saved": file_saved,
+            "salon_name": salon_name,
+            "folder_count": len(data.get("folders", [])),
+            "task_count": len(data.get("tasks", [])),
+            "invite_code": invite_code,
+            "data": data
+        }
+
     def import_salon(self, data, target_salon_id=None):
-        """Importe un salon partagé. Si target_salon_id est None, crée un nouveau salon."""
+        """Importe un salon partagé (dict, code TDL1_ ou JSON). Si target_salon_id est None, crée un nouveau salon."""
+        if isinstance(data, str):
+            clean_str = data.strip()
+            if clean_str.startswith("TDL1_"):
+                try:
+                    import base64
+                    import zlib
+                    import json
+                    b64_part = clean_str[5:]
+                    decompressed = zlib.decompress(base64.urlsafe_b64decode(b64_part.encode("ascii")))
+                    data = json.loads(decompressed.decode("utf-8"))
+                except Exception as e:
+                    logger.warning("Échec décodage code d'invitation salon: %s", e)
+                    return None
+            else:
+                try:
+                    import json
+                    data = json.loads(clean_str)
+                except Exception:
+                    return None
+
         if not isinstance(data, dict):
             return None
 

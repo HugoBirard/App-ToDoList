@@ -339,10 +339,26 @@ class HandlersTestCase(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(exp["scope"], "salon")
 
-        # 6. POST /api/salons/import
+        # 5b. POST /api/salons/<id>/export-file
+        status, exp_file = self._request("POST", f"/api/salons/{salon_id}/export-file")
+        self.assertEqual(status, 200)
+        self.assertTrue(exp_file["success"])
+        self.assertIn("invite_code", exp_file)
+        if exp_file.get("filepath") and os.path.exists(exp_file["filepath"]):
+            try:
+                os.remove(exp_file["filepath"])
+            except Exception:
+                pass
+
+        # 6. POST /api/salons/import (via données JSON)
         status, imp = self._request("POST", "/api/salons/import", exp)
         self.assertEqual(status, 201)
         self.assertEqual(imp["name"], "Equipe Dev Core")
+
+        # 6b. POST /api/salons/import (via code d'invitation Discord)
+        status, imp_code = self._request("POST", "/api/salons/import", {"code": exp_file["invite_code"]})
+        self.assertEqual(status, 201)
+        self.assertEqual(imp_code["name"], "Equipe Dev Core")
 
         # 7. DELETE /api/salons/<id>
         status, del_res = self._request("DELETE", f"/api/salons/{salon_id}")

@@ -302,11 +302,29 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
 
             # POST /api/salons/import
             if path == "/api/salons/import":
-                res = self.service.import_salon(payload)
+                data_to_import = payload
+                if isinstance(payload, dict) and "code" in payload:
+                    data_to_import = payload["code"]
+                elif isinstance(payload, dict) and "data" in payload and isinstance(payload["data"], dict):
+                    data_to_import = payload["data"]
+                res = self.service.import_salon(data_to_import)
                 if res:
                     self.send_json(res, status=201)
                 else:
-                    self.send_json({"error": "Format de salon importé invalide"}, status=400)
+                    self.send_json({"error": "Format de salon importé ou code d'invitation invalide"}, status=400)
+                return
+
+            # POST /api/salons/<id>/export-file
+            if len(parts) == 4 and parts[0] == "api" and parts[1] == "salons" and parts[3] == "export-file":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                res = self.service.export_salon_to_file(salon_id)
+                if res:
+                    self.send_json(res, status=200)
+                else:
+                    self.send_json({"error": "Salon introuvable"}, status=404)
                 return
 
             # POST /api/salons/<id>/import
