@@ -2,7 +2,7 @@
  * Composant de gestion et rendu des tâches.
  */
 
-import { state, getCurrentViewTasks, escapeHtml } from '../state.js';
+import { state, getCurrentViewTasks, getActiveSalon, escapeHtml } from '../state.js';
 import { api } from '../api.js';
 import { renderCounters, updateProgress } from './folders.js';
 import { renderIcon } from '../icons.js';
@@ -251,13 +251,17 @@ export async function handleAddTask(e) {
   if (!title) return;
 
   let folderId = parseInt(folderSelect ? folderSelect.value : '', 10);
-  const exists = state.folders.some(f => f.id === folderId);
-  if (!exists && state.folders.length > 0) {
+  const activeSalon = getActiveSalon();
+  const visibleFolders = activeSalon 
+    ? state.folders.filter(f => !f.salon_id || f.salon_id === activeSalon.id)
+    : state.folders;
+  const exists = visibleFolders.some(f => f.id === folderId);
+  if (!exists && visibleFolders.length > 0) {
     const currentNum = Number(state.currentView);
-    if (!isNaN(currentNum) && state.folders.some(f => f.id === currentNum)) {
+    if (!isNaN(currentNum) && visibleFolders.some(f => f.id === currentNum)) {
       folderId = currentNum;
     } else {
-      folderId = state.folders[0].id;
+      folderId = visibleFolders[0].id;
     }
     if (folderSelect) folderSelect.value = folderId;
   }

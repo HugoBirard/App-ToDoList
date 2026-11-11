@@ -6,7 +6,7 @@
  * - Effet semi-transparent glassmorphism avec flou d'arrière-plan.
  */
 
-import { state, escapeHtml } from '../state.js';
+import { state, getActiveSalon, escapeHtml } from '../state.js';
 import { renderIcon } from '../icons.js';
 
 export function initCustomDropdowns() {
@@ -100,11 +100,16 @@ export function updateFolderDropdown() {
 
   menu.innerHTML = '';
 
+  const activeSalon = getActiveSalon();
+  const visibleFolders = activeSalon 
+    ? state.folders.filter(f => !f.salon_id || f.salon_id === activeSalon.id)
+    : state.folders;
+
   let selectedId = parseInt(hiddenInput.value, 10);
   if (typeof state.currentView === 'number') {
     selectedId = state.currentView;
-  } else if (isNaN(selectedId) || !state.folders.some(f => f.id === selectedId)) {
-    selectedId = state.folders.length > 0 ? state.folders[0].id : null;
+  } else if (isNaN(selectedId) || !visibleFolders.some(f => f.id === selectedId)) {
+    selectedId = visibleFolders.length > 0 ? visibleFolders[0].id : null;
   }
 
   if (selectedId !== null) {
@@ -113,7 +118,7 @@ export function updateFolderDropdown() {
 
   let selectedFolder = null;
 
-  state.folders.forEach(folder => {
+  visibleFolders.forEach(folder => {
     const isSelected = folder.id === selectedId;
     if (isSelected) selectedFolder = folder;
 

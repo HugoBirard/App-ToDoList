@@ -27,10 +27,27 @@ def init_db(db_path=None):
     conn = get_connection(target_path)
     cursor = conn.cursor()
 
+    # Table des salons / espaces partagés
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS salons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            icon TEXT DEFAULT 'folder',
+            color TEXT DEFAULT '#4f46e5',
+            description TEXT DEFAULT '',
+            discord_webhook_url TEXT DEFAULT '',
+            discord_enabled INTEGER DEFAULT 0,
+            discord_author_name TEXT DEFAULT '',
+            position INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     # Table des dossiers
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS folders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            salon_id INTEGER DEFAULT 1,
             name TEXT NOT NULL,
             icon TEXT DEFAULT 'folder',
             color TEXT DEFAULT '#4f46e5',
@@ -41,7 +58,8 @@ def init_db(db_path=None):
             bg_color2 TEXT DEFAULT '',
             bg_angle INTEGER DEFAULT 135,
             position INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (salon_id) REFERENCES salons (id) ON DELETE CASCADE
         )
     """)
 
@@ -71,8 +89,36 @@ def init_db(db_path=None):
     """)
 
     # Migrations incrémentales pour les bases existantes
+    cursor.execute("SELECT COUNT(*) FROM salons")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute(
+            """INSERT INTO salons (id, name, icon, color, description, position)
+               VALUES (1, 'Personnel', 'user', '#4f46e5', 'Espace privé pour vos tâches personnelles', 0)"""
+        )
+        try:
+            cursor.execute("SELECT key, value FROM settings WHERE key LIKE 'discord_%'")
+            disc_rows = {r[0]: r[1] for r in cursor.fetchall()}
+            if disc_rows.get("discord_webhook_url"):
+                cursor.execute(
+                    """UPDATE salons SET 
+                       discord_webhook_url = ?, 
+                       discord_enabled = ?, 
+                       discord_author_name = ? 
+                       WHERE id = 1""",
+                    (
+                        disc_rows.get("discord_webhook_url", ""),
+                        int(disc_rows.get("discord_enabled", 0) or 0),
+                        disc_rows.get("discord_author_name", "")
+                    )
+                )
+        except Exception:
+            pass
+
     cursor.execute("PRAGMA table_info(folders)")
     folder_cols = [r[1] for r in cursor.fetchall()]
+    if "salon_id" not in folder_cols:
+        cursor.execute("ALTER TABLE folders ADD COLUMN salon_id INTEGER DEFAULT 1")
+    cursor.execute("UPDATE folders SET salon_id = 1 WHERE salon_id IS NULL OR salon_id <= 0")
     if "auto_reset_weekly" not in folder_cols:
         cursor.execute("ALTER TABLE folders ADD COLUMN auto_reset_weekly INTEGER DEFAULT 0")
     if "last_reset_at" not in folder_cols:
@@ -128,15 +174,15 @@ def init_db(db_path=None):
 def _seed_default_data(cursor):
     """Insère quelques exemples de démarrage soignés mettant en valeur la case à cocher et la barre d'avancement."""
     cursor.execute(
-        "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 0)",
+        "INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly) VALUES (1, ?, ?, ?, 0)",
         ("Exemples & Découverte", "clipboard", "#6366f1")
     )
     cursor.execute(
-        "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 0)",
+        "INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly) VALUES (1, ?, ?, ?, 0)",
         ("Travail & Projets", "briefcase", "#3b82f6")
     )
     cursor.execute(
-        "INSERT INTO folders (name, icon, color, auto_reset_weekly) VALUES (?, ?, ?, 1)",
+        "INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly) VALUES (1, ?, ?, ?, 1)",
         ("Habitudes Hebdo", "leaf", "#10b981")
     )
 

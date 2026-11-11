@@ -148,6 +148,65 @@ class ServicesTestCase(unittest.TestCase):
         self.assertEqual(f_img["bg_type"], "image")
         self.assertEqual(f_img["bg_color1"], "/assets/folder-bg-123.jpg")
 
+    def test_salon_crud_and_export_import(self):
+        # 1. Obtenir les salons initiaux (doit avoir au moins 'Personnel')
+        salons = self.service.get_salons()
+        self.assertGreaterEqual(len(salons), 1)
+        self.assertEqual(salons[0]["name"], "Personnel")
+
+        # 2. Créer un nouveau salon "Groupe Projet"
+        created = self.service.create_salon({
+            "name": "Groupe Projet",
+            "icon": "users",
+            "color": "#10b981",
+            "description": "Salon pour le travail en équipe",
+            "discord_webhook_url": "https://discord.com/api/webhooks/123/abc",
+            "discord_enabled": 1,
+            "discord_author_name": "Hugo"
+        })
+        self.assertIsNotNone(created)
+        self.assertEqual(created["name"], "Groupe Projet")
+        self.assertTrue(created["discord_webhook_configured"])
+        self.assertTrue(created["discord_webhook_url"].startswith("••••"))
+
+        # 3. Créer un dossier lié à ce salon
+        f = self.service.create_folder({
+            "name": "Dossier Equipe",
+            "salon_id": created["id"]
+        })
+        self.assertEqual(f["salon_id"], created["id"])
+
+        # 4. Créer une tâche dans ce dossier
+        t = self.service.create_task({
+            "title": "Tâche de groupe",
+            "folder_id": f["id"]
+        })
+        self.assertIsNotNone(t)
+
+        # 5. Exporter uniquement ce salon
+        exp = self.service.export_salon(created["id"])
+        self.assertEqual(exp["scope"], "salon")
+        self.assertEqual(exp["salon"]["name"], "Groupe Projet")
+        self.assertEqual(len(exp["folders"]), 1)
+        self.assertEqual(len(exp["tasks"]), 1)
+        # Vérifier que le secret webhook n'a pas fuité dans l'export
+        self.assertNotIn("discord_webhook_url", exp["salon"])
+
+        # 6. Importer ce salon comme nouveau salon
+        imported = self.service.import_salon(exp)
+        self.assertIsNotNone(imported)
+        self.assertNotEqual(imported["id"], created["id"])
+        self.assertEqual(imported["name"], "Groupe Projet")
+
+        # 7. Mettre à jour le salon
+        up = self.service.update_salon(created["id"], {"name": "Groupe Projet V2"})
+        self.assertEqual(up["name"], "Groupe Projet V2")
+
+        # 8. Supprimer le salon
+        ok, _ = self.service.delete_salon(created["id"])
+        self.assertTrue(ok)
+        self.assertIsNone(self.service.get_salon(created["id"]))
+
         # Solid background
         f_solid = self.service.create_folder({
             "name": "Dossier Uni",

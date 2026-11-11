@@ -29,6 +29,44 @@
         </button>
       </div>
 
+      <!-- Sélecteur de Salon / Espace de travail -->
+      <div class="salon-switcher-container">
+        <button id="salon-dropdown-trigger" class="salon-trigger-btn" type="button" title="Changer d'espace ou salon">
+          <div class="salon-trigger-info">
+            <span id="salon-active-color" class="salon-color-dot" style="background-color: #4f46e5;"></span>
+            <span id="salon-active-name" class="salon-active-name">Personnel</span>
+            <span id="salon-discord-indicator" class="salon-discord-pill hidden" title="Notifications Discord actives pour ce salon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" class="discord-mini-svg" style="width: 12px; height: 12px; fill: #5865F2;"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+            </span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon chevron-icon" style="width: 14px; height: 14px;"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button id="manage-salon-btn" class="icon-btn small-btn" title="Paramètres du salon (Discord, Partage, etc.)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+
+      <!-- Menu déroulant des salons -->
+      <div id="salon-dropdown-menu" class="salon-dropdown-menu hidden">
+        <div class="salon-menu-header">
+          <span>Mes Salons & Espaces</span>
+        </div>
+        <div class="salon-list" id="salon-dropdown-list">
+          <!-- Salons injectés dynamiquement -->
+        </div>
+        <div class="salon-menu-footer">
+          <button id="btn-create-salon" class="btn-menu-action" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nouveau salon
+          </button>
+          <button id="btn-import-salon" class="btn-menu-action" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Importer un salon
+          </button>
+        </div>
+      </div>
+      <input type="file" id="salon-import-file-input" accept=".tdl,.json" style="display: none;">
+
       <div class="quick-views">
         <button class="nav-item active" data-view="all">
           <span class="nav-icon">
@@ -303,6 +341,13 @@
         <div class="form-group">
           <label for="folder-name-input">Nom du dossier</label>
           <input type="text" id="folder-name-input" placeholder="ex: Projets, Courses, Maison..." required autofocus>
+        </div>
+
+        <div class="form-group" id="folder-salon-form-group">
+          <label for="folder-salon-select">Salon / Espace de rattachement</label>
+          <select id="folder-salon-select" class="form-select">
+            <!-- Rempli dynamiquement -->
+          </select>
         </div>
 
         <div class="form-group">
@@ -1341,7 +1386,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="feather-icon"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </span>
             <div class="discord-intro-text">
-              <strong>Synchronisation Discord en direct</strong> : Connectez votre salon de projet (#taches-projet). Vos camarades recevront instantanément des notifications élégantes à chaque tâche créée, validée ou supprimée.
+              <strong>Notifications de salon Discord</strong> : Connectez votre salon Discord (#tâches-projet). Vos camarades recevront instantanément des alertes élégantes à chaque tâche créée, validée ou supprimée.<br>
+              <span style="font-size: 0.82rem; opacity: 0.88; margin-top: 4px; display: inline-block;">💡 Note : Pour synchroniser les tâches entre plusieurs ordinateurs, utilisez l'onglet <strong>Réseau Local / Serveur</strong> ou <strong>Stockage & Sync</strong>. Vous pouvez aussi configurer un webhook Discord spécifique pour chaque salon depuis la barre latérale.</span>
             </div>
           </div>
 
@@ -1485,6 +1531,169 @@
       <div class="modal-actions" id="theme-modal-actions">
         <button type="button" class="btn btn-secondary" id="reset-default-theme-btn">Réinitialiser (Noir & Gris Pro)</button>
         <button type="button" class="btn btn-primary" id="save-main-theme-btn">Appliquer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Créer un Salon / Espace -->
+  <div class="modal-backdrop hidden" id="add-salon-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Créer un nouvel espace / salon</h3>
+        <button class="icon-btn close-modal-btn" title="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form id="add-salon-form">
+        <div class="form-group">
+          <label for="add-salon-name-input">Nom de l'espace ou salon</label>
+          <input type="text" id="add-salon-name-input" placeholder="ex: Groupe Projet Web, Cours, Famille..." required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="add-salon-desc-input">Description (optionnelle)</label>
+          <input type="text" id="add-salon-desc-input" placeholder="ex: Tâches partagées pour le projet d'informatique">
+        </div>
+
+        <div class="form-group">
+          <label>Couleur du salon</label>
+          <div class="color-picker" id="add-salon-color-picker">
+            <button type="button" class="color-opt active" data-color="#4f46e5" style="background: #4f46e5;"></button>
+            <button type="button" class="color-opt" data-color="#3b82f6" style="background: #3b82f6;"></button>
+            <button type="button" class="color-opt" data-color="#10b981" style="background: #10b981;"></button>
+            <button type="button" class="color-opt" data-color="#f59e0b" style="background: #f59e0b;"></button>
+            <button type="button" class="color-opt" data-color="#ef4444" style="background: #ef4444;"></button>
+            <button type="button" class="color-opt" data-color="#ec4899" style="background: #ec4899;"></button>
+            <button type="button" class="color-opt" data-color="#8b5cf6" style="background: #8b5cf6;"></button>
+            <button type="button" class="color-opt" data-color="#06b6d4" style="background: #06b6d4;"></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Icône</label>
+          <div class="icon-picker" id="add-salon-icon-picker">
+            <button type="button" class="icon-opt active" data-icon="folder" title="Dossier">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="users" title="Équipe / Groupe">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="briefcase" title="Travail">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="code" title="Code / Dev">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="rocket" title="Projets">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+            </button>
+            <button type="button" class="icon-opt" data-icon="graduation-cap" title="Études">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="add-salon-webhook-input">Webhook Discord dédié à ce salon (optionnel)</label>
+          <input type="text" id="add-salon-webhook-input" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
+          <small class="field-hint" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; display: block;">Seules les tâches de ce salon enverront des alertes sur ce canal Discord.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary close-modal-btn">Annuler</button>
+          <button type="submit" class="btn btn-primary">Créer le salon</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Gérer le Salon / Espace -->
+  <div class="modal-backdrop hidden" id="manage-salon-modal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 id="manage-salon-modal-title">Gérer le salon</h3>
+        <button class="icon-btn close-modal-btn" title="Fermer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Onglets de la modale salon -->
+      <div class="modal-tabs">
+        <button type="button" class="salon-modal-tab active" data-pane="salon-pane-info">Général</button>
+        <button type="button" class="salon-modal-tab" data-pane="salon-pane-discord">Discord du salon</button>
+        <button type="button" class="salon-modal-tab" data-pane="salon-pane-share">Partage &amp; Actions</button>
+      </div>
+
+      <!-- Onglet Général -->
+      <div class="salon-tab-pane" id="salon-pane-info">
+        <div class="form-group" style="margin-top: 14px;">
+          <label for="manage-salon-name">Nom du salon</label>
+          <input type="text" id="manage-salon-name" required>
+        </div>
+        <div class="form-group">
+          <label for="manage-salon-desc">Description</label>
+          <input type="text" id="manage-salon-desc" placeholder="Objectif ou membres de ce salon">
+        </div>
+        <div class="modal-actions" style="margin-top: 16px;">
+          <button type="button" class="btn btn-primary" id="salon-save-info-btn">Enregistrer les modifications</button>
+        </div>
+      </div>
+
+      <!-- Onglet Discord -->
+      <div class="salon-tab-pane hidden" id="salon-pane-discord">
+        <div class="discord-intro-banner" style="margin-top: 14px;">
+          <div class="discord-intro-text">
+            <strong>Webhook Discord exclusif à ce salon</strong> : Les alertes de ce salon (création de tâche, coche, suppression) seront envoyées uniquement sur ce salon Discord.
+          </div>
+        </div>
+
+        <div class="sync-card discord-card" style="margin-top: 12px;">
+          <div class="discord-header-row">
+            <label class="discord-toggle-label">
+              <input type="checkbox" id="manage-salon-discord-enabled">
+              <span class="discord-toggle-text">Activer les alertes Discord pour ce salon</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label for="manage-salon-discord-url">URL du Webhook Discord pour ce salon</label>
+            <input type="text" id="manage-salon-discord-url" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
+          </div>
+
+          <div class="form-group" style="margin-top: 12px;">
+            <label for="manage-salon-discord-author">Votre nom ou pseudo pour ce salon</label>
+            <input type="text" id="manage-salon-discord-author" placeholder="Ex : Hugo (laissez vide pour 'Équipe')" maxlength="50">
+          </div>
+        </div>
+
+        <div class="discord-actions-row" style="margin-top: 14px;">
+          <button type="button" id="salon-discord-test-btn" class="btn btn-secondary">Envoyer un message test</button>
+          <button type="button" id="salon-discord-save-btn" class="btn btn-primary">Enregistrer la configuration Discord</button>
+        </div>
+        <div id="salon-discord-feedback" class="discord-feedback hidden" style="margin-top: 12px;"></div>
+      </div>
+
+      <!-- Onglet Partage & Actions -->
+      <div class="salon-tab-pane hidden" id="salon-pane-share">
+        <div class="sync-card" style="margin-top: 14px;">
+          <h4 style="margin: 0 0 6px 0; color: var(--text-primary);">📤 Exporter uniquement ce salon</h4>
+          <p id="salon-export-stats" style="margin: 0 0 12px 0; font-size: 0.85rem; color: var(--text-secondary);"></p>
+          <p style="margin: 0 0 12px 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+            Générez un fichier <code>.tdl</code> contenant uniquement les dossiers et tâches de ce salon. Vous pouvez envoyer ce fichier à vos camarades sans divulguer vos autres salons personnels.
+          </p>
+          <button type="button" id="salon-export-btn" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Télécharger le fichier du salon (.tdl)
+          </button>
+        </div>
+
+        <div class="sync-card" style="margin-top: 16px; border-color: rgba(239, 68, 68, 0.3);">
+          <h4 style="margin: 0 0 6px 0; color: #f87171;">🗑️ Supprimer ce salon</h4>
+          <p style="margin: 0 0 12px 0; font-size: 0.82rem; color: var(--text-muted);">
+            Supprime définitivement ce salon ainsi que tous ses dossiers et tâches associés.
+          </p>
+          <button type="button" id="salon-delete-btn" class="btn btn-danger">Supprimer ce salon</button>
+        </div>
       </div>
     </div>
   </div>

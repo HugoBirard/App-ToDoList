@@ -78,6 +78,17 @@ class TodoService:
         self.check_weekly_resets(conn)
         cursor = conn.cursor()
 
+        cursor.execute("SELECT * FROM salons ORDER BY position ASC, id ASC")
+        raw_salons = [dict(row) for row in cursor.fetchall()]
+        salons = []
+        for s in raw_salons:
+            s_dict = dict(s)
+            url = s_dict.get("discord_webhook_url") or ""
+            s_dict["discord_webhook_configured"] = bool(url)
+            if url:
+                s_dict["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+            salons.append(s_dict)
+
         cursor.execute("SELECT * FROM folders ORDER BY position ASC, id ASC")
         folders = [dict(row) for row in cursor.fetchall()]
 
@@ -98,7 +109,7 @@ class TodoService:
                 safe_settings[k] = v
         safe_settings["discord_webhook_configured"] = bool(raw_settings.get("discord_webhook_url"))
 
-        return {"folders": folders, "tasks": tasks, "settings": safe_settings}
+        return {"salons": salons, "folders": folders, "tasks": tasks, "settings": safe_settings}
 
     def check_weekly_resets(self, conn=None):
         """Vérifie si 7 jours se sont écoulés pour les dossiers hebdomadaires et remet leurs tâches à zéro."""
@@ -150,18 +161,47 @@ class TodoService:
         try:
             conn = self._conn()
             cursor = conn.cursor()
+
+            # Déterminer le salon_id concerné
+            salon_id = kwargs.get("salon_id")
+            folder_id = kwargs.get("folder_id") or kwargs.get("task", {}).get("folder_id")
+            if not salon_id and folder_id:
+                cursor.execute("SELECT salon_id FROM folders WHERE id = ?", (folder_id,))
+                row = cursor.fetchone()
+                if row and row["salon_id"]:
+                    salon_id = row["salon_id"]
+
+            webhook_url = ""
+            author = kwargs.get("author") or ""
+            is_enabled = False
+
+            # 1. Vérifier si le salon spécifique a un webhook Discord configuré
+            if salon_id:
+                cursor.execute("SELECT * FROM salons WHERE id = ?", (salon_id,))
+                salon_row = cursor.fetchone()
+                if salon_row:
+                    s_data = dict(salon_row)
+                    if s_data.get("discord_enabled") and s_data.get("discord_webhook_url"):
+                        webhook_url = str(s_data["discord_webhook_url"]).strip()
+                        is_enabled = True
+                        if not author and s_data.get("discord_author_name"):
+                            author = s_data["discord_author_name"]
+
+            # 2. Fallback sur les réglages globaux si le salon n'a pas de webhook propre
             cursor.execute("SELECT key, value FROM settings WHERE key LIKE 'discord_%'")
             settings = {row["key"]: row["value"] for row in cursor.fetchall()}
             conn.close()
 
-            if str(settings.get("discord_enabled", "0")) != "1":
+            if not is_enabled:
+                if str(settings.get("discord_enabled", "0")) == "1" and settings.get("discord_webhook_url"):
+                    webhook_url = str(settings.get("discord_webhook_url", "")).strip()
+                    is_enabled = True
+
+            if not is_enabled or not webhook_url:
                 return
 
-            webhook_url = settings.get("discord_webhook_url", "").strip()
-            if not webhook_url:
-                return
-
-            author = kwargs.get("author") or settings.get("discord_author_name") or "Équipe"
+            if not author:
+                author = settings.get("discord_author_name") or "Équipe"
 
             if action_type == "task_created" and str(settings.get("discord_notify_created", "1")) == "1":
                 notify_task_created(webhook_url, kwargs.get("task", {}), kwargs.get("folder_name", "Général"), author=author)
@@ -173,6 +213,247 @@ class TodoService:
                 notify_folder_created(webhook_url, kwargs.get("folder_name", "Dossier"), author=author)
         except Exception:
             logger.warning("Erreur lors de la notification Discord", exc_info=True)
+
+    # --- Salons (Espaces de travail partagés) ---
+
+    def get_salons(self):
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM salons ORDER BY position ASC, id ASC")
+        raw = [dict(r) for r in cursor.fetchall()]
+        conn.close()
+        res = []
+        for s in raw:
+            item = dict(s)
+            url = item.get("discord_webhook_url") or ""
+            item["discord_webhook_configured"] = bool(url)
+            if url:
+                item["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+            res.append(item)
+        return res
+
+    def get_raw_salon_setting(self, salon_id, key):
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT {key} FROM salons WHERE id = ?", (salon_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return row[0] if row else None
+
+    def get_salon(self, salon_id):
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM salons WHERE id = ?", (salon_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if not row:
+            return None
+        item = dict(row)
+        url = item.get("discord_webhook_url") or ""
+        item["discord_webhook_configured"] = bool(url)
+        if url:
+            item["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+        return item
+
+    def create_salon(self, data):
+        conn = self._conn()
+        cursor = conn.cursor()
+        name = str(data.get("name") or "Nouveau salon").strip()[:100]
+        icon = str(data.get("icon") or "folder")[:50]
+        color = _safe_color(data.get("color"), default="#4f46e5")
+        description = str(data.get("description") or "").strip()[:300]
+        discord_webhook_url = str(data.get("discord_webhook_url") or "").strip()
+        discord_enabled = 1 if data.get("discord_enabled") in (1, "1", True) else 0
+        discord_author_name = str(data.get("discord_author_name") or "").strip()[:100]
+
+        cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM salons")
+        next_pos = cursor.fetchone()[0]
+
+        cursor.execute("""
+            INSERT INTO salons (name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, position)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, icon, color, description, discord_webhook_url, discord_enabled, discord_author_name, next_pos))
+        conn.commit()
+        new_id = cursor.lastrowid
+        conn.close()
+        return self.get_salon(new_id)
+
+    def update_salon(self, salon_id, data):
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM salons WHERE id = ?", (salon_id,))
+        existing = cursor.fetchone()
+        if not existing:
+            conn.close()
+            return None
+
+        fields = []
+        values = []
+
+        if "name" in data:
+            fields.append("name = ?")
+            values.append(str(data["name"]).strip()[:100])
+        if "icon" in data:
+            fields.append("icon = ?")
+            values.append(str(data["icon"])[:50])
+        if "color" in data:
+            fields.append("color = ?")
+            values.append(_safe_color(data["color"], default="#4f46e5"))
+        if "description" in data:
+            fields.append("description = ?")
+            values.append(str(data["description"]).strip()[:300])
+        if "discord_webhook_url" in data:
+            new_url = str(data["discord_webhook_url"]).strip()
+            # Si masqué (••••), ne pas écraser l'URL secrète existante
+            if not new_url.startswith("••••"):
+                fields.append("discord_webhook_url = ?")
+                values.append(new_url)
+        if "discord_enabled" in data:
+            fields.append("discord_enabled = ?")
+            values.append(1 if data["discord_enabled"] in (1, "1", True) else 0)
+        if "discord_author_name" in data:
+            fields.append("discord_author_name = ?")
+            values.append(str(data["discord_author_name"]).strip()[:100])
+        if "position" in data:
+            fields.append("position = ?")
+            values.append(_safe_int(data["position"], default=0))
+
+        if fields:
+            values.append(salon_id)
+            cursor.execute(f"UPDATE salons SET {', '.join(fields)} WHERE id = ?", values)
+            conn.commit()
+
+        conn.close()
+        return self.get_salon(salon_id)
+
+    def delete_salon(self, salon_id):
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM salons")
+        count = cursor.fetchone()[0]
+        if count <= 1:
+            conn.close()
+            return False, "Impossible de supprimer le dernier salon."
+
+        cursor.execute("""
+            DELETE FROM tasks WHERE folder_id IN (
+                SELECT id FROM folders WHERE salon_id = ?
+            )
+        """, (salon_id,))
+        cursor.execute("DELETE FROM folders WHERE salon_id = ?", (salon_id,))
+        cursor.execute("DELETE FROM salons WHERE id = ?", (salon_id,))
+        conn.commit()
+        conn.close()
+        return True, "Salon supprimé avec succès."
+
+    def export_salon(self, salon_id):
+        """Exporte uniquement les dossiers et tâches d'un salon donné pour partage."""
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM salons WHERE id = ?", (salon_id,))
+        salon_row = cursor.fetchone()
+        if not salon_row:
+            conn.close()
+            return None
+
+        salon = dict(salon_row)
+        # Ne JAMAIS exporter le webhook Discord secret du propriétaire
+        salon.pop("discord_webhook_url", None)
+
+        cursor.execute("SELECT * FROM folders WHERE salon_id = ? ORDER BY position ASC, id ASC", (salon_id,))
+        folders = [dict(r) for r in cursor.fetchall()]
+        folder_ids = [f["id"] for f in folders]
+
+        tasks = []
+        if folder_ids:
+            placeholders = ",".join("?" * len(folder_ids))
+            cursor.execute(f"SELECT * FROM tasks WHERE folder_id IN ({placeholders}) ORDER BY id ASC", folder_ids)
+            tasks = [dict(r) for r in cursor.fetchall()]
+
+        conn.close()
+        return {
+            "version": 2,
+            "scope": "salon",
+            "exported_at": datetime.now().isoformat(),
+            "salon": salon,
+            "folders": folders,
+            "tasks": tasks
+        }
+
+    def import_salon(self, data, target_salon_id=None):
+        """Importe un salon partagé. Si target_salon_id est None, crée un nouveau salon."""
+        if not isinstance(data, dict):
+            return None
+
+        incoming_salon = data.get("salon", {})
+        incoming_folders = data.get("folders", [])
+        incoming_tasks = data.get("tasks", [])
+
+        conn = self._conn()
+        cursor = conn.cursor()
+
+        salon_id = target_salon_id
+        if salon_id:
+            cursor.execute("SELECT id FROM salons WHERE id = ?", (salon_id,))
+            if not cursor.fetchone():
+                salon_id = None
+
+        if not salon_id:
+            name = incoming_salon.get("name") or "Salon Partagé"
+            icon = incoming_salon.get("icon") or "folder"
+            color = incoming_salon.get("color") or "#4f46e5"
+            desc = incoming_salon.get("description") or "Salon importé"
+            cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM salons")
+            next_pos = cursor.fetchone()[0]
+            cursor.execute("""
+                INSERT INTO salons (name, icon, color, description, position)
+                VALUES (?, ?, ?, ?, ?)
+            """, (name, icon, color, desc, next_pos))
+            conn.commit()
+            salon_id = cursor.lastrowid
+
+        folder_id_map = {}
+        for f in incoming_folders:
+            old_id = f.get("id")
+            fname = str(f.get("name") or "Dossier").strip()[:100]
+            ficon = str(f.get("icon") or "folder")[:50]
+            fcol = _safe_color(f.get("color"), default="#4f46e5")
+            f_reset = 1 if f.get("auto_reset_weekly") else 0
+            f_bg_type = _safe_bg_type(f.get("bg_type"), default="default")
+            f_bg1 = _safe_bg_value(f.get("bg_color1"), f_bg_type)
+            f_bg2 = _safe_color(f.get("bg_color2"), default="") if f.get("bg_color2") else ""
+            f_angle = _safe_int(f.get("bg_angle", 135), default=135, min_val=0, max_val=360)
+
+            cursor.execute("""
+                INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (salon_id, fname, ficon, fcol, f_reset, f_bg_type, f_bg1, f_bg2, f_angle))
+            conn.commit()
+            new_fid = cursor.lastrowid
+            if old_id is not None:
+                folder_id_map[old_id] = new_fid
+
+        for t in incoming_tasks:
+            old_fid = t.get("folder_id")
+            new_fid = folder_id_map.get(old_fid)
+            if not new_fid and folder_id_map:
+                new_fid = next(iter(folder_id_map.values()))
+
+            title = str(t.get("title") or "Tâche sans titre").strip()[:500]
+            completed = 1 if t.get("completed") else 0
+            has_prog = 1 if t.get("has_progress") else 0
+            prog = _safe_int(t.get("progress", 0), default=0, min_val=0, max_val=100)
+            prio = str(t.get("priority") or "normal")[:20]
+            due = str(t.get("due_date"))[:30] if t.get("due_date") else None
+
+            cursor.execute("""
+                INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority, due_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (new_fid, title, completed, has_prog, prog, prio, due))
+
+        conn.commit()
+        conn.close()
+        return self.get_salon(salon_id)
 
     # --- Dossiers ---
 
@@ -188,20 +469,33 @@ class TodoService:
         bg_color2 = _safe_color(data.get("bg_color2"), default="") if data.get("bg_color2") else ""
         bg_angle = _safe_int(data.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
-        cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM folders")
+        # Assigner à un salon valide
+        salon_id = _safe_int(data.get("salon_id"), default=None)
+        if salon_id is not None:
+            cursor.execute("SELECT id FROM salons WHERE id = ?", (salon_id,))
+            if not cursor.fetchone():
+                cursor.execute("SELECT id FROM salons ORDER BY position ASC, id ASC LIMIT 1")
+                first_s = cursor.fetchone()
+                salon_id = first_s["id"] if first_s else 1
+        else:
+            cursor.execute("SELECT id FROM salons ORDER BY position ASC, id ASC LIMIT 1")
+            first_s = cursor.fetchone()
+            salon_id = first_s["id"] if first_s else 1
+
+        cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM folders WHERE salon_id = ?", (salon_id,))
         next_pos = cursor.fetchone()[0]
 
         cursor.execute(
-            """INSERT INTO folders (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, position) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, next_pos)
+            """INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, position) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (salon_id, name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, next_pos)
         )
         conn.commit()
         new_id = cursor.lastrowid
         cursor.execute("SELECT * FROM folders WHERE id = ?", (new_id,))
         created = dict(cursor.fetchone())
         conn.close()
-        self._trigger_discord("folder_created", folder_name=created.get("name", "Nouveau dossier"), author=data.get("author"))
+        self._trigger_discord("folder_created", folder_name=created.get("name", "Nouveau dossier"), author=data.get("author"), salon_id=salon_id)
         return created
 
     def reorder_folders(self, folder_ids):
@@ -227,6 +521,13 @@ class TodoService:
         if "name" in data:
             fields.append("name = ?")
             values.append(str(data["name"]).strip()[:100])
+        if "salon_id" in data:
+            s_id = _safe_int(data["salon_id"], None)
+            if s_id:
+                cursor.execute("SELECT id FROM salons WHERE id = ?", (s_id,))
+                if cursor.fetchone():
+                    fields.append("salon_id = ?")
+                    values.append(s_id)
         if "icon" in data:
             fields.append("icon = ?")
             values.append(str(data["icon"])[:50])
