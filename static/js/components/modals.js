@@ -496,13 +496,15 @@ export function updateCustomBgUI() {
   const removeBtn = document.getElementById('custom-user-bg-remove-btn');
   const curBg = state.mainBg || '';
 
-  const isCustomUserImage = curBg.includes('data:image/') || 
+  const isCustomUserImage = curBg.includes('custom-background') || curBg.includes('data:image/') || 
     (curBg.includes('url(') && !curBg.includes('/assets/themes/'));
 
   if (isCustomUserImage) {
     if (previewWrap) {
       previewWrap.classList.remove('hidden');
       previewWrap.style.background = curBg;
+      previewWrap.style.backgroundSize = 'cover';
+      previewWrap.style.backgroundPosition = 'center';
     }
     if (removeBtn) removeBtn.classList.remove('hidden');
   } else {
@@ -529,7 +531,7 @@ export function initCustomBackgroundUpload() {
       reader.onload = (loadEvt) => {
         const rawData = loadEvt.target.result;
         
-        // Redimensionner l'image si besoin via un canvas pour garantir < 500 Ko et 60 FPS constants
+        // Redimensionner l'image si besoin via un canvas pour garantir < 2 Mo et fluidité maximale
         const img = new Image();
         img.onload = async () => {
           const maxDim = 1920;
@@ -553,14 +555,43 @@ export function initCustomBackgroundUpload() {
           ctx.drawImage(img, 0, 0, w, h);
 
           const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-          const bgValue = `url("${optimizedDataUrl}") center/cover no-repeat fixed, #08090c`;
 
-          // Appliquer le fond et désactiver tout style de subculture actif pour laisser voir la photo
-          applyThemeStyle('pro');
-          await setMainBackground(bgValue);
-          updateCustomBgUI();
-          document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
-          fileInput.value = '';
+          const origBtnHtml = uploadBtn.innerHTML;
+          uploadBtn.disabled = true;
+          uploadBtn.textContent = 'Enregistrement en cours...';
+
+          try {
+            const res = await api('/api/upload/background', 'POST', { image: optimizedDataUrl });
+            if (res && res.success && res.bg_value) {
+              // Appliquer le fond et désactiver tout style de subculture actif pour laisser voir la photo
+              applyThemeStyle('pro');
+              await setMainBackground(res.bg_value);
+              updateCustomBgUI();
+              document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+              showNotificationDialog({
+                title: 'Image de fond personnalisée',
+                message: 'Votre photo d\'arrière-plan a été enregistrée et appliquée avec succès !',
+                icon: 'check-circle'
+              });
+            } else {
+              showNotificationDialog({
+                title: 'Erreur d\'image',
+                message: res?.error || 'Erreur lors de l\'enregistrement de l\'image de fond.',
+                icon: 'alert-triangle'
+              });
+            }
+          } catch (err) {
+            console.error('Erreur upload background:', err);
+            showNotificationDialog({
+              title: 'Erreur technique',
+              message: 'Impossible de téléverser l\'image : ' + (err.message || ''),
+              icon: 'alert-triangle'
+            });
+          } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = origBtnHtml;
+            fileInput.value = '';
+          }
         };
         img.src = rawData;
       };
@@ -572,6 +603,11 @@ export function initCustomBackgroundUpload() {
     removeBtn.addEventListener('click', async () => {
       await applyPresetTheme('pro-dark');
       updateCustomBgUI();
+      showNotificationDialog({
+        title: 'Image de fond retirée',
+        message: 'Le thème sombre par défaut a été réappliqué.',
+        icon: 'check-circle'
+      });
     });
   }
 }

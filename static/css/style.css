@@ -69,10 +69,12 @@ body {
 .app-bg-layer {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   background-attachment: fixed;
   background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity;
 }
@@ -87,6 +89,8 @@ body {
 
 /* Layout */
 .app-layout {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-height: 100vh;
   width: 100%;
@@ -2942,14 +2946,6 @@ select option, optgroup {
   --bg-card: rgba(20, 22, 30, 0.88);
 }
 
-[data-theme-style="street"] body {
-  background: url("../assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10 !important;
-}
-
-[data-theme-style="street"] .app-bg-layer {
-  background: url("../assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10 !important;
-}
-
 [data-theme-style="street"] .sidebar {
   background: rgba(12, 13, 17, 0.92);
   border-right: 2px solid #ccff00;
@@ -3028,14 +3024,6 @@ select option, optgroup {
   --bg-primary: rgba(8, 3, 20, 0.90);
   --bg-secondary: rgba(10, 4, 24, 0.94);
   --bg-card: rgba(13, 5, 30, 0.88);
-}
-
-[data-theme-style="cyberpunk"] body {
-  background: url("../assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a !important;
-}
-
-[data-theme-style="cyberpunk"] .app-bg-layer {
-  background: url("../assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a !important;
 }
 
 [data-theme-style="cyberpunk"] .sidebar {
@@ -3123,14 +3111,6 @@ select option, optgroup {
   --bg-card: rgba(10, 10, 13, 0.92);
 }
 
-[data-theme-style="techno"] body {
-  background: url("../assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304 !important;
-}
-
-[data-theme-style="techno"] .app-bg-layer {
-  background: url("../assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304 !important;
-}
-
 [data-theme-style="techno"] .sidebar {
   background: rgba(6, 6, 8, 0.96);
   border-right: 1px solid rgba(255, 255, 255, 0.2);
@@ -3177,14 +3157,6 @@ select option, optgroup {
   --border: rgba(232, 121, 249, 0.28);
 }
 
-[data-theme-style="y2k"] body {
-  background: url("../assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525 !important;
-}
-
-[data-theme-style="y2k"] .app-bg-layer {
-  background: url("../assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525 !important;
-}
-
 [data-theme-style="y2k"] .task-item {
   background: rgba(25, 22, 45, 0.85);
   border: 1px solid rgba(232, 121, 249, 0.3);
@@ -3211,14 +3183,6 @@ select option, optgroup {
   --accent-hover: #e11d48;
   --accent-light: rgba(244, 63, 94, 0.22);
   --border: rgba(244, 63, 94, 0.3);
-}
-
-[data-theme-style="arcade"] body {
-  background: url("../assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524 !important;
-}
-
-[data-theme-style="arcade"] .app-bg-layer {
-  background: url("../assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524 !important;
 }
 
 [data-theme-style="arcade"] .task-item {
@@ -3249,14 +3213,6 @@ select option, optgroup {
   --border: rgba(245, 158, 11, 0.28);
 }
 
-[data-theme-style="luxury"] body {
-  background: url("../assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c !important;
-}
-
-[data-theme-style="luxury"] .app-bg-layer {
-  background: url("../assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c !important;
-}
-
 [data-theme-style="luxury"] .task-item {
   background: rgba(14, 13, 16, 0.90);
   border: 1px solid rgba(245, 158, 11, 0.25);
@@ -3283,14 +3239,6 @@ select option, optgroup {
   --accent-hover: #10b981;
   --accent-light: rgba(52, 211, 153, 0.18);
   --border: rgba(52, 211, 153, 0.25);
-}
-
-[data-theme-style="zen"] body {
-  background: url("../assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f !important;
-}
-
-[data-theme-style="zen"] .app-bg-layer {
-  background: url("../assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f !important;
 }
 
 [data-theme-style="zen"] .task-item {
@@ -3322,14 +3270,6 @@ select option, optgroup {
   --bg-primary: rgba(24, 4, 12, 0.90);
   --bg-secondary: rgba(30, 5, 16, 0.94);
   --bg-card: rgba(36, 6, 18, 0.88);
-}
-
-[data-theme-style="lava"] body {
-  background: url("../assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a !important;
-}
-
-[data-theme-style="lava"] .app-bg-layer {
-  background: url("../assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a !important;
 }
 
 [data-theme-style="lava"] .sidebar {

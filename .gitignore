@@ -52,3 +52,6 @@ ENV/
 
 # Local backward compatibility symlink
 /ToDoList
+
+# User custom uploads
+static/assets/custom-background.*

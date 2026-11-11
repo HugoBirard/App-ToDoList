@@ -6,6 +6,7 @@ Exécute les requêtes de manière asynchrone pour ne jamais bloquer l'interface
 
 import json
 import logging
+import ssl
 import threading
 import urllib.error
 import urllib.parse
@@ -26,7 +27,9 @@ def is_valid_discord_webhook(url: str) -> bool:
     """Vérifie que l'URL est une URL de Webhook Discord valide et sécurisée (anti-SSRF)."""
     if not url or not isinstance(url, str):
         return False
-    url = url.strip()
+    url = url.strip().strip("'\"")
+    if not url.startswith("https://") and (url.startswith("discord.com") or url.startswith("discordapp.com")):
+        url = "https://" + url
     parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https":
         return False
@@ -45,7 +48,11 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
     Envoie une charge utile JSON vers un webhook Discord.
     Si async_mode est True, l'envoi s'exécute dans un thread détaché.
     """
-    if not is_valid_discord_webhook(webhook_url):
+    clean_url = (webhook_url or "").strip().strip("'\"")
+    if not clean_url.startswith("https://") and (clean_url.startswith("discord.com") or clean_url.startswith("discordapp.com")):
+        clean_url = "https://" + clean_url
+
+    if not is_valid_discord_webhook(clean_url):
         return False, "URL de webhook Discord non valide."
 
     data_bytes = json.dumps(payload).encode("utf-8")
@@ -53,7 +60,7 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
     def _do_send():
         try:
             req = urllib.request.Request(
-                webhook_url.strip(),
+                clean_url,
                 data=data_bytes,
                 headers={
                     "Content-Type": "application/json",
@@ -61,7 +68,14 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
                 },
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=8) as resp:
+            # Contexte SSL standard sécurisé
+            ssl_ctx = ssl.create_default_context()
+            try:
+                import certifi
+                ssl_ctx.load_verify_locations(cafile=certifi.where())
+            except Exception:
+                pass
+            with urllib.request.urlopen(req, timeout=10, context=ssl_ctx) as resp:
                 status = resp.status
                 return status in (200, 204), f"Succès ({status})"
         except urllib.error.HTTPError as e:

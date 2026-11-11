@@ -70,8 +70,19 @@ export function applyActiveBackground(immediate = false) {
     return;
   }
 
+  const applyToLayer = (layer, bg) => {
+    if (!layer) return;
+    layer.style.background = bg;
+    if (bg && bg.includes('url(')) {
+      layer.style.backgroundSize = 'cover';
+      layer.style.backgroundPosition = 'center';
+      layer.style.backgroundRepeat = 'no-repeat';
+      layer.style.backgroundAttachment = 'fixed';
+    }
+  };
+
   if (immediate) {
-    layer1.style.background = targetBg;
+    applyToLayer(layer1, targetBg);
     layer1.className = 'app-bg-layer active-layer';
     layer2.className = 'app-bg-layer hidden-layer';
     currentActiveLayer = 1;
@@ -82,7 +93,7 @@ export function applyActiveBackground(immediate = false) {
   const nextLayer = currentActiveLayer === 1 ? layer2 : layer1;
   const prevLayer = currentActiveLayer === 1 ? layer1 : layer2;
 
-  nextLayer.style.background = targetBg;
+  applyToLayer(nextLayer, targetBg);
   nextLayer.className = 'app-bg-layer active-layer';
   prevLayer.className = 'app-bg-layer hidden-layer';
 
@@ -122,11 +133,19 @@ export function toggleTheme() {
 
 export async function setMainBackground(bgValue) {
   state.mainBg = bgValue;
-  localStorage.setItem('todolist_main_bg', bgValue);
+  try {
+    localStorage.setItem('todolist_main_bg', bgValue);
+  } catch (e) {
+    console.warn('localStorage setItem failed:', e);
+  }
   if (document.documentElement.getAttribute('data-theme') === 'light') {
     applyTheme('dark');
   } else {
     applyActiveBackground();
   }
-  await api('/api/settings', 'PUT', { main_background: bgValue });
+  try {
+    await api('/api/settings', 'PUT', { main_background: bgValue });
+  } catch (e) {
+    console.warn('API update main_background failed:', e);
+  }
 }

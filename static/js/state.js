@@ -15,14 +15,14 @@ export const PRESETS = {
   'violet': 'linear-gradient(135deg, #11081c 0%, #190e29 50%, #25143a 100%)',
 
   // Nouveaux Univers Artistiques & Subcultures Immersifs (Textures et décors complets)
-  'street': 'url("/assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10',
-  'techno': 'url("/assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304',
-  'cyberpunk': 'url("/assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a',
-  'y2k': 'url("/assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525',
-  'arcade': 'url("/assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524',
-  'luxury': 'url("/assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c',
-  'zen': 'url("/assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f',
-  'lava': 'url("/assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a'
+  'street': 'url("/assets/themes/street-brick-graffiti.svg") center / cover no-repeat fixed #0b0c10',
+  'techno': 'url("/assets/themes/techno-concrete-laser.svg") center / cover no-repeat fixed #030304',
+  'cyberpunk': 'url("/assets/themes/cyberpunk-netrunner-hack.svg") center / cover no-repeat fixed #05010a',
+  'y2k': 'url("/assets/themes/y2k-liquid-chrome.svg") center / cover no-repeat fixed #131525',
+  'arcade': 'url("/assets/themes/arcade-synthwave-grid.svg") center / cover no-repeat fixed #180524',
+  'luxury': 'url("/assets/themes/luxury-black-gold-marble.svg") center / cover no-repeat fixed #0b0a0c',
+  'zen': 'url("/assets/themes/zen-mist-bamboo.svg") center / cover no-repeat fixed #05130f',
+  'lava': 'url("/assets/themes/lava-lamp-magma.svg") center / cover no-repeat fixed #18020a'
 };
 
 export const THEME_PROFILES = {
