@@ -320,7 +320,36 @@ export async function handleFolderSubmit(e) {
 // MODAL THÈME PRINCIPAL
 // ==========================================
 
+let currentModalBgState = {
+  type: 'gradient', // 'preset', 'custom-image', 'generator'
+  presetKey: null,
+  value: null
+};
+
+export function markModalGeneratorSelected() {
+  currentModalBgState = { type: 'generator', presetKey: null, value: null };
+  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+}
+
 export function openThemeModal() {
+  const curBg = state.mainBg || '';
+  const isCustomUserImage = curBg.includes('custom-background') || curBg.includes('data:image/') || 
+    (curBg.includes('url(') && !curBg.includes('/assets/themes/'));
+
+  const matchingPresetKey = Object.keys(PRESETS).find(k => PRESETS[k] === curBg);
+
+  if (isCustomUserImage) {
+    currentModalBgState = { type: 'custom-image', value: curBg, presetKey: null };
+  } else if (matchingPresetKey) {
+    currentModalBgState = { type: 'preset', value: curBg, presetKey: matchingPresetKey };
+  } else {
+    currentModalBgState = { type: 'generator', value: curBg, presetKey: null };
+  }
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === currentModalBgState.presetKey);
+  });
+
   updateMainBgControlsUI();
   updateMainBgPreview();
   syncTitlebarStyleUI();
@@ -333,6 +362,7 @@ export function closeThemeModal() {
 }
 
 function setMainBgColor1(color) {
+  markModalGeneratorSelected();
   const c = color || '#090a0d';
   const input = document.getElementById('main-bg-color1');
   const hex = document.getElementById('main-bg-color1-hex');
@@ -346,6 +376,7 @@ function setMainBgColor1(color) {
 }
 
 function setMainBgColor2(color) {
+  markModalGeneratorSelected();
   const c = color || '#1a1d27';
   const input = document.getElementById('main-bg-color2');
   const hex = document.getElementById('main-bg-color2-hex');
@@ -356,6 +387,7 @@ function setMainBgColor2(color) {
 }
 
 function setMainBgAngle(angle) {
+  markModalGeneratorSelected();
   const a = String(angle || 135);
   const hidden = document.getElementById('main-bg-angle');
   if (hidden) hidden.value = a;
@@ -412,6 +444,7 @@ export function updateMainBgPreview() {
 export async function applyPresetTheme(presetKey) {
   const bg = PRESETS[presetKey] || DEFAULT_PRO_BG;
   const profile = THEME_PROFILES[presetKey];
+  currentModalBgState = { type: 'preset', value: bg, presetKey };
   if (profile) {
     applyThemeStyle(profile.styleId, profile.accent);
     if (profile.titlebar) {
@@ -422,13 +455,32 @@ export async function applyPresetTheme(presetKey) {
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.preset === presetKey);
   });
+  updateCustomBgUI();
   closeThemeModal();
 }
 
 export async function saveMainTheme() {
-  const bg = getCurrentMainBgValue();
-  await setMainBackground(bg);
-  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  let targetBg;
+  if (currentModalBgState.type === 'custom-image') {
+    targetBg = currentModalBgState.value || state.mainBg;
+    applyThemeStyle('pro');
+  } else if (currentModalBgState.type === 'preset' && currentModalBgState.presetKey) {
+    targetBg = PRESETS[currentModalBgState.presetKey] || DEFAULT_PRO_BG;
+    const profile = THEME_PROFILES[currentModalBgState.presetKey];
+    if (profile) applyThemeStyle(profile.styleId, profile.accent);
+  } else {
+    targetBg = getCurrentMainBgValue();
+    document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  }
+
+  await setMainBackground(targetBg);
+
+  // Sauvegarder également le style de la barre de titre
+  const titlebarInput = document.getElementById('main-titlebar-style');
+  if (titlebarInput && titlebarInput.value) {
+    await applyTitlebarStyle(titlebarInput.value);
+  }
+
   closeThemeModal();
 }
 
@@ -494,6 +546,7 @@ export function initTitlebarOptions() {
 export function updateCustomBgUI() {
   const previewWrap = document.getElementById('custom-user-bg-preview-wrap');
   const removeBtn = document.getElementById('custom-user-bg-remove-btn');
+  const uploadBtn = document.getElementById('custom-user-bg-btn');
   const curBg = state.mainBg || '';
 
   const isCustomUserImage = curBg.includes('custom-background') || curBg.includes('data:image/') || 
@@ -502,14 +555,28 @@ export function updateCustomBgUI() {
   if (isCustomUserImage) {
     if (previewWrap) {
       previewWrap.classList.remove('hidden');
-      previewWrap.style.background = curBg;
+      const match = curBg.match(/url\((['"]?)(.*?)\1\)/);
+      const url = match ? match[2] : curBg;
+      previewWrap.style.backgroundImage = `url("${url}")`;
       previewWrap.style.backgroundSize = 'cover';
       previewWrap.style.backgroundPosition = 'center';
     }
     if (removeBtn) removeBtn.classList.remove('hidden');
+    if (uploadBtn) {
+      uploadBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Changer mon image...
+      `;
+    }
   } else {
     if (previewWrap) previewWrap.classList.add('hidden');
     if (removeBtn) removeBtn.classList.add('hidden');
+    if (uploadBtn) {
+      uploadBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Choisir une image sur mon PC...
+      `;
+    }
   }
 }
 
@@ -517,6 +584,7 @@ export function initCustomBackgroundUpload() {
   const fileInput = document.getElementById('custom-user-bg-file');
   const uploadBtn = document.getElementById('custom-user-bg-btn');
   const removeBtn = document.getElementById('custom-user-bg-remove-btn');
+  const previewWrap = document.getElementById('custom-user-bg-preview-wrap');
 
   if (uploadBtn && fileInput) {
     uploadBtn.addEventListener('click', () => {
@@ -527,11 +595,28 @@ export function initCustomBackgroundUpload() {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
+      // Afficher immédiatement l'aperçu dans la modale
+      try {
+        const localBlobUrl = URL.createObjectURL(file);
+        if (previewWrap) {
+          previewWrap.classList.remove('hidden');
+          previewWrap.style.backgroundImage = `url("${localBlobUrl}")`;
+          previewWrap.style.backgroundSize = 'cover';
+          previewWrap.style.backgroundPosition = 'center';
+        }
+      } catch (err) {
+        console.warn('createObjectURL preview non disponible:', err);
+      }
+
+      const origBtnHtml = uploadBtn.innerHTML;
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Enregistrement en cours...';
+
       const reader = new FileReader();
       reader.onload = (loadEvt) => {
         const rawData = loadEvt.target.result;
         
-        // Redimensionner l'image si besoin via un canvas pour garantir < 2 Mo et fluidité maximale
+        // Redimensionner l'image si besoin via un canvas pour fluidité maximale
         const img = new Image();
         img.onload = async () => {
           const maxDim = 1920;
@@ -556,40 +641,29 @@ export function initCustomBackgroundUpload() {
 
           const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
-          const origBtnHtml = uploadBtn.innerHTML;
-          uploadBtn.disabled = true;
-          uploadBtn.textContent = 'Enregistrement en cours...';
-
           try {
             const res = await api('/api/upload/background', 'POST', { image: optimizedDataUrl });
             if (res && res.success && res.bg_value) {
-              // Appliquer le fond et désactiver tout style de subculture actif pour laisser voir la photo
+              currentModalBgState = { type: 'custom-image', value: res.bg_value, presetKey: null };
               applyThemeStyle('pro');
               await setMainBackground(res.bg_value);
               updateCustomBgUI();
               document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
-              showNotificationDialog({
-                title: 'Image de fond personnalisée',
-                message: 'Votre photo d\'arrière-plan a été enregistrée et appliquée avec succès !',
-                icon: 'check-circle'
-              });
+              
+              uploadBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><polyline points="20 6 9 17 4 12"/></svg>
+                Changer mon image...
+              `;
             } else {
-              showNotificationDialog({
-                title: 'Erreur d\'image',
-                message: res?.error || 'Erreur lors de l\'enregistrement de l\'image de fond.',
-                icon: 'alert-triangle'
-              });
+              alert(res?.error || 'Erreur lors de l\'enregistrement de l\'image.');
+              uploadBtn.innerHTML = origBtnHtml;
             }
           } catch (err) {
             console.error('Erreur upload background:', err);
-            showNotificationDialog({
-              title: 'Erreur technique',
-              message: 'Impossible de téléverser l\'image : ' + (err.message || ''),
-              icon: 'alert-triangle'
-            });
+            alert('Impossible de téléverser l\'image : ' + (err.message || ''));
+            uploadBtn.innerHTML = origBtnHtml;
           } finally {
             uploadBtn.disabled = false;
-            uploadBtn.innerHTML = origBtnHtml;
             fileInput.value = '';
           }
         };
@@ -601,13 +675,9 @@ export function initCustomBackgroundUpload() {
 
   if (removeBtn) {
     removeBtn.addEventListener('click', async () => {
+      currentModalBgState = { type: 'preset', presetKey: 'pro-dark', value: PRESETS['pro-dark'] };
       await applyPresetTheme('pro-dark');
       updateCustomBgUI();
-      showNotificationDialog({
-        title: 'Image de fond retirée',
-        message: 'Le thème sombre par défaut a été réappliqué.',
-        icon: 'check-circle'
-      });
     });
   }
 }

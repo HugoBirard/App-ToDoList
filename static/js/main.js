@@ -57,7 +57,8 @@ import {
   setMainBgColor2,
   setMainBgAngle,
   initTitlebarOptions,
-  initCustomBackgroundUpload
+  initCustomBackgroundUpload,
+  markModalGeneratorSelected
 } from './components/modals.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -173,7 +174,10 @@ function setupEventListeners() {
   }
 
   document.querySelectorAll('input[name="main-bg-type"]').forEach(r => {
-    r.addEventListener('change', updateMainBgControlsUI);
+    r.addEventListener('change', () => {
+      markModalGeneratorSelected();
+      updateMainBgControlsUI();
+    });
   });
 
   // Initialisation du nuancier de couleur 100% In-App

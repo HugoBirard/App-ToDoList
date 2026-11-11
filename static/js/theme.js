@@ -57,32 +57,42 @@ export function applyActiveBackground(immediate = false) {
   if (targetBg === currentActiveBg) return;
   currentActiveBg = targetBg;
 
+  const applyBgToElement = (el, bg) => {
+    if (!el) return;
+    if (bg && bg.includes('url(')) {
+      const match = bg.match(/url\((['"]?)(.*?)\1\)/);
+      const imgUrl = match ? match[2] : bg;
+      el.style.backgroundImage = `url("${imgUrl}")`;
+      el.style.backgroundPosition = 'center center';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundAttachment = 'fixed';
+      el.style.backgroundColor = '#08090c';
+    } else {
+      el.style.backgroundImage = 'none';
+      el.style.backgroundPosition = '';
+      el.style.backgroundSize = '';
+      el.style.backgroundRepeat = '';
+      el.style.backgroundAttachment = '';
+      el.style.backgroundColor = '';
+      el.style.background = bg;
+    }
+  };
+
   // Définir la variable CSS sur la racine et sur le body
   document.documentElement.style.setProperty('--active-bg', targetBg);
-  document.body.style.background = targetBg;
+  applyBgToElement(document.body, targetBg);
 
   const layer1 = document.getElementById('bg-layer-1');
   const layer2 = document.getElementById('bg-layer-2');
 
   // Si les couches n'existent pas encore (fallback)
   if (!layer1 || !layer2) {
-    document.body.style.background = targetBg;
     return;
   }
 
-  const applyToLayer = (layer, bg) => {
-    if (!layer) return;
-    layer.style.background = bg;
-    if (bg && bg.includes('url(')) {
-      layer.style.backgroundSize = 'cover';
-      layer.style.backgroundPosition = 'center';
-      layer.style.backgroundRepeat = 'no-repeat';
-      layer.style.backgroundAttachment = 'fixed';
-    }
-  };
-
   if (immediate) {
-    applyToLayer(layer1, targetBg);
+    applyBgToElement(layer1, targetBg);
     layer1.className = 'app-bg-layer active-layer';
     layer2.className = 'app-bg-layer hidden-layer';
     currentActiveLayer = 1;
@@ -93,7 +103,7 @@ export function applyActiveBackground(immediate = false) {
   const nextLayer = currentActiveLayer === 1 ? layer2 : layer1;
   const prevLayer = currentActiveLayer === 1 ? layer1 : layer2;
 
-  applyToLayer(nextLayer, targetBg);
+  applyBgToElement(nextLayer, targetBg);
   nextLayer.className = 'app-bg-layer active-layer';
   prevLayer.className = 'app-bg-layer hidden-layer';
 
