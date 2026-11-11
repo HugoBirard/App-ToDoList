@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.9+">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
-  <img src="https://img.shields.io/badge/Tests-38%2F38%20Passed-success?style=flat" alt="Tests 38/38 Passed">
+  <img src="https://img.shields.io/badge/Tests-42%2F42%20Passed-success?style=flat" alt="Tests 42/42 Passed">
   <img src="https://img.shields.io/badge/Security-Hardened%20%26%20Audited-brightgreen?style=flat&logo=shield" alt="Security Hardened">
   <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
@@ -49,13 +49,19 @@ L'application orchestre un lancement fenêtré avec un système de fallback à 4
 - Couleur d'accentuation dédiée et badges dynamiques affichant le nombre de tâches en attente.
 - Vues rapides universelles : **Toutes les tâches**, **À faire**, **Terminées**.
 
-### 3. 📊 Suivi fin par barre de progression (0 à 100%)
-- Chaque tâche peut être configurée avec ou sans progression.
-- Curseur coulissant (*slider*) interactif en temps réel avec affichage du pourcentage exact.
+### 3. 📊 Double mode de suivi : Case à cocher & Barre d'avancement (0 à 100%)
+L'application propose deux manières complémentaires de suivre vos tâches, avec un dossier de démonstration **« Exemples & Découverte »** pré-chargé au premier démarrage :
+
+| Mode | Affichage & Interaction | Cas d'usage idéal |
+| :--- | :--- | :--- |
+| **☑️ Case à cocher simple** | Case à cocher ergonomique à gauche du titre. Un clic coche ou décoche instantanément la tâche (titre barré et grisé). | Tâches binaires rapides (*ex: « Envoyer un e-mail », « Acheter du café », « Corriger le bug »*). |
+| **📊 Barre d'avancement interactive** | Curseur coulissant (*slider*) fluide de 0% à 100% avec pas de 5%, boutons rapides **`+25%`** et **`100%`** et pourcentage en direct. | Tâches longues, projets, révisions (*ex: « Rédaction du rapport (50%) », « Développement module API »*). |
+
+- **Bascule instantanée en 1 clic** : Chaque tâche dispose d'un bouton d'action dédié permettant de basculer à tout moment entre le mode case à cocher et le mode barre d'avancement sans perdre son état.
 - **Règles de cohérence automatique** :
-  - Atteindre **100%** marque automatiquement la tâche comme complétée.
+  - Déplacer le curseur jusqu'à **100%** (ou cliquer sur `100%`) coche automatiquement la tâche et la marque comme terminée.
   - Décocher une tâche terminée réinitialise sa progression à **0%**.
-  - Abaisser la progression d'une tâche terminée sous 100% la replace automatiquement dans l'état « À faire ».
+  - Abaisser la progression d'une tâche terminée en dessous de 100% la réactive automatiquement en état « À faire ».
 
 ### 4. 🔄 Réinitialisation hebdomadaire automatique (Habitudes & Routines)
 - Activez l'option **"Reset hebdo automatique"** sur n'importe quel dossier (ex: ménage hebdomadaire, révision du week-end).
@@ -92,6 +98,16 @@ L'application orchestre un lancement fenêtré avec un système de fallback à 4
 - Activation explicite des clés étrangères (`PRAGMA foreign_keys = ON`) avec suppression en cascade.
 - **Système de migrations automatiques non destructives** au démarrage de l'application.
 - **Mode WAL (*Write-Ahead Logging*)** : Concurrence multi-processus fluide sans blocage de base.
+
+### 10. 🛡️ Sécurité & Confidentialité durcies (Audit Complet)
+L'application intègre une architecture de sécurité rigoureuse couvrant le backend et le frontend :
+- **Authentification HMAC par Jeton Bearer** : Accès au mode serveur réseau protégé par jeton secret vérifié en temps constant (`hmac.compare_digest`).
+- **CORS strict & Protection Anti-CSRF** : Aucun wildcard `*` ; validation d'origine stricte et rejet immédiat (`403 Forbidden`) des requêtes de mutation forgées depuis des sites tiers.
+- **Contrôle d'accès IP sur routes Admin** : Les opérations sensibles (`/api/storage/*`, sélecteurs natifs, configuration) sont physiquement restreintes aux adresses locales (`127.0.0.1`, `::1`).
+- **Masquage & Protection des Secrets Discord** : L'URL du webhook Discord n'est jamais exposée en clair dans les données ou sauvegardes exportées (`••••xxxx`) et ne peut être écrasée accidentellement.
+- **Anti-XSS & Assainissement CSS** : Validation stricte des couleurs hexadécimales via regex CSS conforme (`_safe_color`), restriction de `bg_type` par liste blanche et sécurisation du DOM.
+- **Protection Anti-DoS & Anti-SSRF** : Limitation stricte de charge utile à 5 Mo (`413 Payload Too Large`), requêtes HTTP vers Discord restreintes aux domaines officiels HTTPS.
+- **En-têtes HTTP de durcissement** : `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`.
 
 ---
 
@@ -206,13 +222,14 @@ App-ToDoList/
 │       ├── icon.png               # Icône PNG 256x256 pour le système
 │       └── icon.svg               # Icône vectorielle SVG
 │
-├── tests/                         # Suite de tests unitaires et d'intégration (23/23)
+├── tests/                         # Suite de tests unitaires, d'intégration et de sécurité (42/42)
 │   ├── __init__.py                # Package tests
 │   ├── test_database.py           # Validation du schéma SQLite et des migrations
-│   ├── test_services.py           # Validation des règles métier (100% = fait, reset hebdo)
+│   ├── test_services.py           # Validation des règles métier (100% = fait, reset hebdo, reorder)
 │   ├── test_handlers.py           # Validation des routes API REST et détection réseau
 │   ├── test_discord.py            # Validation anti-SSRF, format des embeds et déclencheurs
-│   └── test_titlebar.py           # Validation des styles de HeaderBar, parsing CLI et CSS GTK4
+│   ├── test_titlebar.py           # Validation des styles de HeaderBar, parsing CLI et CSS GTK4
+│   └── test_security.py           # 17 tests de sécurité (Auth HMAC, CORS, Admin IP, XSS, DoS 413)
 │
 ├── data/                          # Données applicatives persistantes
 │   ├── .gitkeep                   # Maintien du dossier dans git
@@ -226,7 +243,9 @@ App-ToDoList/
 ├── main.py                        # Lanceur principal (Orchestrateur Serveur + Fenêtre GUI)
 ├── pyproject.toml                 # Métadonnées de packaging Python standard (PEP 621)
 ├── README.md                      # Documentation complète du projet
-├── server.py                      # Lanceur de serveur HTTP autonome (options --host, --port, --share)
+├── requirements.txt               # Spécification standard des dépendances (Zero External obligatoire)
+├── requirements-dev.txt           # Dépendances de développement & tests (flake8, pytest)
+├── server.py                      # Lanceur de serveur HTTP autonome (options --host, --port, --share, --token)
 ├── start.sh                       # Script bash exécutable de démarrage rapide
 └── ToDoList.desktop               # Raccourci standard pour environnements de bureau Linux (XDG)
 ```
@@ -370,20 +389,21 @@ python3 discord_bot.py --token "VOTRE_TOKEN_BOT"
 
 ## 🧪 Tests & Qualité du code
 
-Le projet intègre une suite de tests unitaires et d'intégration validée avec le module standard `unittest` :
+Le projet intègre une suite complète de tests unitaires et de sécurité validée avec le module standard `unittest` :
 
 ```bash
-python3 -m unittest discover tests
+python3 -m unittest discover tests -v
 ```
 
-### Périmètre des tests (23 tests au total)
+### Périmètre des tests automatisés (42/42 tests passés)
 | Fichier de test | Domaine testé | Statut |
 | :--- | :--- | :---: |
-| `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations de colonnes | ✅ Passé |
-| `tests/test_services.py` | Règle de complétion 100%, décochage 0%, calcul d'échéance à 7 jours | ✅ Passé |
-| `tests/test_handlers.py` | Routes API REST, validation des entrées, codes HTTP et détection réseau | ✅ Passé |
-| `tests/test_discord.py` | Sécurité anti-SSRF, format des Rich Embeds, déclencheurs d'événements | ✅ Passé |
+| `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations et initialisation des exemples (case à cocher + progression) | ✅ Passé |
+| `tests/test_services.py` | Règle de complétion 100%, décochage 0%, réorganisation dossiers, calcul reset à 7 jours | ✅ Passé |
+| `tests/test_handlers.py` | Routes API REST, validation des identifiants, codes HTTP, détection réseau et sécurité | ✅ Passé |
+| `tests/test_discord.py` | Validation anti-SSRF, format des Rich Embeds, déclencheurs d'événements | ✅ Passé |
 | `tests/test_titlebar.py` | Styles de HeaderBar, parsing arguments CLI, compatibilité parseur CSS GTK4 | ✅ Passé |
+| `tests/test_security.py` | Authentification Bearer HMAC, CORS/Origin, routes admin locales, masquage secrets, anti-XSS et limite 413 | ✅ Passé |
 
 ---
 
