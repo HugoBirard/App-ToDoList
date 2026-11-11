@@ -27,6 +27,7 @@ export function initCustomDropdowns() {
   setupDropdownToggle('task-folder-dropdown');
   setupDropdownToggle('task-type-dropdown');
   setupDropdownToggle('task-priority-dropdown');
+  setupDropdownToggle('folder-salon-dropdown');
 
   setupStaticOptionClicks('task-type-dropdown', 'task-type-select');
   setupStaticOptionClicks('task-priority-dropdown', 'task-priority-select');

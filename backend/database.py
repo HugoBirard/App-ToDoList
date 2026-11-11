@@ -177,6 +177,7 @@ def _seed_default_data(cursor):
         "INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly) VALUES (1, ?, ?, ?, 0)",
         ("Exemples & Découverte", "clipboard", "#6366f1")
     )
+    demo_folder_id = cursor.lastrowid
     cursor.execute(
         "INSERT INTO folders (salon_id, name, icon, color, auto_reset_weekly) VALUES (1, ?, ?, ?, 0)",
         ("Travail & Projets", "briefcase", "#3b82f6")
@@ -186,7 +187,6 @@ def _seed_default_data(cursor):
         ("Habitudes Hebdo", "leaf", "#10b981")
     )
 
-    demo_folder_id = 1
     # 1. Tâche standard avec Case à cocher simple
     cursor.execute(
         "INSERT INTO tasks (folder_id, title, completed, has_progress, progress, priority) VALUES (?, ?, ?, ?, ?, ?)",

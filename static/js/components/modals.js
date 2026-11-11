@@ -115,16 +115,45 @@ export function showNotificationDialog(optionsOrTitle = "Information", messageAr
 // ==========================================
 
 function populateFolderSalonSelect(selectedSalonId) {
-  const select = document.getElementById('folder-salon-select');
-  if (!select) return;
-  select.innerHTML = '';
-  (state.salons || []).forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = s.name;
-    if (s.id === selectedSalonId) opt.selected = true;
-    select.appendChild(opt);
-  });
+  const hiddenInput = document.getElementById('folder-salon-select');
+  const dd = document.getElementById('folder-salon-dropdown');
+  if (!hiddenInput) return;
+
+  const currentSalons = state.salons || [];
+  const activeId = selectedSalonId || state.currentSalonId || (currentSalons[0]?.id);
+  hiddenInput.value = activeId || '';
+
+  if (dd) {
+    const label = dd.querySelector('.dropdown-label');
+    const menu = dd.querySelector('.dropdown-menu');
+    const activeSalon = currentSalons.find(s => s.id === activeId) || currentSalons[0];
+    if (label && activeSalon) {
+      label.textContent = activeSalon.name;
+    }
+
+    if (menu) {
+      menu.innerHTML = '';
+      currentSalons.forEach(s => {
+        const isSelected = s.id === activeId;
+        const item = document.createElement('div');
+        item.className = `dropdown-option ${isSelected ? 'selected' : ''}`;
+        item.dataset.value = s.id;
+        item.innerHTML = `
+          <span class="salon-color-dot" style="background-color: ${s.color || '#4f46e5'};"></span>
+          <span class="opt-text">${escapeHtml(s.name)}</span>
+          <span class="opt-check">${renderIcon('check')}</span>
+        `;
+        item.onclick = (e) => {
+          e.stopPropagation();
+          hiddenInput.value = s.id;
+          if (label) label.textContent = s.name;
+          dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.toggle('selected', o.dataset.value == s.id));
+          dd.classList.remove('open');
+        };
+        menu.appendChild(item);
+      });
+    }
+  }
 }
 
 export function openAddFolderModal() {

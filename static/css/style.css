@@ -589,6 +589,23 @@ body {
   display: inline-block;
 }
 
+#folder-salon-dropdown {
+  width: 100%;
+  display: block;
+}
+
+#folder-salon-dropdown .dropdown-trigger {
+  width: 100%;
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+
+#folder-salon-dropdown .dropdown-menu {
+  width: 100%;
+  max-width: none;
+  z-index: 1050;
+}
+
 .dropdown-trigger {
   display: inline-flex;
   align-items: center;
