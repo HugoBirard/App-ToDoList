@@ -69,15 +69,15 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
 - Bouton de **réinitialisation manuelle instantanée** disponible à tout moment pour relancer une routine sans attendre les 7 jours.
 
 ### 5. 🎨 Univers Visuels, Subcultures & Barres Système GTK4
-- **13 Thèmes & Ambiances complètes** au choix (avec accents, animations et styles de fenêtres assortis) :
-  - **Univers Artistiques & Subcultures** :
-    - ⚡ **Streetwear & Acid Volt** (`street`) : Béton brut, jaune fluo acide #ccff00 découpé, vibe brutaliste underground.
-    - 🎛️ **Berlin Techno Warehouse** (`techno`) : Minimalisme laser monochrome #ffffff, noir profond clubbing industriel.
-    - 🌆 **Neo-Tokyo Cyberpunk** (`cyberpunk`) : Néon magenta vibrant #ff007f, cyan électrique, halo lumineux style HUD 2077.
-    - 💿 **Chrome & Y2K Iridescent** (`y2k`) : Reflets métal liquide, lilas chrome #e879f9 et bleu futuriste an 2000.
-    - 🕹️ **80s Retro Synthwave** (`arcade`) : Coucher de soleil synthwave #f43f5e, chaleur néon et bornes d'arcade.
-    - 👑 **Midnight Gold Executive** (`luxury`) : Or pur brossé champagne #f59e0b sur noir onyx feutré haut de gamme.
-    - 🌲 **Nordic Zen Mist** (`zen`) : Thé matcha apaisant #34d399, sérénité des forêts et brumes scandinaves.
+- **13 Thèmes & Ambiances complètes** au choix (avec décors et textures immersives, animations et styles de fenêtres assortis) :
+  - **Univers Artistiques & Subcultures Immersifs** :
+    - ⚡ **Streetwear & Acid Volt** (`street`) : Vrai fond texturé en mur de briques sombres avec tags au spray, coulures jaune volt #ccff00, stickers découpés et typographie street percutante.
+    - 🌆 **Neo-Tokyo Cyberpunk** (`cyberpunk`) : Interface de hack façon mini-jeu Breach Protocol de Cyberpunk 2077 avec matrice de codes hexadécimaux (`BD E9 1C 55`), scanlines CRT, cartes biseautées HUD, lueur néon magenta et diodes cyan.
+    - 🎛️ **Berlin Techno Warehouse** (`techno`) : Murs de béton brut industriel, colonnes de lasers blancs purs, typographie monospace et visualiseur audio VU-mètre monochrome.
+    - 💿 **Chrome & Y2K Iridescent** (`y2k`) : Gouttes de métal liquide chromé, étoiles à 4 branches futuristes et reflets lilas métallisés de l'an 2000.
+    - 🕹️ **80s Retro Synthwave** (`arcade`) : Grille 3D en perspective au sol façon Outrun/Tron, soleil couchant rétro strié et néon rose sunset.
+    - 👑 **Midnight Gold Executive** (`luxury`) : Marbre noir d'ébène avec veines d'or 24 carats et finitions or brossé champagne haut de gamme.
+    - 🌲 **Nordic Zen Mist** (`zen`) : Brume matinale sur l'eau, silhouettes de bambou estompées et vert thé matcha apaisant pour les yeux.
   - **Essentiels Pro & Épurés** :
     - 🖤 **Noir & Gris Pro** (`pro-dark`, défaut) : Glassmorphism équilibré et finitions soignées.
     - ⬛ **Carbone Pur** (`carbon`) : Noir mat profond et teintes titane.

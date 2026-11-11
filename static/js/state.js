@@ -6,7 +6,7 @@ export const DEFAULT_PRO_BG = 'linear-gradient(135deg, #08090c 0%, #131620 50%, 
 export const DEFAULT_LIGHT_BG = 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 50%, #e2e8f0 100%)';
 
 export const PRESETS = {
-  // Essentiels Pro & Épurés
+  // Essentiels Pro & Épurés (Classiques conservés)
   'pro-dark': 'linear-gradient(135deg, #08090c 0%, #131620 50%, #1a1e2b 100%)',
   'carbon': 'linear-gradient(135deg, #050505 0%, #141414 50%, #1f1f1f 100%)',
   'midnight': 'linear-gradient(135deg, #070c18 0%, #0f1629 50%, #17213d 100%)',
@@ -14,14 +14,14 @@ export const PRESETS = {
   'emerald': 'linear-gradient(135deg, #05140e 0%, #0a2017 50%, #102d21 100%)',
   'violet': 'linear-gradient(135deg, #11081c 0%, #190e29 50%, #25143a 100%)',
 
-  // Nouveaux Univers Artistiques & Subcultures
-  'street': 'linear-gradient(135deg, #0b0c10 0%, #171922 50%, #0d0e14 100%)',
-  'techno': 'linear-gradient(180deg, #030304 0%, #0c0d10 50%, #060708 100%)',
-  'cyberpunk': 'linear-gradient(135deg, #0c0317 0%, #1c0836 50%, #061928 100%)',
-  'y2k': 'linear-gradient(135deg, #131525 0%, #20243e 50%, #1a162a 100%)',
-  'arcade': 'linear-gradient(135deg, #180524 0%, #2a0b36 50%, #350f28 100%)',
-  'luxury': 'linear-gradient(135deg, #0b0a0c 0%, #151318 50%, #1a1610 100%)',
-  'zen': 'linear-gradient(135deg, #05130f 0%, #0b1c17 50%, #10241e 100%)'
+  // Nouveaux Univers Artistiques & Subcultures Immersifs (Textures et décors complets)
+  'street': 'url("/assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10',
+  'techno': 'url("/assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304',
+  'cyberpunk': 'url("/assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a',
+  'y2k': 'url("/assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525',
+  'arcade': 'url("/assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524',
+  'luxury': 'url("/assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c',
+  'zen': 'url("/assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f'
 };
 
 export const THEME_PROFILES = {

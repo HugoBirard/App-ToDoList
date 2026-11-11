@@ -2916,154 +2916,378 @@ select option, optgroup {
 }
 
 /* ==========================================================================
-   UNIVERS ARTISTIQUES & SUBCULTURES (DESIGN THÉMATIQUE AVANCÉ)
+   UNIVERS ARTISTIQUES & SUBCULTURES (DESIGN THÉMATIQUE AVANCÉ & IMMERSIF)
    ========================================================================== */
 
-/* 1. STREETWEAR & ACID VOLT */
+/* --------------------------------------------------------------------------
+   1. STREETWEAR & ACID VOLT (MUR DE BRIQUES, TAGS, POCHOIRS & VOLT FLUO)
+   -------------------------------------------------------------------------- */
 [data-theme-style="street"] {
   --accent: #ccff00;
   --accent-hover: #b3e600;
-  --accent-light: rgba(204, 255, 0, 0.16);
-  --border: rgba(204, 255, 0, 0.22);
+  --accent-light: rgba(204, 255, 0, 0.18);
+  --border: rgba(204, 255, 0, 0.28);
+  --bg-primary: rgba(14, 15, 20, 0.90);
+  --bg-secondary: rgba(18, 19, 26, 0.94);
+  --bg-card: rgba(20, 22, 30, 0.88);
 }
+
+[data-theme-style="street"] body {
+  background: url("../assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10 !important;
+}
+
+[data-theme-style="street"] .app-bg-layer {
+  background: url("../assets/themes/street-brick-graffiti.svg") center/cover no-repeat fixed, #0b0c10 !important;
+}
+
+[data-theme-style="street"] .sidebar {
+  background: rgba(12, 13, 17, 0.92);
+  border-right: 2px solid #ccff00;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme-style="street"] .sidebar-header h1 {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  letter-spacing: 2px;
+  color: #ccff00;
+  text-shadow: 2px 2px 0px #000000, 0 0 12px rgba(204, 255, 0, 0.4);
+}
+
+[data-theme-style="street"] .task-item {
+  background: rgba(18, 20, 28, 0.88);
+  border: 1px solid rgba(204, 255, 0, 0.25);
+  border-left: 5px solid #ccff00;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-theme-style="street"] .task-item:hover {
+  border-color: #ccff00;
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 6px 16px rgba(204, 255, 0, 0.25);
+}
+
+[data-theme-style="street"] .task-checkbox {
+  border: 2px solid #ccff00;
+  border-radius: 3px;
+  background: #000000;
+}
+
+[data-theme-style="street"] .task-checkbox:checked {
+  background: #ccff00;
+  border-color: #ccff00;
+}
+
 [data-theme-style="street"] .btn-primary {
   background: #ccff00;
   color: #000000;
-  font-weight: 700;
-  box-shadow: 0 0 16px rgba(204, 255, 0, 0.35);
+  font-weight: 900;
+  font-family: 'Impact', sans-serif;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  box-shadow: 0 0 16px rgba(204, 255, 0, 0.4);
 }
+
 [data-theme-style="street"] .btn-primary:hover {
   background: #b3e600;
-  box-shadow: 0 0 22px rgba(204, 255, 0, 0.5);
+  box-shadow: 0 0 24px rgba(204, 255, 0, 0.6);
 }
-[data-theme-style="street"] .task-card.task-card-active,
-[data-theme-style="street"] .folder-item.active {
-  border-left: 3px solid #ccff00;
-}
+
 [data-theme-style="street"] .progress-fill {
-  background: linear-gradient(90deg, #a3e635 0%, #ccff00 100%) !important;
-  box-shadow: 0 0 10px rgba(204, 255, 0, 0.4);
+  background: linear-gradient(90deg, #84cc16 0%, #ccff00 100%) !important;
+  box-shadow: 0 0 10px rgba(204, 255, 0, 0.5);
 }
 
-/* 2. BERLIN TECHNO WAREHOUSE (MONOCHROME LASER) */
-[data-theme-style="techno"] {
-  --accent: #ffffff;
-  --accent-hover: #e2e8f0;
-  --accent-light: rgba(255, 255, 255, 0.14);
-  --border: rgba(255, 255, 255, 0.20);
-}
-[data-theme-style="techno"] .btn-primary {
-  background: #ffffff;
-  color: #000000;
-  font-weight: 700;
-  border-radius: 3px;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
-}
-[data-theme-style="techno"] .btn-primary:hover {
-  background: #f1f5f9;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-}
-[data-theme-style="techno"] .folder-item.active {
-  border-left: 3px solid #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-}
-[data-theme-style="techno"] .progress-fill {
-  background: linear-gradient(90deg, #94a3b8 0%, #ffffff 100%) !important;
-}
-
-/* 3. NEO-TOKYO CYBERPUNK (MAGENTA & CYAN HUD) */
+/* --------------------------------------------------------------------------
+   2. NEO-TOKYO CYBERPUNK (INTERFACE HACK / BREACH PROTOCOL NETRUNNER)
+   -------------------------------------------------------------------------- */
 [data-theme-style="cyberpunk"] {
   --accent: #ff007f;
   --accent-hover: #e60073;
-  --accent-light: rgba(255, 0, 127, 0.20);
-  --border: rgba(255, 0, 127, 0.28);
-}
-[data-theme-style="cyberpunk"] .btn-primary {
-  background: linear-gradient(135deg, #ff007f 0%, #d90468 100%);
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 0 18px rgba(255, 0, 127, 0.45);
-}
-[data-theme-style="cyberpunk"] .btn-primary:hover {
-  box-shadow: 0 0 26px rgba(255, 0, 127, 0.7);
-}
-[data-theme-style="cyberpunk"] .folder-item.active {
-  border-left: 3px solid #00f5d4;
-  box-shadow: inset 0 0 14px rgba(255, 0, 127, 0.15);
-}
-[data-theme-style="cyberpunk"] .progress-fill {
-  background: linear-gradient(90deg, #00f5d4 0%, #ff007f 100%) !important;
-  box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+  --accent-light: rgba(255, 0, 127, 0.22);
+  --border: rgba(0, 245, 212, 0.35);
+  --bg-primary: rgba(8, 3, 20, 0.90);
+  --bg-secondary: rgba(10, 4, 24, 0.94);
+  --bg-card: rgba(13, 5, 30, 0.88);
 }
 
-/* 4. CHROME & Y2K IRIDESCENT (LIQUID METAL) */
+[data-theme-style="cyberpunk"] body {
+  background: url("../assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a !important;
+}
+
+[data-theme-style="cyberpunk"] .app-bg-layer {
+  background: url("../assets/themes/cyberpunk-netrunner-hack.svg") center/cover no-repeat fixed, #05010a !important;
+}
+
+[data-theme-style="cyberpunk"] .sidebar {
+  background: rgba(8, 3, 22, 0.94);
+  border-right: 1px solid #00f5d4;
+  box-shadow: inset -2px 0 20px rgba(255, 0, 127, 0.25), 4px 0 25px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme-style="cyberpunk"] .sidebar-header h1 {
+  font-family: 'Courier New', monospace;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #00f5d4;
+  text-shadow: 0 0 10px rgba(0, 245, 212, 0.7), 2px 2px 0px #ff007f;
+}
+
+/* Cartes sci-fi découpées angulairement (HUD Netrunner) */
+[data-theme-style="cyberpunk"] .task-item,
+[data-theme-style="cyberpunk"] .add-task-card {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  background: rgba(13, 5, 30, 0.88);
+  border: 1px solid #ff007f;
+  box-shadow: 0 0 14px rgba(255, 0, 127, 0.25), inset 0 0 10px rgba(0, 245, 212, 0.1);
+  border-radius: 0;
+}
+
+[data-theme-style="cyberpunk"] .task-item:hover {
+  border-color: #00f5d4;
+  box-shadow: 0 0 22px rgba(0, 245, 212, 0.45), inset 0 0 14px rgba(255, 0, 127, 0.2);
+  transform: translateY(-2px);
+}
+
+[data-theme-style="cyberpunk"] .task-checkbox {
+  border: 2px solid #00f5d4;
+  border-radius: 0;
+  background: rgba(0, 245, 212, 0.1);
+  box-shadow: 0 0 6px rgba(0, 245, 212, 0.4);
+}
+
+[data-theme-style="cyberpunk"] .task-checkbox:checked {
+  background: #ff007f;
+  border-color: #ff007f;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.7);
+}
+
+[data-theme-style="cyberpunk"] .btn-primary {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  background: linear-gradient(135deg, #ff007f 0%, #d90468 100%);
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-weight: 900;
+  letter-spacing: 2px;
+  border-radius: 0;
+  box-shadow: 0 0 18px rgba(255, 0, 127, 0.5);
+}
+
+[data-theme-style="cyberpunk"] .btn-primary:hover {
+  background: linear-gradient(135deg, #00f5d4 0%, #0284c7 100%);
+  color: #000000;
+  box-shadow: 0 0 26px rgba(0, 245, 212, 0.7);
+}
+
+[data-theme-style="cyberpunk"] .progress-fill {
+  background: linear-gradient(90deg, #00f5d4 0%, #ff007f 100%) !important;
+  box-shadow: 0 0 12px rgba(255, 0, 127, 0.6);
+}
+
+[data-theme-style="cyberpunk"] .folder-item.active {
+  background: rgba(255, 0, 127, 0.18);
+  border-left: 3px solid #00f5d4;
+  box-shadow: inset 0 0 12px rgba(255, 0, 127, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   3. BERLIN TECHNO WAREHOUSE (MONOCHROME LASER & BÉTON INDUSTRIEL)
+   -------------------------------------------------------------------------- */
+[data-theme-style="techno"] {
+  --accent: #ffffff;
+  --accent-hover: #e2e8f0;
+  --accent-light: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.22);
+  --bg-primary: rgba(5, 5, 7, 0.94);
+  --bg-secondary: rgba(8, 8, 11, 0.96);
+  --bg-card: rgba(10, 10, 13, 0.92);
+}
+
+[data-theme-style="techno"] body {
+  background: url("../assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304 !important;
+}
+
+[data-theme-style="techno"] .app-bg-layer {
+  background: url("../assets/themes/techno-concrete-laser.svg") center/cover no-repeat fixed, #030304 !important;
+}
+
+[data-theme-style="techno"] .sidebar {
+  background: rgba(6, 6, 8, 0.96);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme-style="techno"] .task-item,
+[data-theme-style="techno"] .btn-primary,
+[data-theme-style="techno"] .task-checkbox,
+[data-theme-style="techno"] .folder-item {
+  border-radius: 0px !important;
+}
+
+[data-theme-style="techno"] .task-item {
+  background: rgba(10, 10, 13, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme-style="techno"] .task-item:hover {
+  border-color: #ffffff;
+  background: rgba(18, 18, 22, 0.95);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.2);
+}
+
+[data-theme-style="techno"] .btn-primary {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 2px;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+}
+
+[data-theme-style="techno"] .progress-fill {
+  background: linear-gradient(90deg, #64748b 0%, #ffffff 100%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. CHROME & Y2K IRIDESCENT (LIQUID METAL & SCI-FI 2000)
+   -------------------------------------------------------------------------- */
 [data-theme-style="y2k"] {
   --accent: #e879f9;
   --accent-hover: #d946ef;
-  --accent-light: rgba(232, 121, 249, 0.20);
-  --border: rgba(232, 121, 249, 0.25);
+  --accent-light: rgba(232, 121, 249, 0.22);
+  --border: rgba(232, 121, 249, 0.28);
 }
+
+[data-theme-style="y2k"] body {
+  background: url("../assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525 !important;
+}
+
+[data-theme-style="y2k"] .app-bg-layer {
+  background: url("../assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525 !important;
+}
+
+[data-theme-style="y2k"] .task-item {
+  background: rgba(25, 22, 45, 0.85);
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  box-shadow: 0 4px 14px rgba(232, 121, 249, 0.15);
+}
+
 [data-theme-style="y2k"] .btn-primary {
   background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #38bdf8 100%);
   color: #0f172a;
-  font-weight: 700;
-  box-shadow: 0 0 16px rgba(232, 121, 249, 0.35);
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(232, 121, 249, 0.4);
 }
+
 [data-theme-style="y2k"] .progress-fill {
   background: linear-gradient(90deg, #38bdf8 0%, #e879f9 100%) !important;
   box-shadow: 0 0 10px rgba(232, 121, 249, 0.4);
 }
 
-/* 5. 80s RETRO SYNTHWAVE (ARCADE SUNSET) */
+/* --------------------------------------------------------------------------
+   5. 80s RETRO SYNTHWAVE (ARCADE SUNSET & MIAMI NIGHTS)
+   -------------------------------------------------------------------------- */
 [data-theme-style="arcade"] {
   --accent: #f43f5e;
   --accent-hover: #e11d48;
-  --accent-light: rgba(244, 63, 94, 0.20);
-  --border: rgba(244, 63, 94, 0.25);
+  --accent-light: rgba(244, 63, 94, 0.22);
+  --border: rgba(244, 63, 94, 0.3);
 }
+
+[data-theme-style="arcade"] body {
+  background: url("../assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524 !important;
+}
+
+[data-theme-style="arcade"] .app-bg-layer {
+  background: url("../assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524 !important;
+}
+
+[data-theme-style="arcade"] .task-item {
+  background: rgba(28, 8, 38, 0.88);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.2);
+}
+
 [data-theme-style="arcade"] .btn-primary {
   background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%);
   color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
-}
-[data-theme-style="arcade"] .progress-fill {
-  background: linear-gradient(90deg, #fb923c 0%, #f43f5e 100%) !important;
-  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
+  font-weight: 800;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.45);
 }
 
-/* 6. MIDNIGHT GOLD EXECUTIVE (OR BROSSÉ & ONYX) */
+[data-theme-style="arcade"] .progress-fill {
+  background: linear-gradient(90deg, #fb923c 0%, #f43f5e 100%) !important;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   6. MIDNIGHT GOLD EXECUTIVE (MARBRE NOIR & OR PUR 24K)
+   -------------------------------------------------------------------------- */
 [data-theme-style="luxury"] {
   --accent: #f59e0b;
   --accent-hover: #d97706;
-  --accent-light: rgba(245, 158, 11, 0.18);
-  --border: rgba(245, 158, 11, 0.24);
-}
-[data-theme-style="luxury"] .btn-primary {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #0f0f11;
-  font-weight: 700;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
-}
-[data-theme-style="luxury"] .progress-fill {
-  background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+  --accent-light: rgba(245, 158, 11, 0.2);
+  --border: rgba(245, 158, 11, 0.28);
 }
 
-/* 7. NORDIC ZEN MIST (THÉ MATCHA & SÉRÉNITÉ) */
+[data-theme-style="luxury"] body {
+  background: url("../assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c !important;
+}
+
+[data-theme-style="luxury"] .app-bg-layer {
+  background: url("../assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c !important;
+}
+
+[data-theme-style="luxury"] .task-item {
+  background: rgba(14, 13, 16, 0.90);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme-style="luxury"] .btn-primary {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0c0b0e;
+  font-weight: 800;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+
+[data-theme-style="luxury"] .progress-fill {
+  background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   7. NORDIC ZEN MIST (BAMBOU, BRUME & SÉRÉNITÉ SCANDINAVE)
+   -------------------------------------------------------------------------- */
 [data-theme-style="zen"] {
   --accent: #34d399;
   --accent-hover: #10b981;
-  --accent-light: rgba(52, 211, 153, 0.16);
-  --border: rgba(52, 211, 153, 0.22);
+  --accent-light: rgba(52, 211, 153, 0.18);
+  --border: rgba(52, 211, 153, 0.25);
 }
+
+[data-theme-style="zen"] body {
+  background: url("../assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f !important;
+}
+
+[data-theme-style="zen"] .app-bg-layer {
+  background: url("../assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f !important;
+}
+
+[data-theme-style="zen"] .task-item {
+  background: rgba(8, 22, 17, 0.88);
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  border-radius: 12px;
+}
+
 [data-theme-style="zen"] .btn-primary {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  color: #052219;
+  color: #041f17;
   font-weight: 700;
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.28);
 }
+
 [data-theme-style="zen"] .progress-fill {
   background: linear-gradient(90deg, #059669 0%, #34d399 100%) !important;
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
 }

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- Ciel étoilé dégradé néon -->
+    <linearGradient id="synth-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0217"/>
+      <stop offset="50%" stop-color="#210836"/>
+      <stop offset="68%" stop-color="#4a0f44"/>
+      <stop offset="70%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#070110"/>
+    </linearGradient>
+
+    <!-- Dégradé du soleil rétro strié 80s -->
+    <linearGradient id="retro-sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#f43f5e"/>
+    </linearGradient>
+
+    <filter id="neon-glow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ciel dégradé -->
+  <rect width="1920" height="1080" fill="url(#synth-sky)"/>
+
+  <!-- Étoiles brillantes rétro -->
+  <g fill="#ffffff" opacity="0.4">
+    <circle cx="120" cy="80" r="1.5"/><circle cx="280" cy="140" r="1"/><circle cx="450" cy="60" r="2"/>
+    <circle cx="780" cy="120" r="1"/><circle cx="950" cy="70" r="1.5"/><circle cx="1180" cy="110" r="1.5"/>
+    <circle cx="1420" cy="50" r="2"/><circle cx="1650" cy="130" r="1"/><circle cx="1820" cy="90" r="1.5"/>
+  </g>
+
+  <!-- Soleil Rétro Synthwave Strié à l'horizon -->
+  <g transform="translate(960, 680)" filter="url(#neon-glow)">
+    <circle cx="0" cy="0" r="200" fill="url(#retro-sun)"/>
+    <!-- Bandes de découpage du soleil synthwave 80s -->
+    <rect x="-210" y="-30" width="420" height="5" fill="#210836"/>
+    <rect x="-210" y="-10" width="420" height="8" fill="#210836"/>
+    <rect x="-210" y="15" width="420" height="12" fill="#210836"/>
+    <rect x="-210" y="45" width="420" height="16" fill="#210836"/>
+    <rect x="-210" y="80" width="420" height="22" fill="#210836"/>
+    <rect x="-210" y="125" width="420" height="30" fill="#210836"/>
+  </g>
+
+  <!-- Grille 3D Perspective Wireframe au sol (Horizon à Y=680) -->
+  <g opacity="0.5" stroke="#f43f5e" stroke-width="1.8" filter="url(#neon-glow)">
+    <line x1="0" y1="680" x2="1920" y2="680" stroke="#00f5d4" stroke-width="3"/>
+    
+    <!-- Lignes de fuite vers le centre -->
+    <line x1="960" y1="680" x2="-200" y2="1080"/>
+    <line x1="960" y1="680" x2="100" y2="1080"/>
+    <line x1="960" y1="680" x2="400" y2="1080"/>
+    <line x1="960" y1="680" x2="680" y2="1080"/>
+    <line x1="960" y1="680" x2="960" y2="1080"/>
+    <line x1="960" y1="680" x2="1240" y2="1080"/>
+    <line x1="960" y1="680" x2="1520" y2="1080"/>
+    <line x1="960" y1="680" x2="1820" y2="1080"/>
+    <line x1="960" y1="680" x2="2120" y2="1080"/>
+
+    <!-- Lignes horizontales en perspective exponentielle -->
+    <line x1="0" y1="700" x2="1920" y2="700" opacity="0.4"/>
+    <line x1="0" y1="730" x2="1920" y2="730" opacity="0.5"/>
+    <line x1="0" y1="775" x2="1920" y2="775" opacity="0.6"/>
+    <line x1="0" y1="840" x2="1920" y2="840" opacity="0.7"/>
+    <line x1="0" y1="930" x2="1920" y2="930" opacity="0.8"/>
+    <line x1="0" y1="1050" x2="1920" y2="1050" opacity="0.9"/>
+  </g>
+</svg>
