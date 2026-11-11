@@ -52,7 +52,7 @@ export function renderFolderList() {
       ? `<span class="folder-mini-badge" title="Fond personnalisé">${renderIcon('palette')}</span>`
       : '';
 
-    const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(folder.color) ? folder.color : '#6366f1';
+    const safeColor = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(folder.color) ? folder.color : '#6366f1';
 
     item.innerHTML = `
       <div class="folder-info">

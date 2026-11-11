@@ -63,7 +63,7 @@ export function renderTasks() {
 
     // Badge Dossier
     let folderBadgeHtml = '';
-    const safeFolderColor = folder && /^#[0-9a-fA-F]{3,8}$/.test(folder.color) ? folder.color : '#6366f1';
+    const safeFolderColor = folder && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(folder.color) ? folder.color : '#6366f1';
     if (folder && typeof state.currentView !== 'number') {
       folderBadgeHtml = `
         <span class="folder-badge">
