@@ -26,9 +26,13 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -36,11 +40,14 @@ TITLEBAR_STYLES = {
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
                 background: transparent;
                 background-color: transparent;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 min-height: 40px;
@@ -50,8 +57,19 @@ TITLEBAR_STYLES = {
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }
-            headerbar windowhandle {
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {
                 background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -65,8 +83,11 @@ TITLEBAR_STYLES = {
                 font-size: 13px;
                 letter-spacing: 0.3px;
             }
-            headerbar button {
+            headerbar button,
+            headerbar windowcontrols button {
                 background: transparent;
+                background-color: transparent;
+                background-image: none;
                 color: rgba(255, 255, 255, 0.7);
                 border: none;
                 box-shadow: none;
@@ -74,12 +95,15 @@ TITLEBAR_STYLES = {
                 min-width: 28px;
                 min-height: 28px;
                 padding: 3px 6px;
+                margin: 2px;
             }
-            headerbar button:hover {
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
                 background: rgba(255, 255, 255, 0.12);
                 color: #ffffff;
             }
-            headerbar button.close:hover {
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
                 background: #ef4444;
                 color: #ffffff;
             }
@@ -93,9 +117,13 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -103,12 +131,18 @@ TITLEBAR_STYLES = {
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
+                background: #08090c;
                 background-color: #08090c;
-                border: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+                background-image: none;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 box-shadow: none;
                 min-height: 40px;
                 padding: 0 8px;
@@ -117,8 +151,19 @@ TITLEBAR_STYLES = {
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }
-            headerbar windowhandle {
-                background-color: #08090c;
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {
+                background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -131,7 +176,8 @@ TITLEBAR_STYLES = {
                 font-weight: 600;
                 font-size: 13px;
             }
-            headerbar button {
+            headerbar button,
+            headerbar windowcontrols button {
                 background: rgba(255, 255, 255, 0.05);
                 color: #cbd5e1;
                 border: 1px solid rgba(255, 255, 255, 0.08);
@@ -141,12 +187,14 @@ TITLEBAR_STYLES = {
                 padding: 3px 6px;
                 margin: 2px;
             }
-            headerbar button:hover {
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
                 background: rgba(255, 255, 255, 0.14);
                 color: #ffffff;
                 border-color: rgba(255, 255, 255, 0.16);
             }
-            headerbar button.close:hover {
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
                 background: #ef4444;
                 border-color: #ef4444;
                 color: #ffffff;
@@ -161,9 +209,13 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -171,11 +223,16 @@ TITLEBAR_STYLES = {
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
                 background: linear-gradient(180deg, rgba(26, 31, 48, 0.95) 0%, rgba(12, 16, 28, 0.95) 100%);
-                border: none;
+                background-color: #0c101c;
+                border-top: none;
+                border-left: none;
+                border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.14);
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
                 min-height: 42px;
@@ -185,8 +242,19 @@ TITLEBAR_STYLES = {
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }
-            headerbar windowhandle {
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {
                 background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -201,7 +269,8 @@ TITLEBAR_STYLES = {
                 letter-spacing: 0.4px;
                 text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
             }
-            headerbar button {
+            headerbar button,
+            headerbar windowcontrols button {
                 background: rgba(255, 255, 255, 0.07);
                 color: #e2e8f0;
                 border: 1px solid rgba(255, 255, 255, 0.12);
@@ -211,12 +280,14 @@ TITLEBAR_STYLES = {
                 padding: 3px 6px;
                 margin: 2px;
             }
-            headerbar button:hover {
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
                 background: rgba(255, 255, 255, 0.2);
                 border-color: rgba(255, 255, 255, 0.28);
                 color: #ffffff;
             }
-            headerbar button.close:hover {
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
                 background: #ef4444;
                 border-color: #f87171;
                 color: #ffffff;
@@ -231,9 +302,13 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -241,11 +316,17 @@ TITLEBAR_STYLES = {
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
+                background: #090a12;
                 background-color: #090a12;
-                border: none;
+                background-image: none;
+                border-top: none;
+                border-left: none;
+                border-right: none;
                 border-bottom: 2px solid #6366f1;
                 box-shadow: 0 3px 16px rgba(99, 102, 241, 0.38);
                 min-height: 40px;
@@ -255,8 +336,19 @@ TITLEBAR_STYLES = {
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }
-            headerbar windowhandle {
-                background-color: #090a12;
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {
+                background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -271,7 +363,8 @@ TITLEBAR_STYLES = {
                 letter-spacing: 0.8px;
                 text-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
             }
-            headerbar button {
+            headerbar button,
+            headerbar windowcontrols button {
                 background: rgba(99, 102, 241, 0.12);
                 color: #c7d2fe;
                 border: 1px solid rgba(99, 102, 241, 0.3);
@@ -281,12 +374,14 @@ TITLEBAR_STYLES = {
                 padding: 3px 6px;
                 margin: 2px;
             }
-            headerbar button:hover {
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
                 background: rgba(99, 102, 241, 0.35);
                 border-color: #818cf8;
                 color: #ffffff;
             }
-            headerbar button.close:hover {
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
                 background: #ef4444;
                 border-color: #ef4444;
                 color: #ffffff;
@@ -301,9 +396,13 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -311,11 +410,14 @@ TITLEBAR_STYLES = {
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
                 background: transparent;
                 background-color: transparent;
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 min-height: 28px;
@@ -325,8 +427,19 @@ TITLEBAR_STYLES = {
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }
-            headerbar windowhandle {
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {
                 background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -334,20 +447,26 @@ TITLEBAR_STYLES = {
             headerbar .app-title-box {
                 opacity: 0;
             }
-            headerbar button {
+            headerbar button,
+            headerbar windowcontrols button {
                 background: transparent;
+                background-color: transparent;
+                background-image: none;
                 color: rgba(255, 255, 255, 0.45);
                 border: none;
                 box-shadow: none;
                 min-width: 22px;
                 min-height: 22px;
                 padding: 1px 3px;
+                margin: 1px;
             }
-            headerbar button:hover {
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
                 background: rgba(255, 255, 255, 0.1);
                 color: #ffffff;
             }
-            headerbar button.close:hover {
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
                 background: #ef4444;
                 color: #ffffff;
             }
@@ -361,18 +480,22 @@ TITLEBAR_STYLES = {
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {
-                background-color: #08090c;
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
                 background: #08090c;
-                border: none;
+                background-color: #08090c;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
             }
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {
+            .todolist-headerbar {
                 margin: 0;
                 border-radius: 0;
                 border-top-left-radius: 0;
@@ -451,9 +574,13 @@ def generate_css(style_name, custom_bg=None):
             window.background,
             window.csd,
             window.solid-csd,
-            decoration {{
-                background-color: {bg_hex};
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {{
                 background: {bg_hex};
+                background-color: {bg_hex};
+                background-image: none;
                 border: none;
                 box-shadow: none;
                 margin: 0;
@@ -461,11 +588,17 @@ def generate_css(style_name, custom_bg=None):
                 border-radius: 0;
             }}
             headerbar,
+            headerbar:backdrop,
             window.maximized headerbar,
+            window.fullscreen headerbar,
             window.tiled headerbar,
-            window.fullscreen headerbar {{
+            .todolist-headerbar {{
+                background: {bg_hex};
                 background-color: {bg_hex};
-                border: none;
+                background-image: none;
+                border-top: none;
+                border-left: none;
+                border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 box-shadow: none;
                 min-height: 40px;
@@ -475,8 +608,19 @@ def generate_css(style_name, custom_bg=None):
                 border-top-left-radius: 0;
                 border-top-right-radius: 0;
             }}
-            headerbar windowhandle {{
-                background-color: {bg_hex};
+            headerbar windowhandle,
+            headerbar windowhandle:backdrop,
+            headerbar windowcontrols,
+            headerbar windowcontrols.start,
+            headerbar windowcontrols.end,
+            headerbar windowcontrols:backdrop,
+            .todolist-headerbar windowhandle,
+            .todolist-headerbar windowcontrols {{
+                background: transparent;
+                background-color: transparent;
+                background-image: none;
+                border: none;
+                box-shadow: none;
                 margin: 0;
                 padding: 0;
                 border-radius: 0;
@@ -489,7 +633,8 @@ def generate_css(style_name, custom_bg=None):
                 font-weight: 600;
                 font-size: 13px;
             }}
-            headerbar button {{
+            headerbar button,
+            headerbar windowcontrols button {{
                 background: rgba(255, 255, 255, 0.06);
                 color: #cbd5e1;
                 border: 1px solid rgba(255, 255, 255, 0.09);
@@ -499,12 +644,14 @@ def generate_css(style_name, custom_bg=None):
                 padding: 3px 6px;
                 margin: 2px;
             }}
-            headerbar button:hover {{
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {{
                 background: rgba(255, 255, 255, 0.16);
                 color: #ffffff;
                 border-color: rgba(255, 255, 255, 0.22);
             }}
-            headerbar button.close:hover {{
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {{
                 background: #ef4444;
                 border-color: #ef4444;
                 color: #ffffff;
@@ -550,6 +697,7 @@ def main():
         def on_activate(application):
             try:
                 win = Gtk.ApplicationWindow(application=application)
+                win.add_css_class("todolist-window")
                 win.set_title(APP_NAME)
                 win.set_default_size(1280, 850)
                 win.maximize()  # Plein écran par défaut, avec bouton pour réduire à volonté
@@ -565,6 +713,7 @@ def main():
 
                 # Création et configuration de la HeaderBar personnalisée
                 header_bar = Gtk.HeaderBar()
+                header_bar.add_css_class("todolist-headerbar")
                 header_bar.set_show_title_buttons(True)
                 header_bar.set_hexpand(True)
 
@@ -593,7 +742,7 @@ def main():
 
                 if display:
                     Gtk.StyleContext.add_provider_for_display(
-                        display, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+                        display, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
                     )
 
                 # Utiliser une session réseau éphémère pour garantir l'absence totale de cache disque obsolète
