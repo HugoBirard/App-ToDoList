@@ -43,8 +43,6 @@ export const THEME_PROFILES = {
 };
 
 export const state = {
-  salons: [],
-  currentSalonId: 1,     // ID du salon/espace actif
   folders: [],
   tasks: [],
   settings: {},
@@ -54,33 +52,15 @@ export const state = {
   searchQuery: '',
 };
 
-export function getActiveSalon() {
-  if (!state.salons || state.salons.length === 0) return null;
-  const targetId = Number(state.currentSalonId);
-  return state.salons.find(s => Number(s.id) === targetId) || state.salons[0];
-}
-
-export function getActiveSalonFolderIds() {
-  const active = getActiveSalon();
-  if (!active) return state.folders.map(f => f.id);
-  const activeId = Number(active.id);
-  return state.folders
-    .filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
-    .map(f => f.id);
-}
-
 export function getCurrentViewTasks() {
-  const activeFolderIds = new Set(getActiveSalonFolderIds());
-  const salonTasks = state.tasks.filter(t => !t.folder_id || activeFolderIds.has(t.folder_id));
-
   if (state.currentView === 'pending') {
-    return salonTasks.filter(t => !t.completed);
+    return state.tasks.filter(t => !t.completed);
   } else if (state.currentView === 'completed') {
-    return salonTasks.filter(t => t.completed);
+    return state.tasks.filter(t => t.completed);
   } else if (typeof state.currentView === 'number') {
-    return salonTasks.filter(t => t.folder_id === state.currentView);
+    return state.tasks.filter(t => t.folder_id === state.currentView);
   }
-  return salonTasks;
+  return state.tasks;
 }
 
 export function escapeHtml(text) {

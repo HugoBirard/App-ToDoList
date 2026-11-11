@@ -34,7 +34,6 @@ import {
 import { initServerUI, updateServerStatusUI } from './components/server.js';
 import { initUpdateUI } from './components/updater.js';
 import { initCoffeeFeature } from './components/coffee.js';
-import { initSalonUI, renderSalons } from './components/salons.js';
 import { 
   openAddFolderModal, 
   closeFolderModal, 
@@ -65,7 +64,6 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadData();
-  initSalonUI(loadData);
   initSyncUI(loadData);
   initAutoSyncWatcher(loadData);
   initServerUI(loadData);
@@ -81,19 +79,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadData() {
   const data = await fetchInitialData();
   if (data) {
-    state.salons = data.salons || [];
     state.folders = data.folders || [];
     state.tasks = data.tasks || [];
     state.settings = data.settings || {};
-
-    // Restaurer le salon actif depuis le stockage local si disponible
-    const savedSalonId = parseInt(localStorage.getItem('todolist_active_salon_id'), 10);
-    if (savedSalonId && state.salons.some(s => Number(s.id) === savedSalonId)) {
-      state.currentSalonId = savedSalonId;
-    } else if (state.salons.length > 0 && !state.salons.some(s => Number(s.id) === Number(state.currentSalonId))) {
-      state.currentSalonId = state.salons[0].id;
-      localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
-    }
 
     if (state.settings.main_background) {
       state.mainBg = state.settings.main_background;
@@ -103,7 +91,6 @@ async function loadData() {
     }
 
     applyActiveBackground(true);
-    renderSalons();
     renderFolders();
     updateFolderDropdown();
     renderTasks();

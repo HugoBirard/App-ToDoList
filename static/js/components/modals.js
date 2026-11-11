@@ -2,11 +2,10 @@
  * Composant de gestion des fenêtres modales (Dossier, Thèmes & Dialogues de confirmation).
  */
 
-import { state, DEFAULT_PRO_BG, PRESETS, THEME_PROFILES, getActiveSalon, escapeHtml } from '../state.js';
+import { state, DEFAULT_PRO_BG, PRESETS, THEME_PROFILES } from '../state.js';
 import { api } from '../api.js';
 import { applyActiveBackground, setMainBackground, applyThemeStyle } from '../theme.js';
 import { renderFolders, selectFolderView } from './folders.js';
-import { renderSalons } from './salons.js';
 import { EMOJI_MAP, renderIcon } from '../icons.js';
 
 // ==========================================
@@ -115,50 +114,6 @@ export function showNotificationDialog(optionsOrTitle = "Information", messageAr
 // MODAL DOSSIER
 // ==========================================
 
-function populateFolderSalonSelect(selectedSalonId) {
-  const hiddenInput = document.getElementById('folder-salon-select');
-  const dd = document.getElementById('folder-salon-dropdown');
-  if (!hiddenInput) return;
-
-  const currentSalons = state.salons || [];
-  const activeSalon = getActiveSalon();
-  const fallbackSalonId = activeSalon ? Number(activeSalon.id) : (Number(state.currentSalonId) || (currentSalons[0]?.id ? Number(currentSalons[0].id) : 1));
-  const activeId = Number(selectedSalonId) || fallbackSalonId;
-  hiddenInput.value = activeId;
-
-  if (dd) {
-    const label = dd.querySelector('.dropdown-label');
-    const menu = dd.querySelector('.dropdown-menu');
-    const activeSalonObj = currentSalons.find(s => Number(s.id) === activeId) || currentSalons[0];
-    if (label && activeSalonObj) {
-      label.textContent = activeSalonObj.name;
-    }
-
-    if (menu) {
-      menu.innerHTML = '';
-      currentSalons.forEach(s => {
-        const isSelected = Number(s.id) === activeId;
-        const item = document.createElement('div');
-        item.className = `dropdown-option ${isSelected ? 'selected' : ''}`;
-        item.dataset.value = s.id;
-        item.innerHTML = `
-          <span class="salon-color-dot" style="background-color: ${s.color || '#4f46e5'};"></span>
-          <span class="opt-text">${escapeHtml(s.name)}</span>
-          <span class="opt-check">${renderIcon('check')}</span>
-        `;
-        item.onclick = (e) => {
-          e.stopPropagation();
-          hiddenInput.value = s.id;
-          if (label) label.textContent = s.name;
-          dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.toggle('selected', Number(o.dataset.value) === Number(s.id)));
-          dd.classList.remove('open');
-        };
-        menu.appendChild(item);
-      });
-    }
-  }
-}
-
 export function openAddFolderModal() {
   const modal = document.getElementById('folder-modal');
   const title = document.getElementById('folder-modal-title');
@@ -170,7 +125,6 @@ export function openAddFolderModal() {
   idInput.value = '';
   nameInput.value = '';
   weeklyInput.checked = false;
-  populateFolderSalonSelect(state.currentSalonId);
   const submitBtn = document.getElementById('folder-submit-btn');
   if (submitBtn) submitBtn.textContent = "Créer le dossier";
 
@@ -210,7 +164,6 @@ export function openEditFolderModal(folderId) {
   idInput.value = folder.id;
   nameInput.value = folder.name;
   weeklyInput.checked = Boolean(folder.auto_reset_weekly);
-  populateFolderSalonSelect(folder.salon_id || state.currentSalonId);
   const submitBtn = document.getElementById('folder-submit-btn');
   if (submitBtn) submitBtn.textContent = "Enregistrer les modifications";
 
@@ -440,15 +393,8 @@ export async function handleFolderSubmit(e) {
     return;
   }
 
-  const activeSalon = getActiveSalon();
-  const fallbackSalonId = activeSalon ? Number(activeSalon.id) : (Number(state.currentSalonId) || 1);
-  const salonSelect = document.getElementById('folder-salon-select');
-  const parsedSelect = salonSelect ? parseInt(salonSelect.value, 10) : NaN;
-  const salonId = (!isNaN(parsedSelect) && parsedSelect > 0) ? parsedSelect : fallbackSalonId;
-
   const folderData = { 
     name, 
-    salon_id: salonId,
     icon, 
     color, 
     auto_reset_weekly: autoResetWeekly,
@@ -464,10 +410,6 @@ export async function handleFolderSubmit(e) {
       if (updated) {
         const idx = state.folders.findIndex(f => Number(f.id) === parseInt(folderId, 10));
         if (idx !== -1) state.folders[idx] = updated;
-        if (Number(state.currentSalonId) !== Number(updated.salon_id)) {
-          state.currentSalonId = Number(updated.salon_id);
-          localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
-        }
         selectFolderView(parseInt(folderId, 10));
       } else {
         await showNotificationDialog("Impossible de modifier le dossier.", "Erreur", "alert-circle");
@@ -477,10 +419,6 @@ export async function handleFolderSubmit(e) {
       const created = await api('/api/folders', 'POST', folderData);
       if (created) {
         state.folders.push(created);
-        if (Number(state.currentSalonId) !== Number(created.salon_id)) {
-          state.currentSalonId = Number(created.salon_id);
-          localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
-        }
         selectFolderView(created.id);
       } else {
         await showNotificationDialog("Impossible de créer le dossier.", "Erreur", "alert-circle");
@@ -490,7 +428,6 @@ export async function handleFolderSubmit(e) {
 
     closeFolderModal();
     applyActiveBackground();
-    renderSalons();
     renderFolders();
   } catch (err) {
     console.error("Erreur lors de la sauvegarde du dossier:", err);

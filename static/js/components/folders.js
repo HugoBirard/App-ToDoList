@@ -2,7 +2,7 @@
  * Composant de gestion et rendu des dossiers et vues rapides.
  */
 
-import { state, getCurrentViewTasks, getActiveSalon, getActiveSalonFolderIds, escapeHtml } from '../state.js';
+import { state, getCurrentViewTasks, escapeHtml } from '../state.js';
 import { applyActiveBackground } from '../theme.js';
 import { renderTasks } from './tasks.js';
 import { api } from '../api.js';
@@ -30,16 +30,10 @@ export function renderFolderList() {
 
   list.innerHTML = '';
 
-  const activeSalon = getActiveSalon();
-  const activeId = activeSalon ? Number(activeSalon.id) : 1;
-  const visibleFolders = activeSalon 
-    ? state.folders.filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
-    : state.folders;
-
-  if (visibleFolders.length === 0) {
+  if (state.folders.length === 0) {
     list.innerHTML = `
       <div class="empty-folders-hint" style="padding: 16px 12px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-        <p>Aucun dossier dans ce salon.</p>
+        <p>Aucun dossier pour le moment.</p>
         <button type="button" class="btn btn-sm btn-secondary" id="btn-create-first-folder" style="margin-top: 8px; font-size: 0.8rem; padding: 4px 10px;">
           + Créer un dossier
         </button>
@@ -50,7 +44,7 @@ export function renderFolderList() {
     return;
   }
 
-  visibleFolders.forEach(folder => {
+  state.folders.forEach(folder => {
     const folderTasks = state.tasks.filter(t => t.folder_id === folder.id);
     const pendingCount = folderTasks.filter(t => !t.completed).length;
 
@@ -175,12 +169,9 @@ export function renderCounters() {
   const tabCountPending = document.getElementById('tab-count-pending');
   const tabCountCompleted = document.getElementById('tab-count-completed');
 
-  const activeFolderIds = new Set(getActiveSalonFolderIds());
-  const salonTasks = state.tasks.filter(t => !t.folder_id || activeFolderIds.has(t.folder_id));
-
-  const total = salonTasks.length;
-  const pending = salonTasks.filter(t => !t.completed).length;
-  const completed = salonTasks.filter(t => t.completed).length;
+  const total = state.tasks.length;
+  const pending = state.tasks.filter(t => !t.completed).length;
+  const completed = state.tasks.filter(t => t.completed).length;
 
   if (countAll) countAll.textContent = total;
   if (countPending) countPending.textContent = pending;

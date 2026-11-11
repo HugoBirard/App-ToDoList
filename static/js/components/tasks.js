@@ -2,7 +2,7 @@
  * Composant de gestion et rendu des tâches.
  */
 
-import { state, getCurrentViewTasks, getActiveSalon, escapeHtml } from '../state.js';
+import { state, getCurrentViewTasks, escapeHtml } from '../state.js';
 import { api } from '../api.js';
 import { renderCounters, updateProgress, renderFolders } from './folders.js';
 import { renderIcon } from '../icons.js';
@@ -250,22 +250,16 @@ export async function handleAddTask(e) {
   const title = input.value.trim();
   if (!title) return;
 
-  const activeSalon = getActiveSalon();
-  const activeId = activeSalon ? Number(activeSalon.id) : 1;
-  const visibleFolders = activeSalon 
-    ? state.folders.filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
-    : state.folders;
-
+  const visibleFolders = state.folders;
   let folderId = parseInt(folderSelect ? folderSelect.value : '', 10);
 
-  // Si le salon n'a aucun dossier, créer automatiquement un dossier "Général"
+  // Si aucun dossier n'existe, créer automatiquement un dossier "Général"
   if (visibleFolders.length === 0) {
     try {
       const defaultFolder = await api('/api/folders', 'POST', {
         name: "Général",
-        salon_id: activeId,
         icon: "folder",
-        color: activeSalon?.color || "#4f46e5"
+        color: "#4f46e5"
       });
       if (defaultFolder) {
         state.folders.push(defaultFolder);
@@ -293,7 +287,7 @@ export async function handleAddTask(e) {
   if (isNaN(folderId) || !folderId) {
     showNotificationDialog({
       title: "Dossier requis",
-      message: "Veuillez d'abord créer un dossier dans ce salon avant d'ajouter une tâche.",
+      message: "Veuillez d'abord créer un dossier avant d'ajouter une tâche.",
       icon: "alert"
     });
     return;
