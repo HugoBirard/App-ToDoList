@@ -3,7 +3,9 @@ Gestionnaire HTTP et répartiteur d'API REST.
 Lie les requêtes HTTP entrantes aux méthodes du TodoService de façon robuste et sécurisée.
 """
 
+import hmac
 import json
+import logging
 import os
 import subprocess
 import urllib.parse
@@ -12,9 +14,26 @@ from .config import STATIC_DIR, DEFAULT_PORT, get_lan_ips
 from .services import TodoService
 from .discord import send_test_message
 
+logger = logging.getLogger("todolist.http")
+
+
+class PayloadTooLargeError(Exception):
+    """Exception levée lorsque le corps de la requête dépasse la taille maximale autorisée."""
+    pass
+
 
 class TodoRequestHandler(SimpleHTTPRequestHandler):
     db_path = None
+    api_token = None
+
+    LOCAL_ONLY_ROUTES = {
+        "/api/storage/change-path",
+        "/api/storage/browse",
+        "/api/storage/pick",
+        "/api/storage/import",
+        "/api/storage/export",
+        "/api/sync/status",
+    }
 
     def __init__(self, *args, **kwargs):
         self.service = TodoService(db_path=self.db_path)
@@ -23,6 +42,64 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         # Silence les logs HTTP répétitifs en console
         pass
+
+    @property
+    def server_port(self):
+        """Récupère le port réel d'écoute du serveur de façon fiable."""
+        if hasattr(self.server, "server_port"):
+            return self.server.server_port
+        if hasattr(self.server, "server_address") and isinstance(self.server.server_address, tuple):
+            return self.server.server_address[1]
+        return DEFAULT_PORT
+
+    def _is_local_client(self):
+        """Vérifie si la requête provient de la machine hôte elle-même."""
+        if not self.client_address:
+            return False
+        client_ip = self.client_address[0]
+        return client_ip in ("127.0.0.1", "::1", "localhost")
+
+    def _check_auth(self):
+        """Vérifie le jeton d'authentification partagé si configuré."""
+        if not self.api_token:
+            return True
+        auth_header = self.headers.get("Authorization", "")
+        sent = auth_header.removeprefix("Bearer ").strip() if auth_header.startswith("Bearer ") else auth_header.strip()
+        if sent and hmac.compare_digest(sent, self.api_token):
+            return True
+        self.send_json({"error": "Non autorisé"}, status=401)
+        return False
+
+    def _get_allowed_origins(self):
+        """Définit la liste stricte des origines CORS autorisées."""
+        port = self.server_port
+        allowed = {
+            f"http://127.0.0.1:{port}",
+            f"http://localhost:{port}",
+            f"http://127.0.0.1:{DEFAULT_PORT}",
+            f"http://localhost:{DEFAULT_PORT}",
+        }
+        try:
+            for ip in get_lan_ips():
+                allowed.add(f"http://{ip}:{port}")
+                allowed.add(f"http://{ip}:{DEFAULT_PORT}")
+        except Exception:
+            pass
+        return allowed
+
+    def _is_origin_allowed(self, origin):
+        """Valide si l'en-tête Origin est autorisé."""
+        if not origin:
+            return True
+        return origin.rstrip("/") in self._get_allowed_origins()
+
+    def _check_origin(self):
+        """Rejette les requêtes d'écriture dont l'en-tête Origin est spécifié mais non autorisé."""
+        origin = self.headers.get("Origin")
+        if origin and not self._is_origin_allowed(origin):
+            self.send_json({"error": "Origine non autorisée"}, status=403)
+            return False
+        return True
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -38,9 +115,15 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(response_bytes)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+        # CORS restreint aux origines légitimes (pas de wildcard '*')
+        origin = self.headers.get("Origin")
+        if origin and self._is_origin_allowed(origin):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
         self.end_headers()
         self.wfile.write(response_bytes)
 
@@ -55,6 +138,7 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             return None
 
     def parse_body(self):
+        """Parse le corps JSON de la requête avec limitation stricte de taille."""
         try:
             content_length = int(self.headers.get("Content-Length", 0))
         except (ValueError, TypeError):
@@ -65,7 +149,7 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
 
         # Limite de taille de payload : 5 Mo
         if content_length > 5 * 1024 * 1024:
-            return {}
+            raise PayloadTooLargeError("Corps de requête trop volumineux (max 5 Mo)")
 
         try:
             raw_body = self.rfile.read(content_length).decode("utf-8")
@@ -74,16 +158,31 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             return {}
 
     def do_OPTIONS(self):
+        origin = self.headers.get("Origin")
+        if origin and not self._is_origin_allowed(origin):
+            self.send_response(403)
+            self.end_headers()
+            return
+
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        if origin and self._is_origin_allowed(origin):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
 
     def do_GET(self):
         try:
             parsed = urllib.parse.urlparse(self.path)
             path = parsed.path
+
+            if path.startswith("/api/"):
+                if not self._check_auth():
+                    return
+                if path in self.LOCAL_ONLY_ROUTES and not self._is_local_client():
+                    self.send_json({"error": "Action réservée à la machine hôte"}, status=403)
+                    return
 
             if path == "/api/data":
                 data = self.service.get_all_data()
@@ -108,13 +207,7 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             # GET /api/network/info
             if path == "/api/network/info":
                 ips = get_lan_ips()
-                host_header = self.headers.get("Host", f"127.0.0.1:{DEFAULT_PORT}")
-                port = DEFAULT_PORT
-                if ":" in host_header:
-                    try:
-                        port = int(host_header.split(":")[-1])
-                    except Exception:
-                        pass
+                port = self.server_port
                 self.send_json({
                     "port": port,
                     "local_url": f"http://127.0.0.1:{port}",
@@ -124,13 +217,25 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 return
 
             super().do_GET()
-        except Exception as e:
-            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
+        except Exception:
+            logger.exception("Erreur sur %s %s", self.command, self.path)
+            self.send_json({"error": "Erreur interne"}, status=500)
 
     def do_POST(self):
         try:
             parsed = urllib.parse.urlparse(self.path)
             path = parsed.path
+
+            if not self._check_origin():
+                return
+
+            if path.startswith("/api/"):
+                if not self._check_auth():
+                    return
+                if path in self.LOCAL_ONLY_ROUTES and not self._is_local_client():
+                    self.send_json({"error": "Action réservée à la machine hôte"}, status=403)
+                    return
+
             parts = path.strip("/").split("/")
             payload = self.parse_body()
 
@@ -141,6 +246,13 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json({"error": "Identifiant de dossier invalide"}, status=400)
                     return
                 self.service.reset_folder_tasks(folder_id)
+                self.send_json({"success": True})
+                return
+
+            # POST /api/folders/reorder
+            if path == "/api/folders/reorder":
+                folder_ids = payload.get("folder_ids") or payload.get("order") or []
+                self.service.reorder_folders(folder_ids)
                 self.send_json({"success": True})
                 return
 
@@ -220,13 +332,27 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)
-        except Exception as e:
-            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
+        except PayloadTooLargeError:
+            self.send_json({"error": "Payload trop volumineux (max 5 Mo)"}, status=413)
+        except Exception:
+            logger.exception("Erreur sur %s %s", self.command, self.path)
+            self.send_json({"error": "Erreur interne"}, status=500)
 
     def do_PUT(self):
         try:
             parsed = urllib.parse.urlparse(self.path)
             path = parsed.path
+
+            if not self._check_origin():
+                return
+
+            if path.startswith("/api/"):
+                if not self._check_auth():
+                    return
+                if path in self.LOCAL_ONLY_ROUTES and not self._is_local_client():
+                    self.send_json({"error": "Action réservée à la machine hôte"}, status=403)
+                    return
+
             parts = path.strip("/").split("/")
             payload = self.parse_body()
 
@@ -234,6 +360,13 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             if path == "/api/settings":
                 settings = self.service.update_settings(payload)
                 self.send_json(settings)
+                return
+
+            # PUT /api/folders/reorder
+            if path == "/api/folders/reorder":
+                folder_ids = payload.get("folder_ids") or payload.get("order") or []
+                self.service.reorder_folders(folder_ids)
+                self.send_json({"success": True})
                 return
 
             # PUT /api/folders/<id>
@@ -263,13 +396,27 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)
-        except Exception as e:
-            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
+        except PayloadTooLargeError:
+            self.send_json({"error": "Payload trop volumineux (max 5 Mo)"}, status=413)
+        except Exception:
+            logger.exception("Erreur sur %s %s", self.command, self.path)
+            self.send_json({"error": "Erreur interne"}, status=500)
 
     def do_DELETE(self):
         try:
             parsed = urllib.parse.urlparse(self.path)
             path = parsed.path
+
+            if not self._check_origin():
+                return
+
+            if path.startswith("/api/"):
+                if not self._check_auth():
+                    return
+                if path in self.LOCAL_ONLY_ROUTES and not self._is_local_client():
+                    self.send_json({"error": "Action réservée à la machine hôte"}, status=403)
+                    return
+
             parts = path.strip("/").split("/")
 
             # DELETE /api/folders/<id>
@@ -293,5 +440,6 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)
-        except Exception as e:
-            self.send_json({"error": "Erreur interne", "details": str(e)}, status=500)
+        except Exception:
+            logger.exception("Erreur sur %s %s", self.command, self.path)
+            self.send_json({"error": "Erreur interne"}, status=500)

@@ -40,6 +40,7 @@ def init_db(db_path=None):
             bg_color1 TEXT DEFAULT '',
             bg_color2 TEXT DEFAULT '',
             bg_angle INTEGER DEFAULT 135,
+            position INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -85,6 +86,9 @@ def init_db(db_path=None):
         cursor.execute("ALTER TABLE folders ADD COLUMN bg_color2 TEXT DEFAULT ''")
     if "bg_angle" not in folder_cols:
         cursor.execute("ALTER TABLE folders ADD COLUMN bg_angle INTEGER DEFAULT 135")
+    if "position" not in folder_cols:
+        cursor.execute("ALTER TABLE folders ADD COLUMN position INTEGER DEFAULT 0")
+        cursor.execute("UPDATE folders SET position = id")
 
     cursor.execute("PRAGMA table_info(tasks)")
     task_cols = [r[1] for r in cursor.fetchall()]

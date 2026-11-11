@@ -4,9 +4,12 @@ Supporte les emplacements personnalisés pour la synchronisation multi-PC (Nextc
 """
 
 import json
+import logging
 import os
 import socket
 import subprocess
+
+logger = logging.getLogger("todolist.config")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
@@ -28,6 +31,7 @@ def load_local_config():
             with open(LOCAL_CONFIG_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
+            logger.warning("Erreur lors de la lecture du fichier de config locale", exc_info=True)
             return {}
     return {}
 
@@ -40,6 +44,7 @@ def save_local_config(cfg):
             json.dump(cfg, f, indent=2, ensure_ascii=False)
         return True
     except Exception:
+        logger.warning("Erreur lors de la sauvegarde du fichier de config locale", exc_info=True)
         return False
 
 

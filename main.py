@@ -8,6 +8,7 @@ Orchestre :
 - La fermeture propre du serveur lors de la fermeture de la fenêtre
 """
 
+import logging
 import sys
 import time
 import socket
@@ -19,6 +20,12 @@ from backend.config import DEFAULT_PORT
 from backend.database import init_db
 from backend.handlers import TodoRequestHandler
 from backend.window import launch_app_window, install_desktop_shortcuts
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+logger = logging.getLogger("todolist.main")
 
 
 def is_server_ready(url, timeout=0.6):

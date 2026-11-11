@@ -71,10 +71,25 @@ def main():
 
         # Style CSS GTK3
         css = b"""
+            window,
+            decoration {
+                background-color: #08090c;
+                background-image: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
             headerbar {
                 background: #08090c;
+                background-color: #08090c;
+                background-image: none;
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                margin: 0;
+                padding: 0 8px;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar .title {
                 color: #ffffff;
@@ -83,24 +98,72 @@ def main():
         """
         if active_style == "transparent":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    background-image: none;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: transparent;
+                    background-color: transparent;
+                    background-image: none;
                     border: none;
                     box-shadow: none;
+                    margin: 0;
+                    padding: 0 8px;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
         elif active_style == "glass":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    background-image: none;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: #111827;
+                    background-color: #111827;
+                    background-image: none;
+                    border: none;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+                    margin: 0;
+                    padding: 0 8px;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
         elif active_style == "neon":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    background-image: none;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: #090a12;
+                    background-color: #090a12;
+                    background-image: none;
+                    border: none;
                     border-bottom: 2px solid #6366f1;
+                    box-shadow: 0 3px 16px rgba(99, 102, 241, 0.38);
+                    margin: 0;
+                    padding: 0 8px;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
 
@@ -108,7 +171,7 @@ def main():
         provider.load_from_data(css)
         screen = Gdk.Screen.get_default()
         if screen:
-            Gtk.StyleContext.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            Gtk.StyleContext.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         webview = WebKit2.WebView()
         settings = webview.get_settings()

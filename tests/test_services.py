@@ -71,6 +71,17 @@ class ServicesTestCase(unittest.TestCase):
         folder = self.service.create_folder({"name": "Test Icon"})
         self.assertEqual(folder["icon"], "folder")
 
+    def test_reorder_folders(self):
+        f1 = self.service.create_folder({"name": "Dossier 1"})
+        f2 = self.service.create_folder({"name": "Dossier 2"})
+        f3 = self.service.create_folder({"name": "Dossier 3"})
+
+        # Inverser l'ordre
+        self.service.reorder_folders([f3["id"], f1["id"], f2["id"]])
+        data = self.service.get_all_data()
+        folders = [f for f in data["folders"] if f["id"] in (f1["id"], f2["id"], f3["id"])]
+        self.assertEqual([f["id"] for f in folders], [f3["id"], f1["id"], f2["id"]])
+
     def test_storage_info_and_change_path(self):
         info = self.service.get_storage_info()
         self.assertTrue(info["file_exists"])
