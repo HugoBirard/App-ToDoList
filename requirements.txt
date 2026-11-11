@@ -1,8 +1,20 @@
-# ToDoList - Dépendances d'exécution
-#
-# L'application ToDoList (Desktop & Serveur HTTP) utilise EXCLUSIVEMENT 
-# la bibliothèque standard de Python 3 (sqlite3, http.server, urllib, json, subprocess).
-# Aucune dépendance externe tierce n'est obligatoire pour lancer l'application !
-#
-# Optionnel : Uniquement requis si vous souhaitez lancer le bot Discord interactif (discord_bot.py)
-# discord.py>=2.3.0
+# =====================================================================
+# ToDoList - Dépendances d'exécution & Outils
+# =====================================================================
+# Installation rapide :
+#     pip install -r requirements.txt
+#  ou pip install -r requirement.txt
+# =====================================================================
+
+# 1. Certificats SSL racines (sécurisation des Webhooks Discord sur toutes distributions Linux)
+certifi>=2024.2.2
+
+# 2. Bot Discord interactif (requis pour le bot discord_bot.py)
+discord.py>=2.3.2
+
+# 3. Liaisons Python GTK4 / GTK3 (optionnel si déjà installé via dnf ou apt)
+PyGObject>=3.42.0
+
+# 4. Bibliothèques de tests et de qualité de code (optionnel pour les contributeurs)
+pytest>=7.4.0
+flake8>=6.1.0

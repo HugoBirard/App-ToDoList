@@ -21,6 +21,92 @@
 
 ---
 
+## 🚀 Téléchargement & Installation Rapide
+
+Installez et lancez **ToDoList** en quelques secondes sur votre machine Linux :
+
+### 1. Télécharger le projet (Git Clone)
+
+```bash
+git clone https://github.com/HugoBirard/App-ToDoList.git
+cd App-ToDoList
+```
+
+---
+
+### 2. Installer les paquets système (selon votre distribution)
+
+L'application utilise **Python 3**. Pour bénéficier du fenêtrage natif moderne (GTK4 / WebKit6 ou Epiphany), exécutez la commande adaptée à votre système :
+
+#### 🔵 Fedora / Red Hat Enterprise Linux / CentOS (`sudo dnf`)
+> **Note :** Sur Fedora et RHEL, le gestionnaire de paquets officiel est **`dnf`** (*Dandified YUM*, parfois abrégé ou confondu avec *dns*).
+```bash
+# Installation de Python, Pip et Git
+sudo dnf install -y python3 python3-pip git
+
+# (Recommandé) Paquets pour le fenêtrage natif GTK4 / WebKit et GNOME Web :
+sudo dnf install -y python3-gobject gtk4 webkitgtk6.0 epiphany
+```
+
+#### 🟠 Ubuntu / Debian / Linux Mint / Pop!_OS (`sudo apt`)
+```bash
+# Mise à jour des dépôts et installation de Python, Pip, venv et Git
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv git
+
+# (Recommandé) Paquets pour le fenêtrage natif GTK4 / WebKit et GNOME Web :
+sudo apt install -y python3-gi python3-gi-cairo gir1.2-gtk-4.0 gir1.2-webkit-6.0 epiphany-browser
+```
+
+#### ⚪ Arch Linux / Manjaro (`sudo pacman`)
+```bash
+sudo pacman -S --needed python python-pip git gtk4 webkitgtk-6.0 epiphany
+```
+
+---
+
+### 3. Installer les dépendances Python (`requirement.txt`)
+
+Installez facilement toutes les dépendances de l'application et du bot Discord :
+
+```bash
+# 1. Créer et activer l'environnement virtuel (recommandé sous Linux)
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. Installer les bibliothèques
+pip install -r requirement.txt
+# (ou indifféremment : pip install -r requirements.txt)
+```
+
+---
+
+### 4. Lancer ToDoList
+
+Choisissez le mode de lancement qui convient à votre usage :
+
+#### Mode A : Lancement direct de l'application
+```bash
+./start.sh
+# ou directement :
+python3 main.py
+```
+
+#### Mode B : Installer le raccourci dans vos Applications GNOME & Bureau
+Installe automatiquement l'icône vectorielle officielle et le lanceur dans votre menu d'applications :
+```bash
+./installer-raccourci.sh
+```
+
+#### Mode C : Lancer en Mode Serveur d'Équipe (Multi-PC / Réseau local)
+```bash
+./lancer-serveur-equipe.sh
+# ou personnaliser l'adresse et le port :
+python3 server.py --host 0.0.0.0 --port 4848
+```
+
+---
+
 ## 📌 Présentation du projet
 
 **ToDoList** est une application de bureau conçue pour les utilisateurs et équipes de projet recherchant la fluidité et l'élégance d'une application moderne (style **Spotify** ou **VS Code**), tout en conservant une **légèreté maximale**, une **confidentialité absolue** et des capacités puissantes de **travail collaboratif** :
@@ -243,7 +329,8 @@ App-ToDoList/
 ├── main.py                        # Lanceur principal (Orchestrateur Serveur + Fenêtre GUI)
 ├── pyproject.toml                 # Métadonnées de packaging Python standard (PEP 621)
 ├── README.md                      # Documentation complète du projet
-├── requirements.txt               # Spécification standard des dépendances (Zero External obligatoire)
+├── requirement.txt                # Dépendances Python rapides (certifi, discord.py, PyGObject)
+├── requirements.txt               # Fichier standard des dépendances (alias identique)
 ├── requirements-dev.txt           # Dépendances de développement & tests (flake8, pytest)
 ├── server.py                      # Lanceur de serveur HTTP autonome (options --host, --port, --share, --token)
 ├── start.sh                       # Script bash exécutable de démarrage rapide
@@ -370,8 +457,8 @@ Puis accédez à `http://localhost:4848` dans votre navigateur.
 Permet à votre équipe de piloter les tâches sans quitter Discord :
 
 ```bash
-# Installation de la bibliothèque Discord (optionnelle)
-pip install discord.py
+# Installation des dépendances (ou pip install -r requirement.txt)
+pip install -r requirement.txt
 
 # Démarrage du bot avec votre Token
 python3 discord_bot.py --token "VOTRE_TOKEN_BOT"
