@@ -86,6 +86,15 @@ async function loadData() {
     state.tasks = data.tasks || [];
     state.settings = data.settings || {};
 
+    // Restaurer le salon actif depuis le stockage local si disponible
+    const savedSalonId = parseInt(localStorage.getItem('todolist_active_salon_id'), 10);
+    if (savedSalonId && state.salons.some(s => Number(s.id) === savedSalonId)) {
+      state.currentSalonId = savedSalonId;
+    } else if (state.salons.length > 0 && !state.salons.some(s => Number(s.id) === Number(state.currentSalonId))) {
+      state.currentSalonId = state.salons[0].id;
+      localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
+    }
+
     if (state.settings.main_background) {
       state.mainBg = state.settings.main_background;
     } else {

@@ -474,9 +474,12 @@ class TodoService:
             tasks = [dict(r) for r in cursor.fetchall()]
 
         conn.close()
+        salon_name = salon.get("name") or "Salon"
         return {
             "version": 2,
             "scope": "salon",
+            "salon_name": salon_name,
+            "name": salon_name,
             "exported_at": datetime.now().isoformat(),
             "salon": salon,
             "folders": folders,
@@ -565,9 +568,21 @@ class TodoService:
         if not isinstance(data, dict):
             return None
 
-        incoming_salon = data.get("salon", {})
+        # Si le dictionnaire est encapsulé dans "data"
+        if "data" in data and isinstance(data["data"], dict):
+            data = data["data"]
+
+        incoming_salon = data.get("salon")
+        if not isinstance(incoming_salon, dict):
+            incoming_salon = {}
+
         incoming_folders = data.get("folders", [])
+        if not isinstance(incoming_folders, list):
+            incoming_folders = []
+
         incoming_tasks = data.get("tasks", [])
+        if not isinstance(incoming_tasks, list):
+            incoming_tasks = []
 
         conn = self._conn()
         cursor = conn.cursor()
@@ -579,10 +594,39 @@ class TodoService:
                 salon_id = None
 
         if not salon_id:
-            name = incoming_salon.get("name") or "Salon Partagé"
-            icon = incoming_salon.get("icon") or "folder"
-            color = incoming_salon.get("color") or "#4f46e5"
-            desc = incoming_salon.get("description") or "Salon importé"
+            raw_name = (
+                incoming_salon.get("name")
+                or data.get("salon_name")
+                or data.get("name")
+                or (data.get("salon") if isinstance(data.get("salon"), str) else None)
+                or incoming_salon.get("title")
+                or data.get("title")
+                or "Salon Partagé"
+            )
+            name = str(raw_name).strip()[:100]
+            if not name:
+                name = "Salon Partagé"
+
+            icon = str(
+                incoming_salon.get("icon")
+                or data.get("icon")
+                or "folder"
+            )[:50]
+
+            raw_color = (
+                incoming_salon.get("color")
+                or data.get("color")
+                or "#4f46e5"
+            )
+            color = _safe_color(raw_color, default="#4f46e5")
+
+            raw_desc = (
+                incoming_salon.get("description")
+                or data.get("description")
+                or ""
+            )
+            desc = str(raw_desc).strip()[:300]
+
             cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM salons")
             next_pos = cursor.fetchone()[0]
             cursor.execute("""

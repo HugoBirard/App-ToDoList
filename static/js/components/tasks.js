@@ -250,15 +250,39 @@ export async function handleAddTask(e) {
   const title = input.value.trim();
   if (!title) return;
 
-  let folderId = parseInt(folderSelect ? folderSelect.value : '', 10);
   const activeSalon = getActiveSalon();
+  const activeId = activeSalon ? Number(activeSalon.id) : 1;
   const visibleFolders = activeSalon 
-    ? state.folders.filter(f => !f.salon_id || f.salon_id === activeSalon.id)
+    ? state.folders.filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
     : state.folders;
-  const exists = visibleFolders.some(f => f.id === folderId);
+
+  let folderId = parseInt(folderSelect ? folderSelect.value : '', 10);
+
+  // Si le salon n'a aucun dossier, créer automatiquement un dossier "Général"
+  if (visibleFolders.length === 0) {
+    try {
+      const defaultFolder = await api('/api/folders', 'POST', {
+        name: "Général",
+        salon_id: activeId,
+        icon: "folder",
+        color: activeSalon?.color || "#4f46e5"
+      });
+      if (defaultFolder) {
+        state.folders.push(defaultFolder);
+        visibleFolders.push(defaultFolder);
+        folderId = defaultFolder.id;
+        if (folderSelect) folderSelect.value = folderId;
+        renderFolders();
+      }
+    } catch (err) {
+      console.error("Échec création automatique du dossier par défaut", err);
+    }
+  }
+
+  const exists = visibleFolders.some(f => Number(f.id) === Number(folderId));
   if (!exists && visibleFolders.length > 0) {
     const currentNum = Number(state.currentView);
-    if (!isNaN(currentNum) && visibleFolders.some(f => f.id === currentNum)) {
+    if (!isNaN(currentNum) && visibleFolders.some(f => Number(f.id) === currentNum)) {
       folderId = currentNum;
     } else {
       folderId = visibleFolders[0].id;
@@ -266,27 +290,45 @@ export async function handleAddTask(e) {
     if (folderSelect) folderSelect.value = folderId;
   }
 
-  const priority = prioritySelect.value;
-  const dueDate = dueDateInput.value || null;
-  const hasProgress = typeSelect.value === 'progress' ? 1 : 0;
+  if (isNaN(folderId) || !folderId) {
+    showNotificationDialog({
+      title: "Dossier requis",
+      message: "Veuillez d'abord créer un dossier dans ce salon avant d'ajouter une tâche.",
+      icon: "alert"
+    });
+    return;
+  }
 
-  const newTask = await api('/api/tasks', 'POST', {
-    title,
-    folder_id: folderId,
-    priority,
-    due_date: dueDate,
-    has_progress: hasProgress,
-    progress: 0
-  });
+  const priority = prioritySelect ? prioritySelect.value : 'normal';
+  const dueDate = (dueDateInput && dueDateInput.value) ? dueDateInput.value : null;
+  const hasProgress = (typeSelect && typeSelect.value === 'progress') ? 1 : 0;
 
-  if (newTask) {
-    state.tasks.unshift(newTask);
-    input.value = '';
-    dueDateInput.value = '';
-    renderCounters();
-    updateProgress();
-    renderTasks();
-    input.focus();
+  try {
+    const newTask = await api('/api/tasks', 'POST', {
+      title,
+      folder_id: folderId,
+      priority,
+      due_date: dueDate,
+      has_progress: hasProgress,
+      progress: 0
+    });
+
+    if (newTask) {
+      state.tasks.unshift(newTask);
+      input.value = '';
+      if (dueDateInput) dueDateInput.value = '';
+      renderCounters();
+      updateProgress();
+      renderTasks();
+      input.focus();
+    }
+  } catch (err) {
+    console.error("Erreur lors de la création de la tâche", err);
+    showNotificationDialog({
+      title: "Erreur",
+      message: "Impossible d'ajouter la tâche : " + err.message,
+      icon: "alert"
+    });
   }
 }
 

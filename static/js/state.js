@@ -56,13 +56,17 @@ export const state = {
 
 export function getActiveSalon() {
   if (!state.salons || state.salons.length === 0) return null;
-  return state.salons.find(s => s.id === state.currentSalonId) || state.salons[0];
+  const targetId = Number(state.currentSalonId);
+  return state.salons.find(s => Number(s.id) === targetId) || state.salons[0];
 }
 
 export function getActiveSalonFolderIds() {
   const active = getActiveSalon();
   if (!active) return state.folders.map(f => f.id);
-  return state.folders.filter(f => !f.salon_id || f.salon_id === active.id).map(f => f.id);
+  const activeId = Number(active.id);
+  return state.folders
+    .filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
+    .map(f => f.id);
 }
 
 export function getCurrentViewTasks() {

@@ -120,13 +120,13 @@ function populateFolderSalonSelect(selectedSalonId) {
   if (!hiddenInput) return;
 
   const currentSalons = state.salons || [];
-  const activeId = selectedSalonId || state.currentSalonId || (currentSalons[0]?.id);
-  hiddenInput.value = activeId || '';
+  const activeId = Number(selectedSalonId) || Number(state.currentSalonId) || (currentSalons[0]?.id ? Number(currentSalons[0].id) : 1);
+  hiddenInput.value = activeId;
 
   if (dd) {
     const label = dd.querySelector('.dropdown-label');
     const menu = dd.querySelector('.dropdown-menu');
-    const activeSalon = currentSalons.find(s => s.id === activeId) || currentSalons[0];
+    const activeSalon = currentSalons.find(s => Number(s.id) === activeId) || currentSalons[0];
     if (label && activeSalon) {
       label.textContent = activeSalon.name;
     }
@@ -134,7 +134,7 @@ function populateFolderSalonSelect(selectedSalonId) {
     if (menu) {
       menu.innerHTML = '';
       currentSalons.forEach(s => {
-        const isSelected = s.id === activeId;
+        const isSelected = Number(s.id) === activeId;
         const item = document.createElement('div');
         item.className = `dropdown-option ${isSelected ? 'selected' : ''}`;
         item.dataset.value = s.id;
@@ -147,7 +147,7 @@ function populateFolderSalonSelect(selectedSalonId) {
           e.stopPropagation();
           hiddenInput.value = s.id;
           if (label) label.textContent = s.name;
-          dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.toggle('selected', o.dataset.value == s.id));
+          dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.toggle('selected', Number(o.dataset.value) === Number(s.id)));
           dd.classList.remove('open');
         };
         menu.appendChild(item);
@@ -435,7 +435,7 @@ export async function handleFolderSubmit(e) {
   if (!name) return;
 
   const salonSelect = document.getElementById('folder-salon-select');
-  const salonId = salonSelect ? (parseInt(salonSelect.value, 10) || state.currentSalonId) : state.currentSalonId;
+  const salonId = salonSelect ? (parseInt(salonSelect.value, 10) || Number(state.currentSalonId)) : Number(state.currentSalonId);
 
   const folderData = { 
     name, 
@@ -452,7 +452,7 @@ export async function handleFolderSubmit(e) {
   if (folderId) {
     const updated = await api(`/api/folders/${folderId}`, 'PUT', folderData);
     if (updated) {
-      const idx = state.folders.findIndex(f => f.id === parseInt(folderId));
+      const idx = state.folders.findIndex(f => Number(f.id) === parseInt(folderId, 10));
       if (idx !== -1) state.folders[idx] = updated;
       selectFolderView(parseInt(folderId, 10));
     }

@@ -810,6 +810,8 @@ function setupImportSalonModal() {
     if (res && res.id) {
       modal?.classList.add('hidden');
       state.salons.push(res);
+      state.currentSalonId = res.id;
+      localStorage.setItem('todolist_active_salon_id', res.id);
       if (globalLoadDataCallback) {
         await globalLoadDataCallback(true);
       } else {

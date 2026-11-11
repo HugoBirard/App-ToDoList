@@ -31,8 +31,9 @@ export function renderFolderList() {
   list.innerHTML = '';
 
   const activeSalon = getActiveSalon();
+  const activeId = activeSalon ? Number(activeSalon.id) : 1;
   const visibleFolders = activeSalon 
-    ? state.folders.filter(f => !f.salon_id || f.salon_id === activeSalon.id)
+    ? state.folders.filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
     : state.folders;
 
   if (visibleFolders.length === 0) {

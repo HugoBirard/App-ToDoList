@@ -209,6 +209,32 @@ class ServicesTestCase(unittest.TestCase):
         self.assertIsNotNone(imported_via_code)
         self.assertEqual(imported_via_code["name"], "Groupe Projet")
 
+        # 6d. Vérifier la préservation du nom exact pour tous les formats d'import
+        imp_alt1 = self.service.import_salon({"salon_name": "Salon Alpha", "folders": []})
+        self.assertEqual(imp_alt1["name"], "Salon Alpha")
+
+        imp_alt2 = self.service.import_salon({"name": "Salon Bêta", "folders": []})
+        self.assertEqual(imp_alt2["name"], "Salon Bêta")
+
+        imp_alt3 = self.service.import_salon({"data": {"salon": {"name": "Salon Gamma"}}})
+        self.assertEqual(imp_alt3["name"], "Salon Gamma")
+
+        imp_alt4 = self.service.import_salon({"salon": "Salon Delta"})
+        self.assertEqual(imp_alt4["name"], "Salon Delta")
+
+        # 6e. Créer un dossier et une tâche dans un salon importé
+        f_in_salon = self.service.create_folder({
+            "name": "Dossier Membre Rejoint",
+            "salon_id": imp_alt1["id"]
+        })
+        self.assertEqual(f_in_salon["salon_id"], imp_alt1["id"])
+
+        t_in_salon = self.service.create_task({
+            "title": "Tâche Membre Rejoint",
+            "folder_id": f_in_salon["id"]
+        })
+        self.assertEqual(t_in_salon["folder_id"], f_in_salon["id"])
+
         # Nettoyer le fichier créé si sauvegardé
         if exp_file.get("filepath") and os.path.exists(exp_file["filepath"]):
             try:

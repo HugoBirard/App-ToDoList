@@ -102,19 +102,22 @@ export function updateFolderDropdown() {
   menu.innerHTML = '';
 
   const activeSalon = getActiveSalon();
+  const activeId = activeSalon ? Number(activeSalon.id) : 1;
   const visibleFolders = activeSalon 
-    ? state.folders.filter(f => !f.salon_id || f.salon_id === activeSalon.id)
+    ? state.folders.filter(f => Number(f.salon_id) === activeId || (!f.salon_id && activeId === 1))
     : state.folders;
 
   let selectedId = parseInt(hiddenInput.value, 10);
   if (typeof state.currentView === 'number') {
     selectedId = state.currentView;
-  } else if (isNaN(selectedId) || !visibleFolders.some(f => f.id === selectedId)) {
+  } else if (isNaN(selectedId) || !visibleFolders.some(f => Number(f.id) === selectedId)) {
     selectedId = visibleFolders.length > 0 ? visibleFolders[0].id : null;
   }
 
   if (selectedId !== null) {
     hiddenInput.value = selectedId;
+  } else {
+    hiddenInput.value = '';
   }
 
   let selectedFolder = null;
@@ -156,9 +159,9 @@ export function updateFolderDropdown() {
   if (selectedFolder) {
     if (label) label.textContent = selectedFolder.name;
     if (triggerIcon) triggerIcon.innerHTML = renderIcon(selectedFolder.icon);
-  } else if (state.folders.length > 0) {
-    if (label) label.textContent = state.folders[0].name;
-    if (triggerIcon) triggerIcon.innerHTML = renderIcon(state.folders[0].icon);
+  } else if (visibleFolders.length > 0) {
+    if (label) label.textContent = visibleFolders[0].name;
+    if (triggerIcon) triggerIcon.innerHTML = renderIcon(visibleFolders[0].icon);
   } else {
     if (label) label.textContent = "Aucun dossier";
     if (triggerIcon) triggerIcon.innerHTML = renderIcon('folder');
