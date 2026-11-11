@@ -10,6 +10,8 @@ import { openEditFolderModal, showConfirmDialog } from './modals.js';
 import { renderIcon } from '../icons.js';
 import { updateFolderDropdown } from './dropdowns.js';
 
+let draggedFolderId = null;
+
 export function renderFolders() {
   renderFolderSelect();
   renderFolderList();
@@ -34,8 +36,11 @@ export function renderFolderList() {
 
     const item = document.createElement('div');
     item.className = `folder-item ${state.currentView === folder.id ? 'active' : ''}`;
+    item.setAttribute('draggable', 'true');
+    item.dataset.folderId = String(folder.id);
+
     item.onclick = (e) => {
-      if (e.target.closest('.folder-actions')) return;
+      if (e.target.closest('.folder-actions') || item.classList.contains('dragging')) return;
       selectFolderView(folder.id);
     };
 
@@ -51,6 +56,7 @@ export function renderFolderList() {
 
     item.innerHTML = `
       <div class="folder-info">
+        <span class="folder-drag-handle" title="Glisser pour réorganiser">${renderIcon('grip-vertical')}</span>
         <span class="folder-pill"></span>
         <span class="folder-icon">${renderIcon(folder.icon)}</span>
         <span class="folder-name">${escapeHtml(folder.name)}</span>
@@ -59,13 +65,72 @@ export function renderFolderList() {
       </div>
       <div class="folder-actions">
         <span class="nav-count">${pendingCount}</span>
-        <button class="icon-btn edit-folder-btn" title="Modifier le dossier">${renderIcon('edit')}</button>
-        <button class="icon-btn delete-folder-btn" title="Supprimer le dossier">${renderIcon('trash')}</button>
+        <button class="icon-btn edit-folder-btn" title="Modifier le dossier" draggable="false">${renderIcon('edit')}</button>
+        <button class="icon-btn delete-folder-btn" title="Supprimer le dossier" draggable="false">${renderIcon('trash')}</button>
       </div>
     `;
 
     const pill = item.querySelector('.folder-pill');
     if (pill) pill.style.backgroundColor = safeColor;
+
+    // --- Gestion du Glisser-Déposer (Drag & Drop) ---
+    item.addEventListener('dragstart', (e) => {
+      draggedFolderId = folder.id;
+      e.dataTransfer.setData('text/plain', String(folder.id));
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.folder-item').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom', 'dragging');
+      });
+      draggedFolderId = null;
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (!draggedFolderId || draggedFolderId === folder.id) return;
+      e.dataTransfer.dropEffect = 'move';
+
+      const rect = item.getBoundingClientRect();
+      const isTop = (e.clientY - rect.top) < (rect.height / 2);
+      item.classList.toggle('drag-over-top', isTop);
+      item.classList.toggle('drag-over-bottom', !isTop);
+    });
+
+    item.addEventListener('dragleave', (e) => {
+      if (!item.contains(e.relatedTarget)) {
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+      }
+    });
+
+    item.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+
+      const sourceId = Number(e.dataTransfer.getData('text/plain') || draggedFolderId);
+      const targetId = Number(folder.id);
+      if (!sourceId || sourceId === targetId) return;
+
+      const fromIndex = state.folders.findIndex(f => f.id === sourceId);
+      const toIndex = state.folders.findIndex(f => f.id === targetId);
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const rect = item.getBoundingClientRect();
+      const isTop = (e.clientY - rect.top) < (rect.height / 2);
+      let insertIndex = isTop ? toIndex : toIndex + 1;
+      if (fromIndex < insertIndex) insertIndex--;
+
+      const [movedFolder] = state.folders.splice(fromIndex, 1);
+      state.folders.splice(insertIndex, 0, movedFolder);
+
+      renderFolderList();
+      await api('/api/folders/reorder', 'POST', {
+        folder_ids: state.folders.map(f => f.id)
+      });
+    });
 
     // Event listeners
     item.querySelector('.edit-folder-btn').onclick = (e) => {

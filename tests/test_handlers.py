@@ -177,6 +177,23 @@ class HandlersTestCase(unittest.TestCase):
         self.assertIn("network_ips", net_info)
         self.assertIn("network_urls", net_info)
 
+    def test_reorder_folders_endpoint(self):
+        s1, f1 = self._request("POST", "/api/folders", {"name": "Alpha"})
+        s2, f2 = self._request("POST", "/api/folders", {"name": "Beta"})
+        self.assertEqual(s1, 201)
+        self.assertEqual(s2, 201)
+
+        status, res = self._request("POST", "/api/folders/reorder", {
+            "folder_ids": [f2["id"], f1["id"]]
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(res.get("success"))
+
+        status, data = self._request("GET", "/api/data")
+        self.assertEqual(status, 200)
+        matching = [f["id"] for f in data["folders"] if f["id"] in (f1["id"], f2["id"])]
+        self.assertEqual(matching, [f2["id"], f1["id"]])
+
 
 if __name__ == "__main__":
     unittest.main()

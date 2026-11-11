@@ -22,19 +22,39 @@ TITLEBAR_STYLES = {
         "name": "Transparente (Seamless)",
         "description": "Fond transparent et intégré sans rupture, style Spotify / Discord / VS Code",
         "css": """
-            window.background {
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
                 background-color: #08090c;
+                background: #08090c;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
-            headerbar {
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
                 background: transparent;
                 background-color: transparent;
                 border: none;
                 box-shadow: none;
                 min-height: 40px;
                 padding: 0 8px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar windowhandle {
                 background: transparent;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
             headerbar .app-title-box {
                 opacity: 1;
@@ -69,19 +89,39 @@ TITLEBAR_STYLES = {
         "name": "Même couleur que le fond",
         "description": "Harmonie monolithique avec votre thème sombre et fine ligne de démarcation",
         "css": """
-            window.background {
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
                 background-color: #08090c;
+                background: #08090c;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
-            headerbar {
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
                 background-color: #08090c;
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.07);
                 box-shadow: none;
                 min-height: 40px;
                 padding: 0 8px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar windowhandle {
                 background-color: #08090c;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
             headerbar .app-title-box {
                 opacity: 1;
@@ -117,19 +157,39 @@ TITLEBAR_STYLES = {
         "name": "Verre Fumé Glassmorphism",
         "description": "Effet translucide avec reflet métallique supérieur et ombre portée",
         "css": """
-            window.background {
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
                 background-color: #08090c;
+                background: #08090c;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
-            headerbar {
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
                 background: linear-gradient(180deg, rgba(26, 31, 48, 0.95) 0%, rgba(12, 16, 28, 0.95) 100%);
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.14);
                 box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
                 min-height: 42px;
                 padding: 0 8px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar windowhandle {
                 background: transparent;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
             headerbar .app-title-box {
                 opacity: 1;
@@ -167,19 +227,39 @@ TITLEBAR_STYLES = {
         "name": "Liseré Cyber Indigo",
         "description": "Bordure inférieure indigo électrique avec halo lumineux vibrant",
         "css": """
-            window.background {
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
                 background-color: #08090c;
+                background: #08090c;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
-            headerbar {
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
                 background-color: #090a12;
                 border: none;
                 border-bottom: 2px solid #6366f1;
                 box-shadow: 0 3px 16px rgba(99, 102, 241, 0.38);
                 min-height: 40px;
                 padding: 0 8px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar windowhandle {
                 background-color: #090a12;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
             headerbar .app-title-box {
                 opacity: 1;
@@ -217,19 +297,39 @@ TITLEBAR_STYLES = {
         "name": "Minimaliste Compacte",
         "description": "Hauteur réduite de 28px, sans titre, boutons discrets pour maximiser l'écran",
         "css": """
-            window.background {
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
                 background-color: #08090c;
+                background: #08090c;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
-            headerbar {
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
                 background: transparent;
                 background-color: transparent;
                 border: none;
                 box-shadow: none;
                 min-height: 28px;
                 padding: 0 4px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar windowhandle {
                 background: transparent;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }
             headerbar .app-title-box {
                 opacity: 0;
@@ -257,7 +357,27 @@ TITLEBAR_STYLES = {
         "name": "Système GNOME Standard",
         "description": "Thème Adwaita standard de votre environnement de bureau",
         "css": """
-            /* GNOME standard par défaut */
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {
+                background-color: #08090c;
+                background: #08090c;
+                border: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
         """
     }
 }
@@ -327,19 +447,39 @@ def generate_css(style_name, custom_bg=None):
     if clean_style == "match-bg":
         bg_hex = extract_primary_hex_color(custom_bg or read_db_setting("main_background", "#08090c"))
         return f"""
-            window.background {{
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            decoration {{
                 background-color: {bg_hex};
+                background: {bg_hex};
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }}
-            headerbar {{
+            headerbar,
+            window.maximized headerbar,
+            window.tiled headerbar,
+            window.fullscreen headerbar {{
                 background-color: {bg_hex};
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 box-shadow: none;
                 min-height: 40px;
                 padding: 0 8px;
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }}
             headerbar windowhandle {{
                 background-color: {bg_hex};
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
             }}
             headerbar .app-title-box {{
                 opacity: 1;
@@ -426,6 +566,7 @@ def main():
                 # Création et configuration de la HeaderBar personnalisée
                 header_bar = Gtk.HeaderBar()
                 header_bar.set_show_title_buttons(True)
+                header_bar.set_hexpand(True)
 
                 # Titre centré élégant avec icône et libellé
                 title_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)

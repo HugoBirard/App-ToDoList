@@ -59,7 +59,7 @@ class TodoService:
         self.check_weekly_resets(conn)
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM folders ORDER BY id ASC")
+        cursor.execute("SELECT * FROM folders ORDER BY position ASC, id ASC")
         folders = [dict(row) for row in cursor.fetchall()]
 
         cursor.execute("SELECT * FROM tasks ORDER BY completed ASC, id DESC")
@@ -169,10 +169,13 @@ class TodoService:
         bg_color2 = _safe_color(data.get("bg_color2"), default="") if data.get("bg_color2") else ""
         bg_angle = _safe_int(data.get("bg_angle", 135), default=135, min_val=0, max_val=360)
 
+        cursor.execute("SELECT COALESCE(MAX(position), 0) + 1 FROM folders")
+        next_pos = cursor.fetchone()[0]
+
         cursor.execute(
-            """INSERT INTO folders (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle)
+            """INSERT INTO folders (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, position) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (name, icon, color, auto_reset_weekly, bg_type, bg_color1, bg_color2, bg_angle, next_pos)
         )
         conn.commit()
         new_id = cursor.lastrowid
@@ -181,6 +184,20 @@ class TodoService:
         conn.close()
         self._trigger_discord("folder_created", folder_name=created.get("name", "Nouveau dossier"), author=data.get("author"))
         return created
+
+    def reorder_folders(self, folder_ids):
+        """Met à jour l'ordre des dossiers suite à un glisser-déposer."""
+        if not isinstance(folder_ids, (list, tuple)):
+            return False
+        conn = self._conn()
+        cursor = conn.cursor()
+        for idx, fid in enumerate(folder_ids):
+            safe_id = _safe_int(fid, None)
+            if safe_id is not None:
+                cursor.execute("UPDATE folders SET position = ? WHERE id = ?", (idx, safe_id))
+        conn.commit()
+        conn.close()
+        return True
 
     def update_folder(self, folder_id, data):
         conn = self._conn()

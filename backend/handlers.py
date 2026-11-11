@@ -249,6 +249,13 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 self.send_json({"success": True})
                 return
 
+            # POST /api/folders/reorder
+            if path == "/api/folders/reorder":
+                folder_ids = payload.get("folder_ids") or payload.get("order") or []
+                self.service.reorder_folders(folder_ids)
+                self.send_json({"success": True})
+                return
+
             # POST /api/folders
             if path == "/api/folders":
                 folder = self.service.create_folder(payload)
@@ -353,6 +360,13 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             if path == "/api/settings":
                 settings = self.service.update_settings(payload)
                 self.send_json(settings)
+                return
+
+            # PUT /api/folders/reorder
+            if path == "/api/folders/reorder":
+                folder_ids = payload.get("folder_ids") or payload.get("order") or []
+                self.service.reorder_folders(folder_ids)
+                self.send_json({"success": True})
                 return
 
             # PUT /api/folders/<id>

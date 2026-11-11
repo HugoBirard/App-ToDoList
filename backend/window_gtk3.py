@@ -71,10 +71,21 @@ def main():
 
         # Style CSS GTK3
         css = b"""
+            window,
+            decoration {
+                background-color: #08090c;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
             headerbar {
                 background: #08090c;
                 border: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                margin: 0;
+                border-radius: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
             }
             headerbar .title {
                 color: #ffffff;
@@ -83,24 +94,57 @@ def main():
         """
         if active_style == "transparent":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: transparent;
                     border: none;
                     box-shadow: none;
+                    margin: 0;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
         elif active_style == "glass":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: #111827;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+                    margin: 0;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
         elif active_style == "neon":
             css = b"""
+                window,
+                decoration {
+                    background-color: #08090c;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                }
                 headerbar {
                     background: #090a12;
                     border-bottom: 2px solid #6366f1;
+                    margin: 0;
+                    border-radius: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
                 }
             """
 
