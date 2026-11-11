@@ -229,6 +229,45 @@ class ServicesTestCase(unittest.TestCase):
         self.assertEqual(f_grad["bg_color2"], "#445566")
         self.assertEqual(f_grad["bg_angle"], 90)
 
+    def test_salon_presence_and_live_sync_versioning(self):
+        """Vérifie le comptage de présence des membres en ligne et l'incrémentation de version pour la synchro en direct."""
+        salon = self.service.create_salon({"name": "Salon Partagé Live"})
+        salon_id = salon["id"]
+
+        # Initialement aucun membre actif
+        self.assertEqual(self.service.get_active_member_count(salon_id), 0)
+
+        # Enregistrement de 2 clients
+        self.service.record_presence(salon_id, "user_pc_1", "Alice")
+        self.service.record_presence(salon_id, "user_pc_2", "Bob")
+        self.assertEqual(self.service.get_active_member_count(salon_id), 2)
+
+        # Un client qui change de salon bascule sa présence
+        salon2 = self.service.create_salon({"name": "Deuxième Salon"})
+        self.service.record_presence(salon2["id"], "user_pc_1", "Alice")
+        self.assertEqual(self.service.get_active_member_count(salon_id), 1)
+        self.assertEqual(self.service.get_active_member_count(salon2["id"]), 1)
+
+        # Expiration après timeout
+        self.assertEqual(self.service.get_active_member_count(salon_id, timeout=-1.0), 0)
+
+        # Vérification des versions de salon lors des modifications
+        v_initial = self.service.get_salon_version(salon_id)
+        folder = self.service.create_folder({"name": "Dossier Test", "salon_id": salon_id})
+        self.assertGreater(self.service.get_salon_version(salon_id), v_initial)
+
+        v_after_folder = self.service.get_salon_version(salon_id)
+        task = self.service.create_task({"title": "Tâche Live", "folder_id": folder["id"]})
+        self.assertGreater(self.service.get_salon_version(salon_id), v_after_folder)
+
+        v_after_task = self.service.get_salon_version(salon_id)
+        self.service.update_task(task["id"], {"completed": True})
+        self.assertGreater(self.service.get_salon_version(salon_id), v_after_task)
+
+        v_after_update = self.service.get_salon_version(salon_id)
+        self.service.delete_task(task["id"])
+        self.assertGreater(self.service.get_salon_version(salon_id), v_after_update)
+
 
 if __name__ == "__main__":
     unittest.main()

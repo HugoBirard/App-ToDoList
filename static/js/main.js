@@ -64,7 +64,7 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   await loadData();
-  initSalonUI();
+  initSalonUI(loadData);
   initSyncUI(loadData);
   initAutoSyncWatcher(loadData);
   initServerUI(loadData);
@@ -356,11 +356,11 @@ function setupEventListeners() {
     });
   });
 
-  document.querySelectorAll('.icon-opt').forEach(btn => {
+  document.querySelectorAll('#folder-modal .icon-opt').forEach(btn => {
     btn.addEventListener('click', () => selectIcon(btn.dataset.icon));
   });
 
-  document.querySelectorAll('.color-opt').forEach(btn => {
+  document.querySelectorAll('#folder-modal .color-opt').forEach(btn => {
     btn.addEventListener('click', () => selectColor(btn.dataset.color));
   });
 

@@ -311,17 +311,40 @@ class HandlersTestCase(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(updated["name"], "Equipe Dev Core")
 
-        # 4. GET /api/salons/<id>/export
+        # 4. POST /api/salons/<id>/heartbeat
+        status, hb1 = self._request("POST", f"/api/salons/{salon_id}/heartbeat", {
+            "client_id": "client_alpha",
+            "version": 1
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(hb1["salon_id"], salon_id)
+        self.assertEqual(hb1["active_members_count"], 1)
+
+        # Deuxième membre sur le même salon
+        status, hb2 = self._request("POST", f"/api/salons/{salon_id}/heartbeat", {
+            "client_id": "client_beta",
+            "version": 1
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(hb2["active_members_count"], 2)
+
+        # GET /api/salons/active-counts
+        status, counts_res = self._request("GET", "/api/salons/active-counts")
+        self.assertEqual(status, 200)
+        self.assertIn("counts", counts_res)
+        self.assertEqual(counts_res["counts"].get(str(salon_id)), 2)
+
+        # 5. GET /api/salons/<id>/export
         status, exp = self._request("GET", f"/api/salons/{salon_id}/export")
         self.assertEqual(status, 200)
         self.assertEqual(exp["scope"], "salon")
 
-        # 5. POST /api/salons/import
+        # 6. POST /api/salons/import
         status, imp = self._request("POST", "/api/salons/import", exp)
         self.assertEqual(status, 201)
         self.assertEqual(imp["name"], "Equipe Dev Core")
 
-        # 6. DELETE /api/salons/<id>
+        # 7. DELETE /api/salons/<id>
         status, del_res = self._request("DELETE", f"/api/salons/{salon_id}")
         self.assertEqual(status, 200)
         self.assertTrue(del_res["success"])

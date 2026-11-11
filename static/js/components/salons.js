@@ -1,7 +1,8 @@
 /**
  * Composant de gestion des Salons / Espaces de travail partagés.
  * Permet d'isoler les dossiers et tâches par projet ou groupe,
- * avec webhook Discord dédié par salon et export/partage ciblé.
+ * avec webhook Discord dédié par salon, export/partage ciblé,
+ * synchronisation automatique en direct et compteur de membres connectés.
  */
 
 import { state, getActiveSalon, escapeHtml } from '../state.js';
@@ -14,7 +15,23 @@ import { showConfirmDialog, showNotificationDialog } from './modals.js';
 let selectedIconForSalon = 'folder';
 let selectedColorForSalon = '#4f46e5';
 
-export function initSalonUI() {
+// Identifiant unique du client pour le comptage de présence en ligne
+const CLIENT_ID = (function() {
+  let id = sessionStorage.getItem('todolist_client_id');
+  if (!id) {
+    id = 'user_' + Math.random().toString(36).substring(2, 10);
+    sessionStorage.setItem('todolist_client_id', id);
+  }
+  return id;
+})();
+
+let currentSalonVersion = null;
+let heartbeatIntervalId = null;
+let globalLoadDataCallback = null;
+
+export function initSalonUI(loadDataCallback = null) {
+  globalLoadDataCallback = loadDataCallback;
+
   // Récupérer le salon sauvegardé dans localStorage si valide
   const savedSalonId = parseInt(localStorage.getItem('todolist_active_salon_id'), 10);
   if (savedSalonId && state.salons.some(s => s.id === savedSalonId)) {
@@ -40,6 +57,16 @@ export function initSalonUI() {
     });
   }
 
+  // Bouton création rapide "+" dans l'en-tête de la barre latérale
+  const quickAddBtn = document.getElementById('quick-add-salon-btn');
+  if (quickAddBtn) {
+    quickAddBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (menu) menu.classList.add('hidden');
+      openAddSalonModal();
+    };
+  }
+
   // Bouton Gérer le salon
   const manageBtn = document.getElementById('manage-salon-btn');
   if (manageBtn) {
@@ -49,10 +76,11 @@ export function initSalonUI() {
     };
   }
 
-  // Bouton Nouveau salon
+  // Bouton Nouveau salon dans le menu déroulant
   const createBtn = document.getElementById('btn-create-salon');
   if (createBtn) {
-    createBtn.onclick = () => {
+    createBtn.onclick = (e) => {
+      e.stopPropagation();
       if (menu) menu.classList.add('hidden');
       openAddSalonModal();
     };
@@ -86,17 +114,22 @@ export function initSalonUI() {
         if (res && res.id) {
           state.salons.push(res);
           // Recharger les données complètes
-          const freshData = await api('/api/data', 'GET');
-          if (freshData) {
-            state.salons = freshData.salons || [];
-            state.folders = freshData.folders || [];
-            state.tasks = freshData.tasks || [];
+          if (globalLoadDataCallback) {
+            await globalLoadDataCallback(true);
+          } else {
+            const freshData = await api('/api/data', 'GET');
+            if (freshData) {
+              state.salons = freshData.salons || [];
+              state.folders = freshData.folders || [];
+              state.tasks = freshData.tasks || [];
+            }
           }
           state.currentSalonId = res.id;
           localStorage.setItem('todolist_active_salon_id', res.id);
           renderSalons();
           renderFolders();
           selectQuickView('all');
+          sendSalonHeartbeat();
           showNotificationDialog({
             title: "Salon importé !",
             message: `Le salon « ${res.name} » a été importé avec succès avec tous ses dossiers et tâches.`,
@@ -115,7 +148,7 @@ export function initSalonUI() {
     };
   }
 
-  // Fermeture des modales salon
+  // Fermeture des modales salon via bouton fermer
   document.querySelectorAll('#add-salon-modal .close-modal-btn, #manage-salon-modal .close-modal-btn').forEach(btn => {
     btn.onclick = () => {
       document.getElementById('add-salon-modal')?.classList.add('hidden');
@@ -123,9 +156,89 @@ export function initSalonUI() {
     };
   });
 
+  // Fermeture sur clic arrière-plan
+  const addModal = document.getElementById('add-salon-modal');
+  if (addModal) {
+    addModal.addEventListener('click', (e) => {
+      if (e.target === addModal) addModal.classList.add('hidden');
+    });
+  }
+  const manageModal = document.getElementById('manage-salon-modal');
+  if (manageModal) {
+    manageModal.addEventListener('click', (e) => {
+      if (e.target === manageModal) manageModal.classList.add('hidden');
+    });
+  }
+
   setupAddSalonForm();
   setupManageSalonModal();
   renderSalons();
+
+  // Démarrer la boucle de synchronisation en direct et battement de cœur (heartbeat)
+  if (!heartbeatIntervalId) {
+    heartbeatIntervalId = setInterval(sendSalonHeartbeat, 3000);
+    window.addEventListener('focus', sendSalonHeartbeat);
+  }
+  sendSalonHeartbeat();
+}
+
+/**
+ * Envoie le battement de cœur périodique du client pour maintenir sa présence en ligne
+ * et synchroniser automatiquement les modifications faites par les autres membres du salon.
+ */
+export async function sendSalonHeartbeat() {
+  const active = getActiveSalon();
+  if (!active) return;
+
+  try {
+    const res = await api(`/api/salons/${active.id}/heartbeat`, 'POST', {
+      client_id: CLIENT_ID,
+      version: currentSalonVersion
+    });
+
+    if (res) {
+      // Mettre à jour les comptes des membres sur tous les salons
+      if (res.all_salons_counts) {
+        state.salons.forEach(s => {
+          if (res.all_salons_counts[s.id] !== undefined) {
+            s.active_members_count = res.all_salons_counts[s.id];
+          }
+        });
+      }
+
+      // Mettre à jour le badge d'en-tête du salon actif
+      const presenceCountEl = document.getElementById('salon-presence-count');
+      if (presenceCountEl) {
+        const count = Math.max(res.active_members_count || 1, 1);
+        presenceCountEl.textContent = count;
+        presenceCountEl.parentElement?.setAttribute('title', `${count} membre(s) connecté(s) à ce salon`);
+      }
+
+      // Mettre à jour le texte dans la modale de gestion si ouverte
+      const managePresenceText = document.getElementById('manage-salon-presence-text');
+      if (managePresenceText) {
+        const count = Math.max(res.active_members_count || 1, 1);
+        managePresenceText.textContent = `${count} personne${count > 1 ? 's' : ''} en ligne`;
+      }
+
+      // Si le salon a été mis à jour par un autre membre (création/suppression/coche de tâche ou dossier)
+      if (res.needs_refresh) {
+        // Ne pas interrompre si l'utilisateur est en train de modifier une tâche au clavier
+        const isEditing = document.querySelector('.edit-task-input') ||
+                          (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName));
+        if (!isEditing) {
+          currentSalonVersion = res.version;
+          if (globalLoadDataCallback) {
+            await globalLoadDataCallback(true); // silent reload
+          }
+        }
+      } else {
+        currentSalonVersion = res.version;
+      }
+    }
+  } catch (err) {
+    // Ignorer les erreurs réseau temporaires
+  }
 }
 
 /**
@@ -143,10 +256,16 @@ export function renderSalons() {
   const nameEl = document.getElementById('salon-active-name');
   const colorEl = document.getElementById('salon-active-color');
   const discordPill = document.getElementById('salon-discord-indicator');
+  const presenceCountEl = document.getElementById('salon-presence-count');
 
   if (current) {
     if (nameEl) nameEl.textContent = current.name;
     if (colorEl) colorEl.style.backgroundColor = current.color || '#4f46e5';
+    if (presenceCountEl) {
+      const pCount = Math.max(current.active_members_count || 1, 1);
+      presenceCountEl.textContent = pCount;
+      presenceCountEl.parentElement?.setAttribute('title', `${pCount} membre(s) connecté(s) à ce salon`);
+    }
     if (discordPill) {
       if (current.discord_enabled && current.discord_webhook_configured) {
         discordPill.classList.remove('hidden');
@@ -165,6 +284,7 @@ export function renderSalons() {
   state.salons.forEach(s => {
     const isCurrent = current && s.id === current.id;
     const folderCount = state.folders.filter(f => f.salon_id === s.id).length;
+    const membersCount = s.active_members_count ?? (isCurrent ? 1 : 0);
 
     const item = document.createElement('div');
     item.className = `salon-menu-item ${isCurrent ? 'active' : ''}`;
@@ -172,6 +292,8 @@ export function renderSalons() {
     const discordBadge = (s.discord_enabled && s.discord_webhook_configured)
       ? `<span class="salon-mini-discord-badge" title="Discord lié">${renderIcon('message-square')}</span>`
       : '';
+
+    const presenceBadge = `<span class="salon-item-presence ${membersCount > 0 ? 'online' : ''}" title="${membersCount} membre(s) connecté(s)"><span class="presence-mini-dot"></span> ${membersCount} en ligne</span>`;
 
     item.innerHTML = `
       <div class="salon-item-left">
@@ -181,6 +303,7 @@ export function renderSalons() {
         ${discordBadge}
       </div>
       <div class="salon-item-right">
+        ${presenceBadge}
         <span class="salon-item-count">${folderCount} doss.</span>
         ${isCurrent ? `<span class="salon-check">${renderIcon('check')}</span>` : ''}
       </div>
@@ -194,6 +317,7 @@ export function renderSalons() {
       renderSalons();
       renderFolders();
       selectQuickView('all');
+      sendSalonHeartbeat();
     };
 
     list.appendChild(item);
@@ -211,7 +335,8 @@ function setupAddSalonForm() {
   const iconPicker = document.getElementById('add-salon-icon-picker');
   if (iconPicker) {
     iconPicker.querySelectorAll('.icon-opt').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         iconPicker.querySelectorAll('.icon-opt').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedIconForSalon = btn.dataset.icon || 'folder';
@@ -223,7 +348,8 @@ function setupAddSalonForm() {
   const colorPicker = document.getElementById('add-salon-color-picker');
   if (colorPicker) {
     colorPicker.querySelectorAll('.color-opt').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
         colorPicker.querySelectorAll('.color-opt').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedColorForSalon = btn.dataset.color || '#4f46e5';
@@ -236,6 +362,7 @@ function setupAddSalonForm() {
     const nameInput = document.getElementById('add-salon-name-input');
     const descInput = document.getElementById('add-salon-desc-input');
     const webhookInput = document.getElementById('add-salon-webhook-input');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
     const name = nameInput?.value.trim();
     if (!name) return;
@@ -245,25 +372,62 @@ function setupAddSalonForm() {
       webhookUrl = 'https://' + webhookUrl;
     }
 
-    const payload = {
-      name: name,
-      description: descInput?.value.trim() || '',
-      icon: selectedIconForSalon,
-      color: selectedColorForSalon,
-      discord_webhook_url: webhookUrl,
-      discord_enabled: webhookUrl ? 1 : 0
-    };
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Création en cours...';
+    }
 
-    const res = await api('/api/salons', 'POST', payload);
-    if (res && res.id) {
-      state.salons.push(res);
-      state.currentSalonId = res.id;
-      localStorage.setItem('todolist_active_salon_id', res.id);
-      document.getElementById('add-salon-modal')?.classList.add('hidden');
-      form.reset();
-      renderSalons();
-      renderFolders();
-      selectQuickView('all');
+    try {
+      const payload = {
+        name: name,
+        description: descInput?.value.trim() || '',
+        icon: selectedIconForSalon,
+        color: selectedColorForSalon,
+        discord_webhook_url: webhookUrl,
+        discord_enabled: webhookUrl ? 1 : 0
+      };
+
+      const res = await api('/api/salons', 'POST', payload);
+      if (res && res.id) {
+        state.salons.push(res);
+        state.currentSalonId = res.id;
+        localStorage.setItem('todolist_active_salon_id', res.id);
+        document.getElementById('add-salon-modal')?.classList.add('hidden');
+        form.reset();
+
+        if (globalLoadDataCallback) {
+          await globalLoadDataCallback(true);
+        } else {
+          renderSalons();
+          renderFolders();
+          selectQuickView('all');
+        }
+
+        sendSalonHeartbeat();
+
+        showNotificationDialog({
+          title: "Salon créé !",
+          message: `Le salon « ${res.name} » a été créé avec succès et sélectionné.`,
+          icon: "check"
+        });
+      } else {
+        showNotificationDialog({
+          title: "Erreur",
+          message: "Impossible de créer le salon. Veuillez vérifier le nom saisi.",
+          icon: "alert"
+        });
+      }
+    } catch (err) {
+      showNotificationDialog({
+        title: "Erreur",
+        message: "Une erreur est survenue lors de la création du salon : " + err.message,
+        icon: "alert"
+      });
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Créer le salon';
+      }
     }
   };
 }
@@ -273,8 +437,27 @@ export function openAddSalonModal() {
   if (!modal) return;
   const form = document.getElementById('add-salon-form');
   if (form) form.reset();
+
+  selectedIconForSalon = 'folder';
+  selectedColorForSalon = '#4f46e5';
+
+  const iconPicker = document.getElementById('add-salon-icon-picker');
+  if (iconPicker) {
+    iconPicker.querySelectorAll('.icon-opt').forEach(btn => {
+      btn.classList.toggle('active', (btn.dataset.icon || 'folder') === 'folder');
+    });
+  }
+  const colorPicker = document.getElementById('add-salon-color-picker');
+  if (colorPicker) {
+    colorPicker.querySelectorAll('.color-opt').forEach(btn => {
+      btn.classList.toggle('active', (btn.dataset.color || '#4f46e5') === '#4f46e5');
+    });
+  }
+
   modal.classList.remove('hidden');
-  document.getElementById('add-salon-name-input')?.focus();
+  setTimeout(() => {
+    document.getElementById('add-salon-name-input')?.focus();
+  }, 50);
 }
 
 /**
@@ -516,6 +699,12 @@ export function openManageSalonModal(salonId) {
   // Remplir les champs
   const title = document.getElementById('manage-salon-modal-title');
   if (title) title.textContent = `Gérer l'espace : ${salon.name}`;
+
+  const managePresenceText = document.getElementById('manage-salon-presence-text');
+  if (managePresenceText) {
+    const count = Math.max(salon.active_members_count || 1, 1);
+    managePresenceText.textContent = `${count} personne${count > 1 ? 's' : ''} en ligne`;
+  }
 
   const nameInput = document.getElementById('manage-salon-name');
   if (nameInput) nameInput.value = salon.name || '';

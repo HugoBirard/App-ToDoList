@@ -200,6 +200,7 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 return
 
             parts_get = path.strip("/").split("/")
+
             # GET /api/salons/<id>/export
             if len(parts_get) == 4 and parts_get[0] == "api" and parts_get[1] == "salons" and parts_get[3] == "export":
                 salon_id = self.parse_id(parts_get[2])
@@ -211,6 +212,14 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json(exp)
                 else:
                     self.send_json({"error": "Salon introuvable"}, status=404)
+                return
+
+            # GET /api/salons/active-counts
+            if path == "/api/salons/active-counts":
+                self.send_json({
+                    "counts": self.service.get_all_salons_active_counts(),
+                    "global_version": self.service._global_version
+                })
                 return
 
             # GET /api/salons/<id>
@@ -311,6 +320,36 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                     self.send_json(res, status=200)
                 else:
                     self.send_json({"error": "Format d'import invalide"}, status=400)
+                return
+
+            # POST /api/salons/<id>/heartbeat
+            if len(parts) == 4 and parts[0] == "api" and parts[1] == "salons" and parts[3] == "heartbeat":
+                salon_id = self.parse_id(parts[2])
+                if not salon_id:
+                    self.send_json({"error": "Identifiant de salon invalide"}, status=400)
+                    return
+                client_id = str(payload.get("client_id") or "").strip()
+                if not client_id:
+                    client_id = self.client_address[0]
+                client_name = str(payload.get("client_name") or "Membre").strip()
+                client_version = payload.get("version")
+
+                self.service.record_presence(salon_id, client_id, client_name)
+                current_version = self.service.get_salon_version(salon_id)
+                active_count = self.service.get_active_member_count(salon_id)
+                all_counts = self.service.get_all_salons_active_counts()
+
+                needs_refresh = False
+                if client_version is not None and client_version != current_version:
+                    needs_refresh = True
+
+                self.send_json({
+                    "salon_id": salon_id,
+                    "version": current_version,
+                    "needs_refresh": needs_refresh,
+                    "active_members_count": active_count,
+                    "all_salons_counts": all_counts
+                })
                 return
 
             # POST /api/salons/<id>/discord/test

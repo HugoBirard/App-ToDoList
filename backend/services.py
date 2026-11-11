@@ -7,6 +7,8 @@ import logging
 import os
 import re
 import shutil
+import threading
+import time
 from datetime import datetime, timedelta
 from .config import DEFAULT_DB_PATH, get_current_db_path, load_local_config, save_local_config
 from .database import get_connection, init_db
@@ -64,13 +66,103 @@ def _safe_int(val, default=0, min_val=None, max_val=None):
 
 
 class TodoService:
+    _presence_lock = threading.Lock()
+    _version_lock = threading.Lock()
+    _shared_presence = {}          # (db_path, salon_id) -> {client_id: {"last_seen": ts, "name": str}}
+    _shared_versions = {}          # (db_path, salon_id) -> int
+    _shared_timestamps = {}        # (db_path, salon_id) -> ts
+    _shared_global_version = {}    # db_path -> int
+
     def __init__(self, db_path=None):
         self.db_path = db_path
+
+    @property
+    def _global_version(self):
+        with self._version_lock:
+            return self._shared_global_version.get(self.db_path, 1)
 
     def _conn(self):
         if self.db_path:
             return get_connection(self.db_path)
         return get_connection()
+
+    def _get_salon_id_for_folder(self, folder_id):
+        if not folder_id:
+            return None
+        try:
+            conn = self._conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT salon_id FROM folders WHERE id = ?", (folder_id,))
+            row = cursor.fetchone()
+            conn.close()
+            return row["salon_id"] if row else None
+        except Exception:
+            return None
+
+    def bump_salon_version(self, salon_id=None):
+        """Incrémente la version d'un salon ou de tous les salons pour la synchro en direct."""
+        now = time.time()
+        db_k = self.db_path
+        with self._version_lock:
+            self._shared_global_version[db_k] = self._shared_global_version.get(db_k, 0) + 1
+            if salon_id is not None:
+                k = (db_k, salon_id)
+                self._shared_versions[k] = self._shared_versions.get(k, 0) + 1
+                self._shared_timestamps[k] = now
+            else:
+                for (d, s_id) in list(self._shared_versions.keys()):
+                    if d == db_k:
+                        self._shared_versions[(d, s_id)] = self._shared_versions.get((d, s_id), 0) + 1
+                        self._shared_timestamps[(d, s_id)] = now
+
+    def get_salon_version(self, salon_id):
+        with self._version_lock:
+            return self._shared_versions.get((self.db_path, salon_id), 1)
+
+    def record_presence(self, salon_id, client_id, client_name="Membre"):
+        """Enregistre l'activité d'un membre sur un salon pour le comptage en ligne."""
+        if not salon_id or not client_id:
+            return
+        now = time.time()
+        db_k = self.db_path
+        with self._presence_lock:
+            # Un client ne peut être en ligne que sur un seul salon à la fois pour cette base
+            for (d, s_id), clients in list(self._shared_presence.items()):
+                if d == db_k and s_id != salon_id and client_id in clients:
+                    del clients[client_id]
+
+            k = (db_k, salon_id)
+            if k not in self._shared_presence:
+                self._shared_presence[k] = {}
+            self._shared_presence[k][client_id] = {
+                "last_seen": now,
+                "name": str(client_name)[:50]
+            }
+
+    def get_active_member_count(self, salon_id, timeout=12.0):
+        """Retourne le nombre de membres actifs sur un salon."""
+        now = time.time()
+        k = (self.db_path, salon_id)
+        with self._presence_lock:
+            clients = self._shared_presence.get(k, {})
+            expired = [cid for cid, info in clients.items() if now - info["last_seen"] > timeout]
+            for cid in expired:
+                del clients[cid]
+            return len(clients)
+
+    def get_all_salons_active_counts(self, timeout=12.0):
+        """Retourne un dictionnaire {salon_id: count} pour tous les salons."""
+        now = time.time()
+        db_k = self.db_path
+        res = {}
+        with self._presence_lock:
+            for (d, s_id), clients in list(self._shared_presence.items()):
+                if d == db_k:
+                    expired = [cid for cid, info in clients.items() if now - info["last_seen"] > timeout]
+                    for cid in expired:
+                        del clients[cid]
+                    res[s_id] = len(clients)
+        return res
 
     def get_all_data(self):
         """Récupère l'ensemble des données après avoir vérifié les réinitialisations hebdomadaires."""
@@ -80,6 +172,7 @@ class TodoService:
 
         cursor.execute("SELECT * FROM salons ORDER BY position ASC, id ASC")
         raw_salons = [dict(row) for row in cursor.fetchall()]
+        counts = self.get_all_salons_active_counts()
         salons = []
         for s in raw_salons:
             s_dict = dict(s)
@@ -87,6 +180,8 @@ class TodoService:
             s_dict["discord_webhook_configured"] = bool(url)
             if url:
                 s_dict["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+            s_dict["active_members_count"] = counts.get(s_dict["id"], 0)
+            s_dict["version"] = self.get_salon_version(s_dict["id"])
             salons.append(s_dict)
 
         cursor.execute("SELECT * FROM folders ORDER BY position ASC, id ASC")
@@ -222,6 +317,7 @@ class TodoService:
         cursor.execute("SELECT * FROM salons ORDER BY position ASC, id ASC")
         raw = [dict(r) for r in cursor.fetchall()]
         conn.close()
+        counts = self.get_all_salons_active_counts()
         res = []
         for s in raw:
             item = dict(s)
@@ -229,6 +325,8 @@ class TodoService:
             item["discord_webhook_configured"] = bool(url)
             if url:
                 item["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+            item["active_members_count"] = counts.get(item["id"], 0)
+            item["version"] = self.get_salon_version(item["id"])
             res.append(item)
         return res
 
@@ -253,6 +351,8 @@ class TodoService:
         item["discord_webhook_configured"] = bool(url)
         if url:
             item["discord_webhook_url"] = "••••" + str(url)[-4:] if len(str(url)) > 4 else "••••"
+        item["active_members_count"] = self.get_active_member_count(salon_id)
+        item["version"] = self.get_salon_version(salon_id)
         return item
 
     def create_salon(self, data):
@@ -276,6 +376,7 @@ class TodoService:
         conn.commit()
         new_id = cursor.lastrowid
         conn.close()
+        self.bump_salon_version(new_id)
         return self.get_salon(new_id)
 
     def update_salon(self, salon_id, data):
@@ -324,6 +425,7 @@ class TodoService:
             conn.commit()
 
         conn.close()
+        self.bump_salon_version(salon_id)
         return self.get_salon(salon_id)
 
     def delete_salon(self, salon_id):
@@ -344,6 +446,7 @@ class TodoService:
         cursor.execute("DELETE FROM salons WHERE id = ?", (salon_id,))
         conn.commit()
         conn.close()
+        self.bump_salon_version()
         return True, "Salon supprimé avec succès."
 
     def export_salon(self, salon_id):
@@ -453,6 +556,7 @@ class TodoService:
 
         conn.commit()
         conn.close()
+        self.bump_salon_version(salon_id)
         return self.get_salon(salon_id)
 
     # --- Dossiers ---
@@ -495,6 +599,7 @@ class TodoService:
         cursor.execute("SELECT * FROM folders WHERE id = ?", (new_id,))
         created = dict(cursor.fetchone())
         conn.close()
+        self.bump_salon_version(salon_id)
         self._trigger_discord("folder_created", folder_name=created.get("name", "Nouveau dossier"), author=data.get("author"), salon_id=salon_id)
         return created
 
@@ -510,6 +615,7 @@ class TodoService:
                 cursor.execute("UPDATE folders SET position = ? WHERE id = ?", (idx, safe_id))
         conn.commit()
         conn.close()
+        self.bump_salon_version()
         return True
 
     def update_folder(self, folder_id, data):
@@ -559,19 +665,26 @@ class TodoService:
         cursor.execute("SELECT * FROM folders WHERE id = ?", (folder_id,))
         row = cursor.fetchone()
         conn.close()
-        return dict(row) if row else None
+        res = dict(row) if row else None
+        if res:
+            self.bump_salon_version(res.get("salon_id"))
+        return res
 
     def delete_folder(self, folder_id):
+        salon_id = self._get_salon_id_for_folder(folder_id)
         conn = self._conn()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM tasks WHERE folder_id = ?", (folder_id,))
         cursor.execute("DELETE FROM folders WHERE id = ?", (folder_id,))
         conn.commit()
         conn.close()
+        if salon_id:
+            self.bump_salon_version(salon_id)
         return True
 
     def reset_folder_tasks(self, folder_id):
         """Réinitialise immédiatement les tâches d'un dossier (non faites, 0%)."""
+        salon_id = self._get_salon_id_for_folder(folder_id)
         conn = self._conn()
         cursor = conn.cursor()
         cursor.execute("""
@@ -586,6 +699,8 @@ class TodoService:
         """, (folder_id,))
         conn.commit()
         conn.close()
+        if salon_id:
+            self.bump_salon_version(salon_id)
         return True
 
     # --- Tâches ---
@@ -634,6 +749,9 @@ class TodoService:
             if f_row:
                 folder_name = f_row["name"]
         conn.close()
+        salon_id = self._get_salon_id_for_folder(folder_id)
+        if salon_id:
+            self.bump_salon_version(salon_id)
         self._trigger_discord("task_created", task=created, folder_name=folder_name, author=data.get("author"))
         return created
 
@@ -722,6 +840,11 @@ class TodoService:
 
         conn.close()
 
+        if row and row["folder_id"]:
+            salon_id = self._get_salon_id_for_folder(row["folder_id"])
+            if salon_id:
+                self.bump_salon_version(salon_id)
+
         if status_changed and row:
             self._trigger_discord("task_status", task=dict(row), folder_name=folder_name, author=data.get("author"))
 
@@ -734,6 +857,7 @@ class TodoService:
         existing = cursor.fetchone()
         task_title = existing["title"] if existing else "Tâche"
         folder_name = "Général"
+        folder_id = existing["folder_id"] if existing else None
         if existing and existing["folder_id"]:
             cursor.execute("SELECT name FROM folders WHERE id = ?", (existing["folder_id"],))
             f_row = cursor.fetchone()
@@ -743,6 +867,11 @@ class TodoService:
         cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
         conn.commit()
         conn.close()
+
+        if folder_id:
+            salon_id = self._get_salon_id_for_folder(folder_id)
+            if salon_id:
+                self.bump_salon_version(salon_id)
 
         if existing:
             self._trigger_discord("task_deleted", task_title=task_title, folder_name=folder_name, author=author)
@@ -758,6 +887,8 @@ class TodoService:
             cursor.execute("DELETE FROM tasks WHERE completed = 1")
         conn.commit()
         conn.close()
+        salon_id = self._get_salon_id_for_folder(folder_id) if folder_id else None
+        self.bump_salon_version(salon_id)
         return True
 
     # --- Réglages ---
