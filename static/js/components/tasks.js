@@ -4,7 +4,7 @@
 
 import { state, getCurrentViewTasks, getActiveSalon, escapeHtml } from '../state.js';
 import { api } from '../api.js';
-import { renderCounters, updateProgress } from './folders.js';
+import { renderCounters, updateProgress, renderFolders } from './folders.js';
 import { renderIcon } from '../icons.js';
 import { showConfirmDialog, showNotificationDialog } from './modals.js';
 

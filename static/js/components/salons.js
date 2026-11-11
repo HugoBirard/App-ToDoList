@@ -232,7 +232,7 @@ export function renderSalons() {
 
   state.salons.forEach(s => {
     const isCurrent = current && s.id === current.id;
-    const folderCount = state.folders.filter(f => f.salon_id === s.id).length;
+    const folderCount = state.folders.filter(f => Number(f.salon_id) === Number(s.id) || (!f.salon_id && Number(s.id) === 1)).length;
     const membersCount = s.active_members_count ?? (isCurrent ? 1 : 0);
 
     const item = document.createElement('div');
@@ -759,8 +759,9 @@ export function openManageSalonModal(salonId) {
   if (discordFeedback) discordFeedback.classList.add('hidden');
 
   // Stats onglet Partage
-  const folderCount = state.folders.filter(f => f.salon_id === salon.id).length;
-  const folderIds = new Set(state.folders.filter(f => f.salon_id === salon.id).map(f => f.id));
+  const salonFolders = state.folders.filter(f => Number(f.salon_id) === Number(salon.id) || (!f.salon_id && Number(salon.id) === 1));
+  const folderCount = salonFolders.length;
+  const folderIds = new Set(salonFolders.map(f => f.id));
   const taskCount = state.tasks.filter(t => folderIds.has(t.folder_id)).length;
 
   const statsEl = document.getElementById('salon-export-stats');

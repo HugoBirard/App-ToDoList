@@ -2,10 +2,11 @@
  * Composant de gestion des fenêtres modales (Dossier, Thèmes & Dialogues de confirmation).
  */
 
-import { state, DEFAULT_PRO_BG, PRESETS, THEME_PROFILES } from '../state.js';
+import { state, DEFAULT_PRO_BG, PRESETS, THEME_PROFILES, getActiveSalon, escapeHtml } from '../state.js';
 import { api } from '../api.js';
 import { applyActiveBackground, setMainBackground, applyThemeStyle } from '../theme.js';
 import { renderFolders, selectFolderView } from './folders.js';
+import { renderSalons } from './salons.js';
 import { EMOJI_MAP, renderIcon } from '../icons.js';
 
 // ==========================================
@@ -120,15 +121,17 @@ function populateFolderSalonSelect(selectedSalonId) {
   if (!hiddenInput) return;
 
   const currentSalons = state.salons || [];
-  const activeId = Number(selectedSalonId) || Number(state.currentSalonId) || (currentSalons[0]?.id ? Number(currentSalons[0].id) : 1);
+  const activeSalon = getActiveSalon();
+  const fallbackSalonId = activeSalon ? Number(activeSalon.id) : (Number(state.currentSalonId) || (currentSalons[0]?.id ? Number(currentSalons[0].id) : 1));
+  const activeId = Number(selectedSalonId) || fallbackSalonId;
   hiddenInput.value = activeId;
 
   if (dd) {
     const label = dd.querySelector('.dropdown-label');
     const menu = dd.querySelector('.dropdown-menu');
-    const activeSalon = currentSalons.find(s => Number(s.id) === activeId) || currentSalons[0];
-    if (label && activeSalon) {
-      label.textContent = activeSalon.name;
+    const activeSalonObj = currentSalons.find(s => Number(s.id) === activeId) || currentSalons[0];
+    if (label && activeSalonObj) {
+      label.textContent = activeSalonObj.name;
     }
 
     if (menu) {
@@ -267,7 +270,7 @@ function setFolderBgColor1(color) {
   if (hex) hex.value = c.toUpperCase();
   if (btn) btn.style.backgroundColor = c;
   document.querySelectorAll('#folder-solid-swatches .solid-swatch').forEach(s => {
-    s.classList.toggle('active', s.dataset.color.toLowerCase() === c.toLowerCase());
+    s.classList.toggle('active', (s.dataset.color || '').toLowerCase() === c.toLowerCase());
   });
 }
 
@@ -421,7 +424,7 @@ export async function handleFolderSubmit(e) {
   } else if (bgType === 'image') {
     bgColor1 = document.getElementById('folder-bg-image-val')?.value || '';
     if (!bgColor1) {
-      alert("Veuillez sélectionner une image pour ce dossier ou choisir un autre style de fond.");
+      await showNotificationDialog("Veuillez sélectionner une image pour ce dossier ou choisir un autre style de fond.", "Image requise", "image");
       return;
     }
   } else if (bgType === 'solid') {
@@ -432,10 +435,16 @@ export async function handleFolderSubmit(e) {
     bgAngle = parseInt(document.getElementById('folder-bg-angle').value, 10) || 135;
   }
 
-  if (!name) return;
+  if (!name) {
+    await showNotificationDialog("Veuillez renseigner un nom pour ce dossier.", "Nom requis", "alert-circle");
+    return;
+  }
 
+  const activeSalon = getActiveSalon();
+  const fallbackSalonId = activeSalon ? Number(activeSalon.id) : (Number(state.currentSalonId) || 1);
   const salonSelect = document.getElementById('folder-salon-select');
-  const salonId = salonSelect ? (parseInt(salonSelect.value, 10) || Number(state.currentSalonId)) : Number(state.currentSalonId);
+  const parsedSelect = salonSelect ? parseInt(salonSelect.value, 10) : NaN;
+  const salonId = (!isNaN(parsedSelect) && parsedSelect > 0) ? parsedSelect : fallbackSalonId;
 
   const folderData = { 
     name, 
@@ -449,24 +458,44 @@ export async function handleFolderSubmit(e) {
     bg_angle: bgAngle
   };
 
-  if (folderId) {
-    const updated = await api(`/api/folders/${folderId}`, 'PUT', folderData);
-    if (updated) {
-      const idx = state.folders.findIndex(f => Number(f.id) === parseInt(folderId, 10));
-      if (idx !== -1) state.folders[idx] = updated;
-      selectFolderView(parseInt(folderId, 10));
+  try {
+    if (folderId) {
+      const updated = await api(`/api/folders/${folderId}`, 'PUT', folderData);
+      if (updated) {
+        const idx = state.folders.findIndex(f => Number(f.id) === parseInt(folderId, 10));
+        if (idx !== -1) state.folders[idx] = updated;
+        if (Number(state.currentSalonId) !== Number(updated.salon_id)) {
+          state.currentSalonId = Number(updated.salon_id);
+          localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
+        }
+        selectFolderView(parseInt(folderId, 10));
+      } else {
+        await showNotificationDialog("Impossible de modifier le dossier.", "Erreur", "alert-circle");
+        return;
+      }
+    } else {
+      const created = await api('/api/folders', 'POST', folderData);
+      if (created) {
+        state.folders.push(created);
+        if (Number(state.currentSalonId) !== Number(created.salon_id)) {
+          state.currentSalonId = Number(created.salon_id);
+          localStorage.setItem('todolist_active_salon_id', state.currentSalonId);
+        }
+        selectFolderView(created.id);
+      } else {
+        await showNotificationDialog("Impossible de créer le dossier.", "Erreur", "alert-circle");
+        return;
+      }
     }
-  } else {
-    const created = await api('/api/folders', 'POST', folderData);
-    if (created) {
-      state.folders.push(created);
-      selectFolderView(created.id);
-    }
-  }
 
-  closeFolderModal();
-  applyActiveBackground();
-  renderFolders();
+    closeFolderModal();
+    applyActiveBackground();
+    renderSalons();
+    renderFolders();
+  } catch (err) {
+    console.error("Erreur lors de la sauvegarde du dossier:", err);
+    await showNotificationDialog("Une erreur est survenue lors de l'enregistrement du dossier.", "Erreur", "alert-circle");
+  }
 }
 
 // ==========================================
