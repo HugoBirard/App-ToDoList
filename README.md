@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/GUI-GTK4%20%7C%20WebKit6-4A90E2?style=flat&logo=gnome&logoColor=white" alt="GTK4 WebKit6">
   <img src="https://img.shields.io/badge/Database-SQLite3%20ACID-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite3">
-  <img src="https://img.shields.io/badge/Tests-42%2F42%20Passed-success?style=flat" alt="Tests 42/42 Passed">
+  <img src="https://img.shields.io/badge/Tests-48%2F48%20Passed-success?style=flat" alt="Tests 48/48 Passed">
   <img src="https://img.shields.io/badge/Security-Hardened%20%26%20Audited-brightgreen?style=flat&logo=shield" alt="Security Hardened">
   <img src="https://img.shields.io/badge/Discord-Webhooks%20%26%20Bot-5865F2?style=flat&logo=discord&logoColor=white" alt="Discord Integration">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20External-success?style=flat" alt="Zero External Dependencies">
@@ -351,6 +351,29 @@ Puis accédez à `http://localhost:4848` dans votre navigateur.
 
 ---
 
+## 🔄 Mises à jour du logiciel (1 Clic & Zéro Perte de Données)
+
+ToDoList intègre un système moderne de mise à jour automatique en arrière-plan :
+
+### 1. Notification In-App en direct (Recommandé)
+- Dès qu'une nouvelle version ou des correctifs sont publiés sur GitHub, une **bannière de notification** apparaît discrètement en haut de l'application :
+  > **🚀 Nouvelle version disponible !** Des nouveautés et améliorations sont prêtes à être installées. `[ Mettre à jour en 1 clic ]`
+- Vous pouvez également vérifier manuellement à tout moment dans **Options (⚙️) > Mises à jour**.
+- Un clic sur **« Mettre à jour en 1 clic »** télécharge les nouveautés, met à jour vos raccourcis et vous propose de relancer l'application immédiatement.
+
+### 2. En ligne de commande (Terminal)
+Exécutez simplement le script dédié :
+```bash
+./update.sh
+```
+*(Ou manuellement : `git pull && ./installer-raccourci.sh`)*.
+
+> [!IMPORTANT]
+> **Vos données sont 100% protégées** :  
+> Le processus de mise à jour crée automatiquement une copie de sauvegarde préventive (`data/todolist.db.pre-update.bak`). Vos tâches, dossiers et notes personnelles ne sont **jamais écrasés ni supprimés**.
+
+---
+
 ## 🌐 Guide d'utilisation collaborative (Projet d'Équipe)
 
 ### 1. Se connecter au serveur ToDoList d'un collègue
@@ -395,7 +418,7 @@ Le projet intègre une suite complète de tests unitaires et de sécurité valid
 python3 -m unittest discover tests -v
 ```
 
-### Périmètre des tests automatisés (42/42 tests passés)
+### Périmètre des tests automatisés (48/48 tests passés)
 | Fichier de test | Domaine testé | Statut |
 | :--- | :--- | :---: |
 | `tests/test_database.py` | Schéma SQLite, contraintes de clés étrangères, migrations et initialisation des exemples (case à cocher + progression) | ✅ Passé |
@@ -404,6 +427,7 @@ python3 -m unittest discover tests -v
 | `tests/test_discord.py` | Validation anti-SSRF, format des Rich Embeds, déclencheurs d'événements | ✅ Passé |
 | `tests/test_titlebar.py` | Styles de HeaderBar, parsing arguments CLI, compatibilité parseur CSS GTK4 | ✅ Passé |
 | `tests/test_security.py` | Authentification Bearer HMAC, CORS/Origin, routes admin locales, masquage secrets, anti-XSS et limite 413 | ✅ Passé |
+| `tests/test_updater.py` | Détection de mise à jour, sauvegarde SQLite préventive `.pre-update.bak`, gestion non-Git et erreurs réseau | ✅ Passé |
 
 ---
 
@@ -414,6 +438,8 @@ L'application expose une API REST légère servant du JSON en UTF-8 :
 | Méthode | Route | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/data` | Récupère tous les dossiers, tâches et paramètres (vérifie les resets hebdo) |
+| `GET` | `/api/system/update-status` | Vérifie si une mise à jour distante est disponible (Git upstream / commits) |
+| `POST` | `/api/system/apply-update` | Applique la mise à jour (sauvegarde SQLite préventive, git pull, raccourcis) |
 | `POST` | `/api/folders` | Crée un nouveau dossier (`name`, `icon`, `color`, `auto_reset_weekly`, `bg_*`) |
 | `PUT` | `/api/folders/<id>` | Met à jour les propriétés ou le style d'un dossier |
 | `DELETE` | `/api/folders/<id>` | Supprime un dossier et cascade la suppression de ses tâches |

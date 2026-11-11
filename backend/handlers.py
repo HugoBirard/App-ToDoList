@@ -13,6 +13,7 @@ from http.server import SimpleHTTPRequestHandler
 from .config import STATIC_DIR, DEFAULT_PORT, get_lan_ips
 from .services import TodoService
 from .discord import send_test_message
+from .updater import check_for_updates, apply_update
 
 logger = logging.getLogger("todolist.http")
 
@@ -33,6 +34,8 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
         "/api/storage/import",
         "/api/storage/export",
         "/api/sync/status",
+        "/api/system/update-status",
+        "/api/system/apply-update",
     }
 
     def __init__(self, *args, **kwargs):
@@ -216,6 +219,11 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 })
                 return
 
+            # GET /api/system/update-status
+            if path == "/api/system/update-status":
+                self.send_json(check_for_updates())
+                return
+
             super().do_GET()
         except Exception:
             logger.exception("Erreur sur %s %s", self.command, self.path)
@@ -329,6 +337,12 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
                 author_name = (payload.get("author_name") or "Utilisateur ToDoList").strip()
                 ok, msg = send_test_message(webhook_url, author_name=author_name)
                 self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
+                return
+
+            # POST /api/system/apply-update
+            if path == "/api/system/apply-update":
+                res = apply_update(db_path=self.db_path)
+                self.send_json(res, status=200 if res.get("success") else 500)
                 return
 
             self.send_json({"error": "Route introuvable"}, status=404)

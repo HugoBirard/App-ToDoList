@@ -194,6 +194,21 @@ class HandlersTestCase(unittest.TestCase):
         matching = [f["id"] for f in data["folders"] if f["id"] in (f1["id"], f2["id"])]
         self.assertEqual(matching, [f2["id"], f1["id"]])
 
+    def test_system_update_endpoints(self):
+        # GET /api/system/update-status
+        status, res = self._request("GET", "/api/system/update-status")
+        self.assertEqual(status, 200)
+        self.assertIn("is_git", res)
+        self.assertIn("update_available", res)
+
+        # POST /api/system/apply-update (mocked ou testé)
+        from unittest.mock import patch
+        with patch("backend.handlers.apply_update") as mock_apply:
+            mock_apply.return_value = {"success": True, "message": "OK", "new_commit": "1234567"}
+            status, res_post = self._request("POST", "/api/system/apply-update")
+            self.assertEqual(status, 200)
+            self.assertTrue(res_post.get("success"))
+
 
 if __name__ == "__main__":
     unittest.main()
