@@ -324,6 +324,7 @@ export function openThemeModal() {
   updateMainBgControlsUI();
   updateMainBgPreview();
   syncTitlebarStyleUI();
+  updateCustomBgUI();
   document.getElementById('theme-modal').classList.remove('hidden');
 }
 
@@ -484,6 +485,95 @@ export function initTitlebarOptions() {
       applyTitlebarStyle(styleKey);
     });
   });
+}
+
+// ==========================================
+// IMAGE DE FOND PERSONNALISÉE PAR L'UTILISATEUR
+// ==========================================
+
+export function updateCustomBgUI() {
+  const previewWrap = document.getElementById('custom-user-bg-preview-wrap');
+  const removeBtn = document.getElementById('custom-user-bg-remove-btn');
+  const curBg = state.mainBg || '';
+
+  const isCustomUserImage = curBg.includes('data:image/') || 
+    (curBg.includes('url(') && !curBg.includes('/assets/themes/'));
+
+  if (isCustomUserImage) {
+    if (previewWrap) {
+      previewWrap.classList.remove('hidden');
+      previewWrap.style.background = curBg;
+    }
+    if (removeBtn) removeBtn.classList.remove('hidden');
+  } else {
+    if (previewWrap) previewWrap.classList.add('hidden');
+    if (removeBtn) removeBtn.classList.add('hidden');
+  }
+}
+
+export function initCustomBackgroundUpload() {
+  const fileInput = document.getElementById('custom-user-bg-file');
+  const uploadBtn = document.getElementById('custom-user-bg-btn');
+  const removeBtn = document.getElementById('custom-user-bg-remove-btn');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const rawData = loadEvt.target.result;
+        
+        // Redimensionner l'image si besoin via un canvas pour garantir < 500 Ko et 60 FPS constants
+        const img = new Image();
+        img.onload = async () => {
+          const maxDim = 1920;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          const bgValue = `url("${optimizedDataUrl}") center/cover no-repeat fixed, #08090c`;
+
+          // Appliquer le fond et désactiver tout style de subculture actif pour laisser voir la photo
+          applyThemeStyle('pro');
+          await setMainBackground(bgValue);
+          updateCustomBgUI();
+          document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+          fileInput.value = '';
+        };
+        img.src = rawData;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeBtn) {
+    removeBtn.addEventListener('click', async () => {
+      await applyPresetTheme('pro-dark');
+      updateCustomBgUI();
+    });
+  }
 }
 
 export { 

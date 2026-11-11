@@ -56,7 +56,8 @@ import {
   setMainBgColor1,
   setMainBgColor2,
   setMainBgAngle,
-  initTitlebarOptions
+  initTitlebarOptions,
+  initCustomBackgroundUpload
 } from './components/modals.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -67,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initServerUI(loadData);
   initDiscordUI();
   initTitlebarOptions();
+  initCustomBackgroundUpload();
   setupEventListeners();
 });
 

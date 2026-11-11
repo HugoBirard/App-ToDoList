@@ -1002,6 +1002,78 @@ TITLEBAR_STYLES = {
                 color: #ffffff;
             }
         """
+    },
+    "lava": {
+        "name": "Lampe à Lave Magma",
+        "description": "Lueur incandescente orange lave magma (#ff5500) avec halo thermique chaleureux et reflets liquides",
+        "css": """
+            window,
+            window.background,
+            window.csd,
+            window.solid-csd,
+            window:backdrop,
+            decoration,
+            decoration:backdrop,
+            .todolist-window {
+                background: #18020a;
+                background-color: #18020a;
+                margin: 0;
+                padding: 0;
+                border-radius: 0;
+            }
+            headerbar,
+            headerbar:backdrop,
+            window.maximized headerbar,
+            window.fullscreen headerbar,
+            window.tiled headerbar,
+            .todolist-headerbar {
+                background: linear-gradient(180deg, #2b0512 0%, #150209 100%);
+                background-color: #1c030d;
+                border-top: none;
+                border-left: none;
+                border-right: none;
+                border-bottom: 2px solid #ff5500;
+                box-shadow: 0 4px 20px rgba(255, 85, 0, 0.45);
+                min-height: 42px;
+                padding: 0 8px;
+                margin: 0;
+            }
+            headerbar windowhandle,
+            headerbar windowcontrols {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }
+            headerbar .app-title {
+                color: #ffedd5;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 1px;
+            }
+            headerbar button,
+            headerbar windowcontrols button {
+                background: rgba(255, 85, 0, 0.12);
+                border: 1px solid rgba(255, 85, 0, 0.35);
+                color: #ffeedd;
+                border-radius: 12px;
+                padding: 4px 8px;
+                min-width: 28px;
+                min-height: 28px;
+                margin: 2px;
+            }
+            headerbar button:hover,
+            headerbar windowcontrols button:hover {
+                background: rgba(255, 85, 0, 0.35);
+                border-color: #ff5500;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(255, 85, 0, 0.6);
+            }
+            headerbar button.close:hover,
+            headerbar windowcontrols button.close:hover {
+                background: #ef4444;
+                color: #ffffff;
+            }
+        """
     }
 }
 

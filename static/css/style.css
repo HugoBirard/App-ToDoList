@@ -1845,6 +1845,7 @@ select option, optgroup {
 .pdot.sunset { background: #f43f5e; }
 .pdot.gold { background: #f59e0b; }
 .pdot.sage { background: #34d399; }
+.pdot.lava { background: #ff5500; }
 
 .preview-title {
   font-size: 0.70rem;
@@ -1955,6 +1956,15 @@ select option, optgroup {
   border-bottom: 2px solid #34d399;
   box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
   color: #6ee7b7;
+}
+
+.lava-preview {
+  background: #18030b;
+  border: 1px solid #3d0515;
+  border-bottom: 2px solid #ff5500;
+  box-shadow: 0 2px 14px rgba(255, 85, 0, 0.45);
+  color: #ffeedd;
+  font-weight: 700;
 }
 
 .titlebar-option-content {
@@ -2962,10 +2972,18 @@ select option, optgroup {
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+[data-theme-style="street"] .task-item:nth-child(odd) {
+  transform: rotate(-0.25deg);
+}
+
+[data-theme-style="street"] .task-item:nth-child(even) {
+  transform: rotate(0.25deg);
+}
+
 [data-theme-style="street"] .task-item:hover {
   border-color: #ccff00;
-  transform: translateY(-2px) scale(1.005);
-  box-shadow: 0 6px 16px rgba(204, 255, 0, 0.25);
+  transform: rotate(0deg) translateY(-3px) scale(1.01) !important;
+  box-shadow: 0 8px 20px rgba(204, 255, 0, 0.35);
 }
 
 [data-theme-style="street"] .task-checkbox {
@@ -3078,6 +3096,7 @@ select option, optgroup {
   background: linear-gradient(135deg, #00f5d4 0%, #0284c7 100%);
   color: #000000;
   box-shadow: 0 0 26px rgba(0, 245, 212, 0.7);
+  text-shadow: -2px 0 #ff007f, 2px 0 #00f5d4;
 }
 
 [data-theme-style="cyberpunk"] .progress-fill {
@@ -3290,4 +3309,134 @@ select option, optgroup {
 [data-theme-style="zen"] .progress-fill {
   background: linear-gradient(90deg, #059669 0%, #34d399 100%) !important;
   box-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   8. LAMPE À LAVE MAGMA (GROOVY 70s / AMBRE & LAVE EN FUSION)
+   -------------------------------------------------------------------------- */
+[data-theme-style="lava"] {
+  --accent: #ff5500;
+  --accent-hover: #e04800;
+  --accent-light: rgba(255, 85, 0, 0.22);
+  --border: rgba(255, 85, 0, 0.32);
+  --bg-primary: rgba(24, 4, 12, 0.90);
+  --bg-secondary: rgba(30, 5, 16, 0.94);
+  --bg-card: rgba(36, 6, 18, 0.88);
+}
+
+[data-theme-style="lava"] body {
+  background: url("../assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a !important;
+}
+
+[data-theme-style="lava"] .app-bg-layer {
+  background: url("../assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a !important;
+}
+
+[data-theme-style="lava"] .sidebar {
+  background: rgba(22, 3, 11, 0.94);
+  border-right: 2px solid #ff5500;
+  box-shadow: 4px 0 25px rgba(255, 85, 0, 0.25);
+}
+
+[data-theme-style="lava"] .sidebar-header h1 {
+  color: #ffaa44;
+  text-shadow: 0 0 16px rgba(255, 85, 0, 0.7), 2px 2px 0px #b91c1c;
+  letter-spacing: 1.5px;
+}
+
+/* Formes organiques & fluides pour les cartes et bulles de lave */
+[data-theme-style="lava"] .task-item {
+  background: rgba(34, 5, 16, 0.88);
+  border: 1px solid rgba(255, 85, 0, 0.35);
+  border-radius: 16px 22px 16px 22px;
+  box-shadow: 0 4px 18px rgba(255, 85, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+[data-theme-style="lava"] .task-item:hover {
+  transform: translateY(-3px) scale(1.008);
+  border-color: #ff5500;
+  box-shadow: 0 8px 24px rgba(255, 85, 0, 0.45);
+}
+
+[data-theme-style="lava"] .task-checkbox {
+  border: 2px solid #ff5500;
+  border-radius: 50%;
+  background: rgba(255, 85, 0, 0.12);
+  box-shadow: 0 0 8px rgba(255, 85, 0, 0.4);
+}
+
+[data-theme-style="lava"] .task-checkbox:checked {
+  background: #ff5500;
+  border-color: #ffaa44;
+  box-shadow: 0 0 14px rgba(255, 85, 0, 0.8);
+}
+
+[data-theme-style="lava"] .btn-primary {
+  background: linear-gradient(135deg, #ff5500 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 800;
+  border-radius: 20px;
+  box-shadow: 0 0 18px rgba(255, 85, 0, 0.45);
+}
+
+[data-theme-style="lava"] .btn-primary:hover {
+  background: linear-gradient(135deg, #ffaa44 0%, #ff5500 100%);
+  color: #18020a;
+  box-shadow: 0 0 26px rgba(255, 85, 0, 0.7);
+}
+
+[data-theme-style="lava"] .progress-fill {
+  background: linear-gradient(90deg, #f59e0b 0%, #ff5500 50%, #dc2626 100%) !important;
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.6);
+  border-radius: 12px;
+}
+
+/* ==========================================================================
+   IMAGE DE FOND PERSONNALISÉE PAR L'UTILISATEUR
+   ========================================================================== */
+.custom-bg-card {
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  transition: var(--transition);
+}
+
+.custom-bg-card:hover {
+  border-color: var(--accent);
+}
+
+.custom-bg-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.custom-bg-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-bg-thumb-overlay {
+  background: rgba(0, 0, 0, 0.45);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: #ffffff;
+  font-weight: 600;
 }

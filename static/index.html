@@ -619,6 +619,13 @@
                 <span class="preset-tag" style="color: #34d399; background: rgba(52,211,153,0.12);">Bambou &amp; Brume</span>
               </div>
             </button>
+            <button type="button" class="preset-btn" data-preset="lava">
+              <span class="preset-swatch" style="background: url('/assets/themes/lava-lamp-magma.svg') center/cover, #18020a; border: 1px solid #ff5500;"></span>
+              <div class="preset-info">
+                <span class="preset-title">Lampe à Lave Magma</span>
+                <span class="preset-tag" style="color: #ff5500; background: rgba(255,85,0,0.14);">Psychédélique 70s</span>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -736,6 +743,34 @@
 
           <div class="bg-preview-box" id="main-bg-preview" style="background: linear-gradient(135deg, #090a0d 0%, #1a1d27 100%); margin-top: 12px;">
             Aperçu en direct
+          </div>
+        </div>
+
+        <hr class="separator">
+
+        <!-- Option Image Personnalisée par l'utilisateur -->
+        <div class="form-group">
+          <label style="display: inline-flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 17px; height: 17px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Votre propre image ou photo de fond
+          </label>
+          <span class="sub-label">Importez un fond d'écran ou une illustration personnelle depuis votre ordinateur (JPG, PNG, WebP, SVG) :</span>
+          
+          <div class="custom-bg-card">
+            <div class="custom-bg-actions">
+              <input type="file" id="custom-user-bg-file" accept="image/*" style="display: none;">
+              <button type="button" class="btn btn-secondary" id="custom-user-bg-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Choisir une image sur mon PC...
+              </button>
+              <button type="button" class="btn btn-danger hidden" id="custom-user-bg-remove-btn" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-icon" style="width: 15px; height: 15px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Retirer mon image
+              </button>
+            </div>
+            <div id="custom-user-bg-preview-wrap" class="custom-bg-thumb-wrap hidden">
+              <span class="custom-bg-thumb-overlay">Image active en fond</span>
+            </div>
           </div>
         </div>
 
@@ -940,6 +975,21 @@
               <div class="titlebar-option-content">
                 <span class="titlebar-name">Nordic Zen Mist</span>
                 <span class="titlebar-desc">Vert matcha doux et apaisant inspiré des forêts et brumes du Nord</span>
+              </div>
+            </button>
+
+            <button type="button" class="titlebar-option-btn" data-titlebar="lava">
+              <div class="titlebar-preview lava-preview">
+                <div class="preview-dots">
+                  <span class="pdot lava"></span>
+                  <span class="pdot lava"></span>
+                  <span class="pdot lava"></span>
+                </div>
+                <span class="preview-title">LAVA LAMP</span>
+              </div>
+              <div class="titlebar-option-content">
+                <span class="titlebar-name">Lampe à Lave Magma</span>
+                <span class="titlebar-desc">Lueur incandescente orange lave magma (#ff5500) et halo ambré</span>
               </div>
             </button>
           </div>

@@ -21,7 +21,8 @@ export const PRESETS = {
   'y2k': 'url("/assets/themes/y2k-liquid-chrome.svg") center/cover no-repeat fixed, #131525',
   'arcade': 'url("/assets/themes/arcade-synthwave-grid.svg") center/cover no-repeat fixed, #180524',
   'luxury': 'url("/assets/themes/luxury-black-gold-marble.svg") center/cover no-repeat fixed, #0b0a0c',
-  'zen': 'url("/assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f'
+  'zen': 'url("/assets/themes/zen-mist-bamboo.svg") center/cover no-repeat fixed, #05130f',
+  'lava': 'url("/assets/themes/lava-lamp-magma.svg") center/cover no-repeat fixed, #18020a'
 };
 
 export const THEME_PROFILES = {
@@ -37,7 +38,8 @@ export const THEME_PROFILES = {
   'y2k': { styleId: 'y2k', accent: '#e879f9', titlebar: 'y2k' },
   'arcade': { styleId: 'arcade', accent: '#f43f5e', titlebar: 'arcade' },
   'luxury': { styleId: 'luxury', accent: '#f59e0b', titlebar: 'luxury' },
-  'zen': { styleId: 'zen', accent: '#34d399', titlebar: 'zen' }
+  'zen': { styleId: 'zen', accent: '#34d399', titlebar: 'zen' },
+  'lava': { styleId: 'lava', accent: '#ff5500', titlebar: 'lava' }
 };
 
 export const state = {

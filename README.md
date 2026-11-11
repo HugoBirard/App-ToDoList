@@ -68,11 +68,12 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
 - Le backend calcule la différence de temps depuis la dernière réinitialisation (`last_reset_at + 7 jours`). Dès que le délai est atteint, les tâches du dossier repassent automatiquement à 0% et non cochées.
 - Bouton de **réinitialisation manuelle instantanée** disponible à tout moment pour relancer une routine sans attendre les 7 jours.
 
-### 5. 🎨 Univers Visuels, Subcultures & Barres Système GTK4
-- **13 Thèmes & Ambiances complètes** au choix (avec décors et textures immersives, animations et styles de fenêtres assortis) :
+### 5. 🎨 Univers Visuels, Subcultures, Fond Personnalisé & Barres GTK4
+- **14 Thèmes & Ambiances complètes** au choix (avec décors et textures immersives, animations et styles de fenêtres assortis) :
   - **Univers Artistiques & Subcultures Immersifs** :
     - ⚡ **Streetwear & Acid Volt** (`street`) : Vrai fond texturé en mur de briques sombres avec tags au spray, coulures jaune volt #ccff00, stickers découpés et typographie street percutante.
     - 🌆 **Neo-Tokyo Cyberpunk** (`cyberpunk`) : Interface de hack façon mini-jeu Breach Protocol de Cyberpunk 2077 avec matrice de codes hexadécimaux (`BD E9 1C 55`), scanlines CRT, cartes biseautées HUD, lueur néon magenta et diodes cyan.
+    - 🌋 **Lampe à Lave Magma** (`lava`) : Ambiance psychédélique et rétro 70s avec bulles de cire de lave en apesanteur, halo thermique rouge/orange incandescent (#ff5500) et formes organiques douces.
     - 🎛️ **Berlin Techno Warehouse** (`techno`) : Murs de béton brut industriel, colonnes de lasers blancs purs, typographie monospace et visualiseur audio VU-mètre monochrome.
     - 💿 **Chrome & Y2K Iridescent** (`y2k`) : Gouttes de métal liquide chromé, étoiles à 4 branches futuristes et reflets lilas métallisés de l'an 2000.
     - 🕹️ **80s Retro Synthwave** (`arcade`) : Grille 3D en perspective au sol façon Outrun/Tron, soleil couchant rétro strié et néon rose sunset.
@@ -85,11 +86,13 @@ L'application propose deux manières complémentaires de suivre vos tâches, ave
     - 🪨 **Ardoise Bleutée** (`slate`) : Nuance bleu acier élégante.
     - 🌿 **Émeraude Sombre** (`emerald`) : Teintes végétales profondes.
     - 🔮 **Améthyste Sombre** (`violet`) : Nuances pourpres nocturnes.
+- **🖼️ Image de fond personnalisée** :
+  - Les utilisateurs peuvent importer **n'importe quelle photo ou illustration personnelle** depuis leur ordinateur en un clic (optimisée et redimensionnée automatiquement pour conserver une fluidité parfaite à 60 FPS).
 - **Personnalisation sur mesure** :
   - **Dégradé personnalisé** avec 2 couleurs et sélection de l'angle (45°, 90°, 135°, 180°).
   - **Couleur unie** avec nuancier direct.
   - **Fond individuel par dossier** pour distinguer immédiatement chaque projet.
-- **Barres de titre système GTK4 CSD natives** : 13 styles de barres supérieures interchangeables en 1 clic dans l'application ou en argument CLI (`--titlebar street`, `techno`, `cyberpunk`, `y2k`, `arcade`, `luxury`, `zen`, `transparent`, `match-bg`, `glass`, `neon`, `minimal`, `classic`).
+- **Barres de titre système GTK4 CSD natives** : 14 styles de barres supérieures interchangeables en 1 clic dans l'application ou en argument CLI (`--titlebar street`, `cyberpunk`, `lava`, `techno`, `y2k`, `arcade`, `luxury`, `zen`, `transparent`, `match-bg`, `glass`, `neon`, `minimal`, `classic`).
 
 ### 6. 🌐 Synchronisation Multi-PC & Partage Cloud
 - **Partagez facilement vos listes entre plusieurs PC** en sélectionnant un dossier synchronisé (Nextcloud, Dropbox, Syncthing, Google Drive ou partage réseau SMB/NFS).
@@ -344,8 +347,9 @@ Vous disposez de 3 modes selon votre usage :
 > ```bash
 > # Nouveaux Univers Artistiques & Subcultures
 > ./start.sh --titlebar street       # Streetwear Acid Volt (Jaune fluo découpé & bold)
-> ./start.sh --titlebar techno       # Berlin Techno Laser (Ligne blanche ultra-fine & boutons carrés)
 > ./start.sh --titlebar cyberpunk    # Neo-Tokyo Cyberpunk (Bordure néon magenta & lueur cyan)
+> ./start.sh --titlebar lava         # Lampe à Lave Magma (Lueur incandescente orange & ambre)
+> ./start.sh --titlebar techno       # Berlin Techno Laser (Ligne blanche ultra-fine & boutons carrés)
 > ./start.sh --titlebar y2k          # Chrome & Y2K Iridescent (Métal liquide lilas & reflets)
 > ./start.sh --titlebar arcade       # 80s Retro Synthwave (Coucher de soleil magenta & arcade)
 > ./start.sh --titlebar luxury       # Midnight Gold Executive (Or brossé champagne & onyx)
