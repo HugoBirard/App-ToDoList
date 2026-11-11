@@ -85,11 +85,21 @@ export function showConfirmDialog({
   });
 }
 
-export function showNotificationDialog({
-  title = "Information",
-  message = "",
-  icon = "info"
-} = {}) {
+export function showNotificationDialog(optionsOrTitle = "Information", messageArg = "", iconArg = "info") {
+  let title = "Information";
+  let message = "";
+  let icon = "info";
+
+  if (typeof optionsOrTitle === "object" && optionsOrTitle !== null) {
+    title = optionsOrTitle.title || "Information";
+    message = optionsOrTitle.message || "";
+    icon = optionsOrTitle.icon || "info";
+  } else {
+    title = String(optionsOrTitle || "Information");
+    message = String(messageArg || "");
+    icon = iconArg || "info";
+  }
+
   return showConfirmDialog({
     title,
     message,

@@ -23,8 +23,14 @@ export function updateDiscordUIFromState() {
   const isEnabled = String(settings.discord_enabled) === '1';
 
   if (enabledToggle) enabledToggle.checked = isEnabled;
-  if (urlInput) urlInput.value = settings.discord_webhook_url || '';
   if (authorInput) authorInput.value = settings.discord_author_name || '';
+
+  // N'écraser urlInput que s'il est vide ou masqué
+  if (urlInput) {
+    if (!urlInput.value || urlInput.value.startsWith('••••')) {
+      urlInput.value = settings.discord_webhook_url || '';
+    }
+  }
 
   if (evtCreated) evtCreated.checked = settings.discord_notify_created !== '0';
   if (evtCompleted) evtCompleted.checked = settings.discord_notify_completed !== '0';
@@ -32,7 +38,8 @@ export function updateDiscordUIFromState() {
   if (evtFolder) evtFolder.checked = settings.discord_notify_folder !== '0';
 
   if (badge) {
-    if (isEnabled && settings.discord_webhook_url) {
+    const hasConfiguredUrl = Boolean(settings.discord_webhook_url || settings.discord_webhook_configured);
+    if (isEnabled && hasConfiguredUrl) {
       badge.textContent = 'Actif (Connecté)';
       badge.className = 'sync-badge shared';
     } else {
@@ -44,6 +51,7 @@ export function updateDiscordUIFromState() {
 
 export function initDiscordUI() {
   const enabledToggle = document.getElementById('discord-enabled-toggle');
+  const urlInput = document.getElementById('discord-webhook-url');
   const badge = document.getElementById('discord-status-badge');
   const testBtn = document.getElementById('discord-test-btn');
   const saveBtn = document.getElementById('discord-save-btn');
@@ -61,47 +69,82 @@ export function initDiscordUI() {
     });
   }
 
+  // Détection intelligente à la saisie de l'URL
+  if (urlInput) {
+    urlInput.addEventListener('input', () => {
+      let val = urlInput.value.trim();
+      // Si l'utilisateur colle un webhook Discord valide, cocher automatiquement l'activation
+      if (val && !val.startsWith('••••') && (val.includes('discord.com/api/webhooks') || val.includes('discordapp.com/api/webhooks'))) {
+        if (enabledToggle && !enabledToggle.checked) {
+          enabledToggle.checked = true;
+          if (badge) {
+            badge.textContent = 'Prêt à activer';
+            badge.className = 'sync-badge shared';
+          }
+        }
+      }
+    });
+  }
+
   // Tester le webhook
   if (testBtn) {
     testBtn.onclick = async () => {
-      const urlInput = document.getElementById('discord-webhook-url');
       const authorInput = document.getElementById('discord-author-name');
-      const webhookUrl = (urlInput?.value || '').trim();
+      let webhookUrl = (urlInput?.value || '').trim().replace(/^["']|["']$/g, '');
       const authorName = (authorInput?.value || '').trim() || 'Équipe';
 
-      if (!webhookUrl) {
+      const isConfiguredInDb = Boolean(state.settings?.discord_webhook_configured || state.settings?.discord_webhook_url);
+      const isMasked = webhookUrl.startsWith('••••');
+
+      if (!webhookUrl && !isConfiguredInDb) {
         showFeedback('Veuillez renseigner une URL de Webhook Discord.', 'error');
         return;
       }
 
-      if (webhookUrl.startsWith('••••')) {
-        showFeedback('Veuillez saisir l\'URL complète du Webhook pour effectuer le test.', 'error');
-        return;
+      // Normalisation automatique si l'utilisateur a omis https://
+      if (webhookUrl.startsWith('discord.com/') || webhookUrl.startsWith('discordapp.com/')) {
+        webhookUrl = 'https://' + webhookUrl;
+        if (urlInput) urlInput.value = webhookUrl;
       }
 
-      if (!webhookUrl.startsWith('https://discord.com/api/webhooks/') && 
-          !webhookUrl.startsWith('https://discordapp.com/api/webhooks/')) {
-        showFeedback('L\'URL doit commencer par https://discord.com/api/webhooks/...', 'error');
-        return;
+      if (!isMasked && webhookUrl) {
+        if (!webhookUrl.includes('/api/webhooks/')) {
+          showFeedback('L\'URL doit être un webhook Discord valide (ex : https://discord.com/api/webhooks/ID/TOKEN).', 'error');
+          return;
+        }
       }
 
       const origText = testBtn.innerHTML;
       testBtn.disabled = true;
-      testBtn.innerHTML = 'Envoi en cours...';
+      testBtn.innerHTML = `
+        <span class="spinner-small" style="display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px;"></span>
+        Envoi en cours...
+      `;
 
       try {
-        const res = await api('/api/discord/test', 'POST', {
-          webhook_url: webhookUrl,
+        const payload = {
+          webhook_url: isMasked ? '' : webhookUrl,
+          use_saved: isMasked || !webhookUrl,
           author_name: authorName
-        });
+        };
+
+        const res = await api('/api/discord/test', 'POST', payload);
 
         if (res && res.success) {
           showFeedback('✅ Message test envoyé avec succès sur votre salon Discord !', 'success');
+          // Cocher automatiquement l'activation si elle ne l'était pas
+          if (enabledToggle && !enabledToggle.checked) {
+            enabledToggle.checked = true;
+            if (badge) {
+              badge.textContent = 'Prêt à activer';
+              badge.className = 'sync-badge shared';
+            }
+          }
         } else {
           showFeedback(`❌ Échec de l'envoi : ${res?.message || 'Erreur réseau ou URL invalide'}`, 'error');
         }
       } catch (err) {
-        showFeedback(`❌ Erreur technique : ${err.message}`, 'error');
+        showFeedback(`❌ Erreur technique : ${err.message || err}`, 'error');
       } finally {
         testBtn.disabled = false;
         testBtn.innerHTML = origText;
@@ -112,19 +155,28 @@ export function initDiscordUI() {
   // Enregistrer la configuration
   if (saveBtn) {
     saveBtn.onclick = async () => {
-      const enabledToggle = document.getElementById('discord-enabled-toggle');
-      const urlInput = document.getElementById('discord-webhook-url');
       const authorInput = document.getElementById('discord-author-name');
-
       const evtCreated = document.getElementById('discord-evt-created');
       const evtCompleted = document.getElementById('discord-evt-completed');
       const evtDeleted = document.getElementById('discord-evt-deleted');
       const evtFolder = document.getElementById('discord-evt-folder');
 
-      const rawWebhookUrl = (urlInput?.value || '').trim();
+      let rawWebhookUrl = (urlInput?.value || '').trim().replace(/^["']|["']$/g, '');
+      if (rawWebhookUrl.startsWith('discord.com/') || rawWebhookUrl.startsWith('discordapp.com/')) {
+        rawWebhookUrl = 'https://' + rawWebhookUrl;
+        if (urlInput) urlInput.value = rawWebhookUrl;
+      }
+
+      const isMasked = rawWebhookUrl.startsWith('••••');
+      const hasUrl = Boolean(rawWebhookUrl) || Boolean(state.settings?.discord_webhook_configured);
+
+      // Si une URL est renseignée mais que la case n'est pas cochée, on active par défaut
+      const isEnabled = enabledToggle ? (enabledToggle.checked || (hasUrl && rawWebhookUrl.length > 10)) : true;
+      if (enabledToggle) enabledToggle.checked = isEnabled;
+
       const payload = {
-        discord_enabled: enabledToggle?.checked ? '1' : '0',
-        discord_author_name: (authorInput?.value || '').trim(),
+        discord_enabled: isEnabled ? '1' : '0',
+        discord_author_name: (authorInput?.value || '').trim() || 'Équipe',
         discord_notify_created: evtCreated?.checked ? '1' : '0',
         discord_notify_completed: evtCompleted?.checked ? '1' : '0',
         discord_notify_deleted: evtDeleted?.checked ? '1' : '0',
@@ -132,7 +184,7 @@ export function initDiscordUI() {
       };
 
       // Si l'utilisateur n'a pas ré-écrit l'URL masquée, ne pas écraser le secret côté serveur
-      if (!rawWebhookUrl.startsWith('••••')) {
+      if (!isMasked && rawWebhookUrl) {
         payload.discord_webhook_url = rawWebhookUrl;
       }
 
@@ -141,7 +193,11 @@ export function initDiscordUI() {
         state.settings = { ...(state.settings || {}), ...res };
         updateDiscordUIFromState();
         showFeedback('💾 Configuration Discord enregistrée avec succès !', 'success');
-        showNotificationDialog('Intégration Discord', 'Vos réglages Discord ont été enregistrés avec succès. Les membres de votre groupe de projet recevront les notifications sur votre salon Discord.');
+        showNotificationDialog({
+          title: "Intégration Discord",
+          message: "Vos réglages Discord ont été enregistrés avec succès. Les membres de votre groupe de projet recevront les notifications sur votre salon Discord.",
+          icon: "check"
+        });
       } else {
         showFeedback('❌ Erreur lors de l\'enregistrement des réglages.', 'error');
       }
@@ -153,11 +209,5 @@ export function initDiscordUI() {
     feedback.textContent = msg;
     feedback.className = `discord-feedback ${type}`;
     feedback.classList.remove('hidden');
-    setTimeout(() => {
-      feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
   }
-
-  // Initialiser les valeurs actuelles
-  updateDiscordUIFromState();
 }

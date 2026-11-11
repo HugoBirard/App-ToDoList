@@ -6,6 +6,7 @@ Exécute les requêtes de manière asynchrone pour ne jamais bloquer l'interface
 
 import json
 import logging
+import ssl
 import threading
 import urllib.error
 import urllib.parse
@@ -22,12 +23,23 @@ DISCORD_RED = 0xEF4444
 DISCORD_PURPLE = 0x8B5CF6
 
 
+def clean_webhook_url(url: str) -> str:
+    """Nettoie et normalise une URL de webhook Discord."""
+    if not url or not isinstance(url, str):
+        return ""
+    u = url.strip().strip("'\"").strip()
+    if not u.startswith("https://") and not u.startswith("http://"):
+        if u.startswith("discord.com") or u.startswith("discordapp.com") or u.startswith("canary.discord.com") or u.startswith("ptb.discord.com"):
+            u = "https://" + u
+    return u
+
+
 def is_valid_discord_webhook(url: str) -> bool:
     """Vérifie que l'URL est une URL de Webhook Discord valide et sécurisée (anti-SSRF)."""
-    if not url or not isinstance(url, str):
+    clean_url = clean_webhook_url(url)
+    if not clean_url:
         return False
-    url = url.strip()
-    parsed = urllib.parse.urlparse(url)
+    parsed = urllib.parse.urlparse(clean_url)
     if parsed.scheme != "https":
         return False
     hostname = (parsed.hostname or "").lower()
@@ -45,15 +57,16 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
     Envoie une charge utile JSON vers un webhook Discord.
     Si async_mode est True, l'envoi s'exécute dans un thread détaché.
     """
-    if not is_valid_discord_webhook(webhook_url):
-        return False, "URL de webhook Discord non valide."
+    clean_url = clean_webhook_url(webhook_url)
+    if not is_valid_discord_webhook(clean_url):
+        return False, "URL de webhook Discord non valide (ex: https://discord.com/api/webhooks/...)."
 
     data_bytes = json.dumps(payload).encode("utf-8")
 
     def _do_send():
         try:
             req = urllib.request.Request(
-                webhook_url.strip(),
+                clean_url,
                 data=data_bytes,
                 headers={
                     "Content-Type": "application/json",
@@ -61,7 +74,13 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
                 },
                 method="POST"
             )
-            with urllib.request.urlopen(req, timeout=8) as resp:
+            ssl_ctx = ssl.create_default_context()
+            try:
+                import certifi
+                ssl_ctx.load_verify_locations(cafile=certifi.where())
+            except Exception:
+                pass
+            with urllib.request.urlopen(req, timeout=10, context=ssl_ctx) as resp:
                 status = resp.status
                 return status in (200, 204), f"Succès ({status})"
         except urllib.error.HTTPError as e:
@@ -69,9 +88,20 @@ def send_discord_payload(webhook_url: str, payload: dict, async_mode: bool = Tru
                 err_body = e.read().decode("utf-8")
             except Exception:
                 err_body = str(e)
+            logger.warning("Erreur HTTP Discord %d: %s", e.code, err_body)
+            if e.code == 404:
+                return False, "Erreur 404 : Ce webhook n'existe pas ou a été supprimé sur votre serveur Discord."
+            elif e.code == 401:
+                return False, "Erreur 401 : Le jeton de ce webhook Discord est invalide."
+            elif e.code == 429:
+                return False, "Erreur 429 : Trop de requêtes envoyées (Rate Limit). Veuillez réessayer dans un instant."
             return False, f"Erreur HTTP Discord {e.code} : {err_body}"
+        except urllib.error.URLError as e:
+            logger.warning("Erreur réseau Discord: %s", e)
+            return False, f"Impossible de joindre Discord : vérifiez votre connexion internet ({e.reason})"
         except Exception as e:
-            return False, f"Erreur réseau Discord : {str(e)}"
+            logger.warning("Erreur inattendue Discord: %s", e)
+            return False, f"Erreur technique : {str(e)}"
 
     if async_mode:
         t = threading.Thread(target=_do_send, daemon=True)

@@ -453,6 +453,15 @@ class TodoService:
         conn.close()
         return self.get_all_data()["settings"]
 
+    def get_raw_setting(self, key):
+        """Récupère la valeur brute non masquée d'un paramètre sensible en base."""
+        conn = self._conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM settings WHERE key = ?", (str(key),))
+        row = cursor.fetchone()
+        conn.close()
+        return row["value"] if row else ""
+
     # --- Synchronisation & Multi-PC ---
 
     def get_active_db_path(self):

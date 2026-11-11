@@ -334,7 +334,21 @@ class TodoRequestHandler(SimpleHTTPRequestHandler):
             # POST /api/discord/test
             if path == "/api/discord/test":
                 webhook_url = (payload.get("webhook_url") or "").strip()
-                author_name = (payload.get("author_name") or "Utilisateur ToDoList").strip()
+                # Si l'URL envoyée est vide ou masquée, utiliser l'URL stockée en base
+                if not webhook_url or webhook_url.startswith("••••") or payload.get("use_saved"):
+                    webhook_url = self.service.get_raw_setting("discord_webhook_url") or ""
+
+                if not webhook_url:
+                    self.send_json({
+                        "success": False,
+                        "message": "Aucune URL de webhook configurée. Veuillez saisir l'URL de votre salon Discord."
+                    }, status=400)
+                    return
+
+                author_name = (payload.get("author_name") or "").strip()
+                if not author_name:
+                    author_name = self.service.get_raw_setting("discord_author_name") or "Utilisateur ToDoList"
+
                 ok, msg = send_test_message(webhook_url, author_name=author_name)
                 self.send_json({"success": ok, "message": msg}, status=200 if ok else 400)
                 return

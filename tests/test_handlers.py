@@ -209,6 +209,44 @@ class HandlersTestCase(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertTrue(res_post.get("success"))
 
+    def test_discord_test_endpoint(self):
+        from unittest.mock import patch
+
+        # 1. Sans URL et sans rien en base -> 400
+        status, res = self._request("POST", "/api/discord/test", {"webhook_url": ""})
+        self.assertEqual(status, 400)
+        self.assertFalse(res.get("success"))
+
+        # 2. URL non-discord invalide -> 400
+        status, res = self._request("POST", "/api/discord/test", {"webhook_url": "https://evil.com/webhook"})
+        self.assertEqual(status, 400)
+        self.assertFalse(res.get("success"))
+
+        # 3. Test avec URL valide mockée
+        valid_webhook = "https://discord.com/api/webhooks/1234567890/tokenABC"
+        with patch("backend.handlers.send_test_message") as mock_send:
+            mock_send.return_value = (True, "Message envoyé")
+            status, res = self._request("POST", "/api/discord/test", {
+                "webhook_url": valid_webhook,
+                "author_name": "Hugo"
+            })
+            self.assertEqual(status, 200)
+            self.assertTrue(res.get("success"))
+
+        # 4. Test avec webhook sauvegardé en base quand la requête envoie '••••'
+        status, _ = self._request("PUT", "/api/settings", {"discord_webhook_url": valid_webhook})
+        self.assertEqual(status, 200)
+
+        with patch("backend.handlers.send_test_message") as mock_send:
+            mock_send.return_value = (True, "Message envoyé")
+            status, res = self._request("POST", "/api/discord/test", {
+                "webhook_url": "••••ABC",
+                "use_saved": True
+            })
+            self.assertEqual(status, 200)
+            self.assertTrue(res.get("success"))
+            mock_send.assert_called_with(valid_webhook, author_name="Utilisateur ToDoList")
+
 
 if __name__ == "__main__":
     unittest.main()
